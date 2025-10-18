@@ -1,7 +1,7 @@
 name: Weekly Gist
 on:
   schedule:
-    - cron: "0 0 * * 6" # every Saturday 08:00 SGT (00:00 UTC)
+    - cron: "0 1 * * 0" # every Sunday 09:00 SGT (01:00 UTC)
   workflow_dispatch:
 
 permissions:
