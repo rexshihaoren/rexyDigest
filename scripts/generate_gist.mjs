@@ -4,7 +4,7 @@ import dayjs from "dayjs";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
 const prompt = fs.readFileSync("prompt_weekly_gist.md", "utf8");
 const date = dayjs();
