@@ -1,0 +1,22 @@
+# Node and build artifacts
+node_modules/
+dist/
+build/
+.tmp/
+.temp/
+.cache/
+
+# Logs
+npm-debug.log*
+yarn-error.log*
+*.log
+
+# Env files
+.env
+.env.*
+
+# OS files
+.DS_Store
+
+# Coverage
+coverage/
