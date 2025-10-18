@@ -1,0 +1,9 @@
+{
+  "name": "rexy_digest",
+  "type": "module",
+  "private": true,
+  "dependencies": {
+    "@google/generative-ai": "^0.21.0",
+    "dayjs": "^1.11.13"
+  }
+}
