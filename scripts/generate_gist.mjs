@@ -20,7 +20,7 @@ const augmentedPrompt = `${prompt}\n\nEXECUTION CONTEXT\n- Coverage window: ${st
   fs.mkdirSync(folder, { recursive: true });
   fs.writeFileSync(
     path.join(folder, file),
-    `# Weekly Gist – ${date.format("YYYY-MM-DD")}\n\n${md}\n\n---\n## 🧠 Reflections\n- `
+    `# Weekly Gist – ${date.format("YYYY-MM-DD")}\n\n${md}\n`
   );
   console.log("✅ Created:", file);
 })();
