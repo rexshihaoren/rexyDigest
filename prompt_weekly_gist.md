@@ -1,60 +1,180 @@
+GOAL
+Find the highest-value new items on agentic AI and the simulation hypothesis. Score, rank, and summarize for Rex Ren.
+
 CONFIG
-TIME_WINDOW_PRIMARY = "last 7 days"
-TIME_WINDOW_FALLBACK1 = "last 30 days"
-TIME_WINDOW_FALLBACK2 = "last 90 days"
-AGENT_KOLS = ["Andrej Karpathy (YouTube, blog)", "Yannic Kilcher (YouTube)", "Shane Legg (talks/interviews)", "Mixture of Experts (podcast)", "Luis Serrano (YouTube)", "Latent Space (YouTube/Podcast)"]
-SIM_KOLS = ["Closer To Truth (YouTube)", "Rizwan Virk (interviews/podcast)", "David Chalmers (lectures/interviews)", "Latent Space (simulation episodes if any)"]
-PAPER_SOURCES = ["arXiv", "NeurIPS", "ICLR", "ICML", "AAAI", "Science", "Nature", "Semantic Scholar", "Google Scholar"]
+TIME_WINDOWS = ["last 7 days","last 30 days","last 90 days"]
+AGENT_KOLS = [
+  "Andrej Karpathy (YouTube, blog)","Yannic Kilcher (YouTube)","Shane Legg (talks/interviews)",
+  "Mixture of Experts (podcast)","Luis Serrano (YouTube)","Latent Space (YouTube/Podcast)",
+  "Lilian Weng (blog)","Harrison Chase (LangChain/LangGraph)","Jerry Liu (LlamaIndex)",
+  "Simon Willison (blog)","Jim Fan (NVIDIA)","Pieter Abbeel (Berkeley/robotics)",
+  "Hamel Husain (blog)","Oriol Vinyals (DeepMind)"
+]
+SIM_KOLS = [
+  "Closer To Truth (YouTube)","Rizwan Virk (interviews/podcast)","David Chalmers (lectures/interviews)",
+  "Latent Space (simulation episodes if any)","Nick Bostrom (Oxford/Simulation Argument)","Scott Aaronson (blog)",
+  "Max Tegmark (MIT)","Sean Carroll (podcast/blog)","Sabine Hossenfelder (YouTube)",
+  "Stephen Wolfram (Wolfram/Blog)","Anil Seth (neuroscience)"
+]
+PAPER_SOURCES = ["arXiv","NeurIPS","ICLR","ICML","AAAI","Science","Nature","Semantic Scholar","Google Scholar"]
 KEYWORDS_AGENT = ["agent","agentic","autonomous agent","LLM agent","toolformer","RAG","chain-of-thought","prompt engineering","multi-agent","agentic AI"]
 KEYWORDS_SIM = ["simulation hypothesis","simulation argument","ancestor simulation","are we living in a simulation","simulation evidence","reality+","simulation theory"]
+KEYWORDS_ALL = KEYWORDS_AGENT + KEYWORDS_SIM
 MAX_PAPERS = 5
 MAX_ITEMS = 20
 
-TASK (explicit steps)
-1. Search each AGENT_KOLS and SIM_KOLS for new public items (video, podcast episode, blog, talk, preprint) within TIME_WINDOW_PRIMARY. If none found, expand to FALLBACK1, then FALLBACK2.
-2. For each candidate, require at least one matching keyword in title/description/transcript OR explicit focus on agentic systems or simulation hypothesis. Discard otherwise.
-3. For papers: search PAPER_SOURCES with KEYWORDS_AGENT ∪ KEYWORDS_SIM. Select up to MAX_PAPERS prioritized by: (a) recency ≤12 months & relevance, (b) citations/attention, (c) direct applicability to agent design or simulation theory. Include one classic paper if highly relevant.(d) author's credibility
-4. For each retained item compute:
-   - Relevance (0–10): topical closeness to agentic-AI or simulation.
-   - Novelty (0–10): new insights or methods.
-   - Actionability (0–10): direct implication for agentic AI or simulation experiments.
-   - CompositeScore = 0.4*Relevance + 0.3*Novelty + 0.3*Actionability.
-5. Sort items by CompositeScore desc, limit to MAX_ITEMS.
+TASKS
+1) Windowed search: iterate TIME_WINDOWS; for each window, query all AGENT_KOLS and SIM_KOLS for public items (video, podcast, blog, talk, preprint) published in-window. Stop at the first window with ≥1 hit; set COVERAGE_WINDOW.
+2) Filter: keep a candidate only if title/description/transcript matches ≥1 term in KEYWORDS_ALL OR it explicitly focuses on agentic systems or the simulation hypothesis.
+3) Papers: query PAPER_SOURCES with KEYWORDS_ALL. Select up to MAX_PAPERS prioritized by: (a) recency ≤12 months + relevance, (b) citations/attention, (c) direct applicability, (d) author credibility. Optionally include one classic if highly relevant.
+4) Score each item:
+   - Relevance (0–10): closeness to agentic AI or simulation under this lens:
+     "Reality = computable simulation; AI+markets = reality-code manipulators."
+     Prefer: digital physics; predictive AI & attention as capital; market feedback loops; neurophysics/consciousness; techno-time/control.
+   - Novelty (0–10) • Actionability (0–10)
+   - CompositeScore = 0.4*Relevance + 0.3*Novelty + 0.3*Actionability (1 decimal)
+5) Rank by CompositeScore desc, then date desc. Deduplicate cross-posts. Limit to MAX_ITEMS.
 
 FILTER RULES
-- Exclude pieces only talks about AI safety.
-- Prefer items with transcripts/slides; include transcript link if available.
-- For simulation KOLs only include channels/podcasts where ≥10% historical content discusses simulation; otherwise exclude.
+- Exclude AI-safety-only pieces.
+- Prefer items with transcripts/slides; include links when available.
+- Simulation KOLs: include only channels/podcasts where ≥10% historical content covers simulation.
+- Never invent links or dates. If uncertain, mark VERIFY_NEEDED and include the exact query used.
 
-OUTPUT (produce all three sections in one response)
+OUTPUT
+A) WEEKLY BRIEF (≤900 words)
+   Header: COVERAGE_WINDOW | Items found N | Papers M
+   For each item (up to MAX_ITEMS):
+   • Source/KOL — Title (Type) — Date — Link
+   • TL;DR ≤20 words
+   • 3 takeaways, each ≤12 words
+   • Implication for Rex Ren (Agent infra / Simulation research) ≤20 words
+   • CompositeScore (X.X) and Topics: Agent/Simulation
 
-A) WEEKLY BRIEF (compact)
-- Header: Coverage window, Items found, Papers included.
-- For each item (top MAX_ITEMS):
-  - Source / KOL — Title (Type) — Date — Link
-  - TL;DR (≤20 words)
-  - 3 key takeaways (each ≤12 words)
-  - Implication for Rex Ren (Agent infra / Simulation research) — 1 line ≤20 words
-  - CompositeScore (X.X) and Tags: Agent/Simulation/Paper/Podcast
+B) TABLE (Markdown)
+   Columns (order exact):
+   KOL | Title | Date | Topics | Type | Link | ReadPriority | ShortSummary (30–50 words) | CompositeScore | Relevance | Novelty | Actionability
+   Rules:
+   - Topics only ∈ {Agent, Simulation} (can be both).
+   - ReadPriority:
+     • CompositeScore ≥ 8.0 → Must-Read
+     • 6.0–7.9 → Worth Skimming
+     • <6.0 → Archive unless classic
 
-B)
-Produce a markdown table with columns:
-KOL | Title | Date | Type | Link | ShortSummary(30–50 words) | Relevance | Novelty | Actionability | CompositeScore | Tags | SuggestedAction | TranscriptOrPaperLink
+C) PER-ITEM BLOG NOTES (PE-style; Must-Read or Worth Skimming)
+   Purpose: For each eligible item, output one compact bilingual note (CN/EN) using format X. Raw material for later conversion. Length per item: 600–1200 words across CN+EN.
 
-RANKING GUIDELINES
-- CompositeScore ≥ 8 → Must-Read
-- 6–7 → Worth Watching/Skimming
-- <6 → Archive unless classic paper
+   Selection: all eligible items, ordered by CompositeScore desc then date; cap at min(MAX_ITEMS, 10).
+
+   FORMAT X (apply to EACH item)
+   ROLE
+   Produce one compact bilingual (CN/EN) Markdown note. Output only the doc.
+
+   INPUTS
+   - TOPIC: <Source/KOL — Title>                 # no type/date here
+   - URLS: [<primary link>, <secondary link?>]
+   - SECTIONS: 3–8 (default 5; pick using Guardrails)
+   - SUBTITLES_CN / SUBTITLES_EN: [auto-generate if missing]
+   - EMOJIS: [optional]
+
+   STYLE
+   - H1: “<TOPIC> 极简笔记”
+   - Blockquote (2 lines): brief CN context; “整理者：Rex Ren”
+   - Thin rule: long box-drawing line
+   - “资源 / Resources”: raw URLs only, followed by:
+       Type: <Paper|Podcast|Video|Blog|Talk>  
+       Date: <YYYY-MM-DD>
+   - “核心内容”: 3–4 bullets using Unicode `•`
+   - For each section i=1..SECTIONS:
+     - H2: `## <emoji?> Section i｜<CN subtitle i> / <EN subtitle i>`
+     - **中文** then 3–4 `-` bullets, one line each  
+       • If a bullet has concrete examples in the source, add a nested “例:” list (1–3 items). Translate if needed.  
+         `  - 例: <示例1>`  
+         `  - 例: <示例2>`  
+     - **English** then 3–4 mirrored bullets  
+       • If the CN bullet had examples, add a nested “Examples:” list (1–3 items) under the matching EN bullet.  
+         `  - Examples: <example 1>`  
+         `  - <example 2>`  
+     - Visuals (when available): insert 1–2 relevant charts/tables/photos from the source in the most relevant section(s).  
+       • Embed via Markdown `![alt ≤12 chars](<direct_image_url>)` then a caption ≤15 words.  
+       • For source tables, reproduce a small Markdown table (≤8 rows).  
+       • Only use visuals clearly from the source; if none, skip.
+     - Separate sections with `---`
+   - Symbols: use full-width `｜`; allow `→` for flows
+   - Emphasis: only **中文**/**English** labels
+   - Code fences: only if helpful; CN then EN versions; each ≤3 lines
+   - Layout: two trailing spaces for hard wraps; single-line bullets
+   - No emojis inside bullets
+
+   OUTPUT TEMPLATE
+   # <TOPIC> 极简笔记  
+   > <一句话中文背景>  
+   > 整理者：Rex Ren  
+
+   ──────────────────────────────
+
+   📍 资源 / Resources  
+   <URL_1>  
+   <URL_2?>  
+   Type: <type>  
+   Date: <YYYY-MM-DD>  
+
+   📚 核心内容  
+   • <CN 模块1>  
+   • <CN 模块2>  
+   • <CN 模块3>  
+
+   ## <EMOJI_1?> Section 1｜<CN 小标题1> / <EN Subtitle 1>
+   **中文**  
+   - <要点1>  
+     - 例: <示例1>  
+     - 例: <示例2>  
+   - <要点2>  
+   - <要点3>  
+
+   **English**  
+   - <Point 1>  
+     - Examples: <example 1>  
+     - <example 2>  
+   - <Point 2>  
+   - <Point 3>  
+
+   ![<alt>](<direct_image_url_if_any>)  
+   <short caption if visual included>  
+
+   ---
+   ## <EMOJI_2?> Section 2｜<CN 小标题2> / <EN Subtitle 2>
+   **中文**  
+   - <…>  
+     - 例: <…>  
+   **English**  
+   - <…>  
+     - Examples: <…>  
+
+   <!-- Add Sections 3–8 similarly; include at most 2 visuals total -->
+
+TOKEN GUARDRAILS
+- If eligible items ≥ 7 → SECTIONS = 3–4 (use 3 if many)
+- If eligible items 3–6 → SECTIONS = 5
+- If eligible items ≤ 2 and source depth is high → SECTIONS = 6–8
+- Limit bullets per language to 3 when SECTIONS > 5
+- Omit EMOJIS to reduce tokens if needed.
+- Avoid code fences unless essential.
+- Examples: max 1–3 per bullet; concise; only from the source.
+- For visuals, prefer small assets; avoid multi-MB images.
 
 FAILURE MODE
-- If ZERO items found within TIME_WINDOW_FALLBACK2, return:
-  - "NO_NEW_CONTENT" and a list of the last 3 relevant items (title+link+date) from the past 365 days for each KOL.
+If no items across TIME_WINDOWS:
+- Return "NO_NEW_CONTENT".
+- For each KOL, list last 3 relevant items from past 365 days (Title | Link | Date).
 
-FORMAT & LANGUAGE
-- Reply primarily in English.
-- Keep the WEEKLY BRIEF section concise (aim ≤900 words).
+FORMAT
+- English for sections A/B; Section C bilingual per item.
+- ISO dates. Topics = Agent and/or Simulation only.
 
-EXECUTION NOTES
-- Include direct links to videos/podcast episodes/papers.
-- Prioritize sources that have public URLs.
-- Do not invent links or dates. If unsure, mark item as “VERIFY_NEEDED” and include the search query used.
+EXECUTION NOTES (token-thrifty)
+- Stop at first window with hits; skip later windows.
+- Cache and reuse channel/feed URLs.
+- Fetch metadata first; avoid full transcripts unless needed for KEYWORDS_ALL.
+- Enforce word caps; reuse summaries for cross-posts.
+- Avoid downloading PDFs when abstract suffices.
