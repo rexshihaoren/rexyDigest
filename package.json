@@ -2,8 +2,14 @@
   "name": "rexy_digest",
   "type": "module",
   "private": true,
+  "scripts": {
+    "publize-local": "node scripts/publize_brief.mjs",
+    "publize-local:18": "DIGEST_FILE=Weekly_Gist/Weekly_Gist_2025-10-18.md PUBLIC_DIR=Weekly_Gist/Public node scripts/publize_brief.mjs",
+    "publize-verify:18": "head -n 30 Weekly_Gist/Public/Weekly_Brief_Public_2025-10-18.md"
+  },
   "dependencies": {
     "@google/generative-ai": "^0.21.0",
-    "dayjs": "^1.11.13"
+    "dayjs": "^1.11.13",
+    "dotenv": "^17.2.3"
   }
 }

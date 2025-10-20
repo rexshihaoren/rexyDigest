@@ -1,0 +1,60 @@
+name: Publize Weekly Brief
+
+on:
+  workflow_run:
+    workflows:
+      - Weekly Gist
+    types:
+      - completed
+
+permissions:
+  contents: write
+
+concurrency:
+  group: publize-weekly-brief-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  publize:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    env:
+      DIGEST_DIR: Weekly_Gist
+      PUBLIC_DIR: Weekly_Gist/Public
+
+    steps:
+      - name: Checkout repository at triggering ref
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.event.workflow_run.head_repository.full_name }}
+          ref: ${{ github.event.workflow_run.head_branch }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate public brief (Generic Transform)
+        id: translate
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          TRANSFORM_MODE: prompt
+          PROMPT_FILE: prompts/generic_transform.md
+        run: node scripts/publize_brief.mjs
+
+      - name: Commit and push public brief
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "${{ steps.translate.outputs.public_file }}"
+          git commit -m "chore: publize Weekly Brief (Generic Transform) for ${{ steps.translate.outputs.digest_date }}"
+          git push
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Weekly_Brief_Public_${{ steps.translate.outputs.digest_date }}
+          path: ${{ steps.translate.outputs.public_file }}
