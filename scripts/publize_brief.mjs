@@ -587,7 +587,7 @@ function parseItemsFromBrief(lines) {
   let current = null;
   const takeawaysHeaderRe = /^\s*\*\s*(?:\*{1,2}\s*)?Takeaways(?:\s*\*{1,2})?:\s*$/i;
   const tldrRe = /^\s*\*\s*(?:\*{1,2}\s*)?TL;DR(?:\s*\*{1,2})?:\s*(.*)$/i;
-  const ktRe = /^\s*\*\s*(?:\*{1,2}\s*)?(?:Key\s+Takeaways|Takeaways|Takeaway\s*\d+)(?:\s*\*{1,2})?:\s*(.*)$/i;
+  const ktRe = /^\s*\*\s*(?:\*{1,2}\s*)?(?:Key\s+Takeaways|Takeaways|Takeaway\s*\d+)(?:\s*\*{1,2})?:\s*(\S.*)$/i;
   const implRe = /^\s*\*\s*(?:\*{1,2}\s*)?Implication\s+for\s+Rex\s+Ren(?:\s*\([^)]*\))?(?:\s*\*{1,2})?:\s*(.*)$/i;
   const compRe = /^\s*\*\s*(?:\*{1,2}\s*)?CompositeScore(?:\s*[:(]\s*|\s+)(.*)$/i;
   let inTakeaways = false;
@@ -640,8 +640,8 @@ function parseItemsFromBrief(lines) {
     if (!current) continue;
     let m;
     if ((m = line.match(tldrRe))) { current.tldrText = (m[1] || "").trim(); current.hasTLDR = true; continue; }
-    if ((m = line.match(ktRe))) { current.takeawaysText = (m[1] || "").trim(); current.hasTakeaways = true; continue; }
     if (takeawaysHeaderRe.test(line)) { inTakeaways = true; current.hasTakeaways = true; continue; }
+    if ((m = line.match(ktRe))) { current.takeawaysText = (m[1] || "").trim(); current.hasTakeaways = true; continue; }
     if (inTakeaways && (implRe.test(line) || compRe.test(line) || ktRe.test(line))) finalizeTakeaways();
     if (inTakeaways) {
       const mb = line.match(/^\s*(?:\*|-)\s+(.+?)\s*$/);
