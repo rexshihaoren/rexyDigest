@@ -27,10 +27,6 @@ const MODEL_FALLBACKS = (MODEL_FALLBACKS_RAW !== undefined ? MODEL_FALLBACKS_RAW
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 const genAI = GEMINI_API_KEY ? new GoogleGenerativeAI(GEMINI_API_KEY) : null;
 
-// #region debug-point A:model-fallbacks
-(process.env.TRAE_DEBUG_SESSION && fetch(process.env.TRAE_DEBUG_SERVER_URL || "http://127.0.0.1:7777/event", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ sessionId: process.env.TRAE_DEBUG_SESSION, runId: process.env.TRAE_DEBUG_RUN || "pre-fix", hypothesisId: "A", location: "scripts/generate_gist.mjs", msg: "[DEBUG] computed MODEL_FALLBACKS", data: { raw: process.env.MODEL_FALLBACKS, computedCount: MODEL_FALLBACKS.length, computedPreview: MODEL_FALLBACKS.slice(0, 3), hasGeminiKey: Boolean(GEMINI_API_KEY) } }) }).catch(() => {}));
-// #endregion
-
 async function generateWithFallbacks(promptText) {
   if (!genAI) throw new ConfigurationError("GEMINI_API_KEY missing. Set it in .env/.env.local or export in shell.");
   for (const name of MODEL_FALLBACKS) {

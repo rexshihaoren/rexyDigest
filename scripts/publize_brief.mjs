@@ -31,10 +31,6 @@ const DEFAULT_MODEL_FALLBACKS = [
 const MODEL_FALLBACKS_RAW = process.env.MODEL_FALLBACKS;
 const MODEL_FALLBACKS = (MODEL_FALLBACKS_RAW !== undefined ? MODEL_FALLBACKS_RAW : DEFAULT_MODEL_FALLBACKS).split(",").map((s) => s.trim()).filter(Boolean);
 
-// #region debug-point A:model-fallbacks
-(process.env.TRAE_DEBUG_SESSION && fetch(process.env.TRAE_DEBUG_SERVER_URL || "http://127.0.0.1:7777/event", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ sessionId: process.env.TRAE_DEBUG_SESSION, runId: process.env.TRAE_DEBUG_RUN || "pre-fix", hypothesisId: "A", location: "scripts/publize_brief.mjs", msg: "[DEBUG] computed MODEL_FALLBACKS", data: { raw: process.env.MODEL_FALLBACKS, computedCount: MODEL_FALLBACKS.length, computedPreview: MODEL_FALLBACKS.slice(0, 3), hasGeminiKey: Boolean(GEMINI_API_KEY), transformMode: TRANSFORM_MODE } }) }).catch(() => {}));
-// #endregion
-
 async function getTextWithFallback(inputText, generationConfig) {
   if (!GEMINI_API_KEY) {
     if (STRICT_ENV) throw new ConfigurationError("GEMINI_API_KEY is missing. Set it or disable STRICT_ENV.");
@@ -431,15 +427,9 @@ async function main() {
     if (fs.existsSync(c) && c.endsWith(".md")) src = c;
   }
   if (!src) src = findLatest(DIGEST_DIR);
-  // #region debug-point B:source-selection
-  (process.env.TRAE_DEBUG_SESSION && fetch(process.env.TRAE_DEBUG_SERVER_URL || "http://127.0.0.1:7777/event", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ sessionId: process.env.TRAE_DEBUG_SESSION, runId: process.env.TRAE_DEBUG_RUN || "pre-fix", hypothesisId: "B", location: "scripts/publize_brief.mjs", msg: "[DEBUG] selected source digest", data: { digestDir: DIGEST_DIR, digestFileEnv: DIGEST_FILE, resolvedSrc: src } }) }).catch(() => {}));
-  // #endregion
   if (!src) { setOutputs({ public_file: "", digest_date: dayjs().format("YYYY-MM-DD") }); return; }
   const md = fs.readFileSync(src, "utf8");
   const brief = extractBrief(md);
-  // #region debug-point C:brief-parse
-  (process.env.TRAE_DEBUG_SESSION && fetch(process.env.TRAE_DEBUG_SERVER_URL || "http://127.0.0.1:7777/event", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ sessionId: process.env.TRAE_DEBUG_SESSION, runId: process.env.TRAE_DEBUG_RUN || "pre-fix", hypothesisId: "C", location: "scripts/publize_brief.mjs", msg: "[DEBUG] extracted Weekly Brief section", data: { hasBrief: Boolean(brief && brief.length), briefLineCount: Array.isArray(brief) ? brief.length : 0 } }) }).catch(() => {}));
-  // #endregion
   if (!brief || !brief.length) { setOutputs({ public_file: "", digest_date: dayjs().format("YYYY-MM-DD") }); return; }
 
   let markdown, date;
