@@ -5,7 +5,7 @@ import dayjs from "dayjs";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import dotenv from "dotenv";
 // Load local env files first if present
-dotenv.config({ path: path.resolve(process.cwd(), ".env.local"), override: true });
+dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 dotenv.config({ path: path.resolve(process.cwd(), ".env") });
 
 const DIGEST_DIR = process.env.DIGEST_DIR || "Weekly_Gist";
@@ -15,6 +15,51 @@ const GEMINI_API_KEY = process.env.GEMINI_API_KEY || "";
 const TRANSFORM_MODE = process.env.TRANSFORM_MODE || "structured";
 const PROMPT_PROFILE = process.env.PROMPT_PROFILE || "digest";
 const PROMPT_FILE = process.env.PROMPT_FILE || "";
+const STRICT_ENV = String(process.env.STRICT_ENV || "").toLowerCase() === "true" || process.env.STRICT_ENV === "1";
+
+class ConfigurationError extends Error {
+  constructor(message) { super(message); this.name = "ConfigurationError"; }
+}
+
+const DEFAULT_MODEL_FALLBACKS = [
+  "gemini-2.0-flash-lite",
+  "gemini-2.0-flash",
+  "gemini-1.5-flash",
+  "gemini-1.5-pro-002",
+  "gemini-2.5-flash"
+].join(",");
+const MODEL_FALLBACKS_RAW = process.env.MODEL_FALLBACKS;
+const MODEL_FALLBACKS = (MODEL_FALLBACKS_RAW !== undefined ? MODEL_FALLBACKS_RAW : DEFAULT_MODEL_FALLBACKS).split(",").map((s) => s.trim()).filter(Boolean);
+
+// #region debug-point A:model-fallbacks
+(process.env.TRAE_DEBUG_SESSION && fetch(process.env.TRAE_DEBUG_SERVER_URL || "http://127.0.0.1:7777/event", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ sessionId: process.env.TRAE_DEBUG_SESSION, runId: process.env.TRAE_DEBUG_RUN || "pre-fix", hypothesisId: "A", location: "scripts/publize_brief.mjs", msg: "[DEBUG] computed MODEL_FALLBACKS", data: { raw: process.env.MODEL_FALLBACKS, computedCount: MODEL_FALLBACKS.length, computedPreview: MODEL_FALLBACKS.slice(0, 3), hasGeminiKey: Boolean(GEMINI_API_KEY), transformMode: TRANSFORM_MODE } }) }).catch(() => {}));
+// #endregion
+
+async function getTextWithFallback(inputText, generationConfig) {
+  if (!GEMINI_API_KEY) {
+    if (STRICT_ENV) throw new ConfigurationError("GEMINI_API_KEY is missing. Set it or disable STRICT_ENV.");
+    return null;
+  }
+  let lastErr = null;
+  for (const m of MODEL_FALLBACKS) {
+    try {
+      const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
+      const model = genAI.getGenerativeModel({ model: m });
+      const res = await model.generateContent({
+        contents: [{ role: "user", parts: [{ text: inputText }] }],
+        generationConfig
+      });
+      const txt = res?.response?.text?.();
+      if (typeof txt === "string" && txt.length) return txt;
+    } catch (err) {
+      lastErr = err;
+      console.warn(`[publize] Model '${m}' failed:`, err?.message || err);
+      continue;
+    }
+  }
+  if (lastErr) console.warn("[publize] All model fallbacks failed:", lastErr?.message || lastErr);
+  return null;
+}
 
 function resolvePromptPath() {
   if (PROMPT_FILE) return path.resolve(PROMPT_FILE);
@@ -58,14 +103,81 @@ function findLatest(dir) {
   }
 }
 
+function extractComposite(s) {
+  if (!s) return "";
+  const m = s.match(/(\d+(?:\.\d+)?)/);
+  return m ? m[1] : s.trim();
+}
+
+function extractTopics(s) {
+  if (!s) return "";
+  const m = s.match(/Topics:\s*(.+)$/i);
+  return m ? m[1].trim() : "";
+}
+
+function parseMetaFromHeading(headingText) {
+  const s = headingText || "";
+  const dateMatch = s.match(/\b(\d{4}-\d{2}-\d{2})\b/);
+  const date = dateMatch ? dateMatch[1] : "";
+  let type = "";
+  if (dateMatch) {
+    const preDate = s.slice(0, dateMatch.index);
+    const tMatch = preDate.match(/\(([^()]+)\)\s*(?:—\s*)?$/);
+    type = tMatch ? tMatch[1] : "";
+  }
+  let url = "";
+  const mdLink = s.match(/\]\((https?:\/\/[^)]+)\)/);
+  if (mdLink) {
+    url = mdLink[1];
+  } else {
+    const backtick = s.match(/`(https?:\/\/[^`]+)`/);
+    if (backtick) {
+      url = backtick[1];
+    } else {
+      const plain = s.match(/\bhttps?:\/\/\S+/);
+      if (plain) url = plain[0];
+    }
+  }
+  url = url.replace(/[*`)\],.]+$/g, "");
+  return { type, date, url };
+}
+
+function mapTypeToEmoji(type) {
+  const t = (type || "").toLowerCase();
+  if (t.includes("podcast")) return "🎧";
+  if (t.includes("blog")) return "📝";
+  if (t.includes("paper") || t.includes("arxiv")) return "📄";
+  if (t.includes("talk") || t.includes("lecture")) return "🎤";
+  if (t.includes("youtube") || t.includes("video")) return "📹";
+  return "⭐️";
+}
+
+function translateTypeCn(type) {
+  const t = (type || "").toLowerCase();
+  if (t.includes("podcast")) return "播客集";
+  if (t.includes("blog")) return "博客";
+  if (t.includes("paper") || t.includes("arxiv")) return "论文";
+  if (t.includes("talk") || t.includes("lecture")) return "演讲";
+  if (t.includes("youtube") || t.includes("video")) return "视频";
+  return type || "未知类型";
+}
+
 function extractBrief(md) {
-  const start = md.match(/^\s*##\s+.*weekly\s+brief.*$/mi);
-  if (!start) return null;
-  const i = start.index;
-  const rest = md.slice(i + start[0].length);
-  const next = rest.match(/^\s*##\s+\S+.*$/m);
-  const end = next ? i + start[0].length + next.index : md.length;
-  return md.slice(i, end).split(/\r?\n/);
+  const lines = md.split(/\r?\n/);
+  // Find start: H2 weekly brief header OR any line containing 'weekly brief' (bold or plain)
+  let startIdx = lines.findIndex((l) => /^\s*##\s+.*weekly\s+brief.*$/i.test(l.trim()));
+  if (startIdx < 0) {
+    startIdx = lines.findIndex((l) => /\bweekly\s+brief\b/i.test(l));
+  }
+  if (startIdx < 0) return null;
+  // Find end: next major section header (bold A/B/C) or next H2 that is not weekly brief
+  let endIdx = lines.length;
+  for (let i = startIdx + 1; i < lines.length; i++) {
+    const t = lines[i].trim();
+    if (/^\s*##\s+/.test(t) && !/weekly\s+brief/i.test(t)) { endIdx = i; break; }
+    if (/^\s*\*\*[A-Z]\)\s+/.test(t)) { endIdx = i; break; }
+  }
+  return lines.slice(startIdx, endIdx);
 }
 
 function removeWeeklyBriefHeader(lines) {
@@ -104,21 +216,16 @@ function filterImplication(lines) {
 }
 
 async function translate(english) {
-  if (!GEMINI_API_KEY) return null;
   try {
-    const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({
-      model: "gemini-2.5-flash",
+    const payload = JSON.stringify({ input_lines: english });
+    const raw = await getTextWithFallback(payload, {
+      responseMimeType: "application/json",
+      temperature: 0.2,
       systemInstruction:
         "Translate each input line to Simplified Chinese, preserving Markdown. " +
         "Return JSON: {\"translations\":[{\"index\":0,\"zh\":\"...\"}, ...]}. Only JSON."
     });
-    const payload = JSON.stringify({ input_lines: english });
-    const res = await model.generateContent({
-      contents: [{ role: "user", parts: [{ text: payload }] }],
-      generationConfig: { responseMimeType: "application/json", temperature: 0.2 }
-    });
-    const raw = res?.response?.text?.() ?? "";
+    if (!raw) return null;
     let data;
     try { data = JSON.parse(raw); } catch { data = JSON.parse(raw.replace(/^```json\s*|\s*```$/g, "")); }
     const zh = english.map((line, i) => {
@@ -298,20 +405,16 @@ const PROMPT_SIGNAL_V4 = `---
 
 async function transformWithPrompt(sourceMd, src) {
   const date = src?.match(/Weekly_Gist_(\d{4}-\d{2}-\d{2})\.md$/)?.[1] || dayjs().format("YYYY-MM-DD");
-  if (!GEMINI_API_KEY) {
-    console.warn("[publize] Prompt mode requested but GEMINI_API_KEY missing; falling back to English-only.");
-    return { markdown: sourceMd, date };
-  }
   try {
-    const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
     const promptPrimer = PROMPT_TEXT || PROMPT_SIGNAL_V4;
     const augmented = `${promptPrimer}\n\nDate: ${date}\n\nSOURCE_DIGEST_MD\n\n${sourceMd}`;
-    const res = await model.generateContent({
-      contents: [{ role: "user", parts: [{ text: augmented }] }],
-      generationConfig: { responseMimeType: "text/plain", temperature: 0 }
-    });
-    let md = res?.response?.text?.() ?? "";
+    const raw = await getTextWithFallback(augmented, { responseMimeType: "text/plain", temperature: 0 });
+    if (!raw) {
+      if (STRICT_ENV) throw new ConfigurationError("GEMINI_API_KEY missing or all models failed in prompt mode.");
+      console.warn("[publize] Prompt transform unavailable; using source digest text.");
+      return { markdown: sourceMd, date };
+    }
+    let md = raw ?? "";
     // Strip surrounding fences if present
     md = md.replace(/^```\w*\n/, "").replace(/\n```\s*$/, "");
     return { markdown: md, date };
@@ -328,15 +431,24 @@ async function main() {
     if (fs.existsSync(c) && c.endsWith(".md")) src = c;
   }
   if (!src) src = findLatest(DIGEST_DIR);
+  // #region debug-point B:source-selection
+  (process.env.TRAE_DEBUG_SESSION && fetch(process.env.TRAE_DEBUG_SERVER_URL || "http://127.0.0.1:7777/event", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ sessionId: process.env.TRAE_DEBUG_SESSION, runId: process.env.TRAE_DEBUG_RUN || "pre-fix", hypothesisId: "B", location: "scripts/publize_brief.mjs", msg: "[DEBUG] selected source digest", data: { digestDir: DIGEST_DIR, digestFileEnv: DIGEST_FILE, resolvedSrc: src } }) }).catch(() => {}));
+  // #endregion
   if (!src) { setOutputs({ public_file: "", digest_date: dayjs().format("YYYY-MM-DD") }); return; }
   const md = fs.readFileSync(src, "utf8");
   const brief = extractBrief(md);
+  // #region debug-point C:brief-parse
+  (process.env.TRAE_DEBUG_SESSION && fetch(process.env.TRAE_DEBUG_SERVER_URL || "http://127.0.0.1:7777/event", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ sessionId: process.env.TRAE_DEBUG_SESSION, runId: process.env.TRAE_DEBUG_RUN || "pre-fix", hypothesisId: "C", location: "scripts/publize_brief.mjs", msg: "[DEBUG] extracted Weekly Brief section", data: { hasBrief: Boolean(brief && brief.length), briefLineCount: Array.isArray(brief) ? brief.length : 0 } }) }).catch(() => {}));
+  // #endregion
   if (!brief || !brief.length) { setOutputs({ public_file: "", digest_date: dayjs().format("YYYY-MM-DD") }); return; }
 
   let markdown, date;
 
   if (TRANSFORM_MODE === "prompt") {
     console.log("[publize] Using prompt-driven transformation mode");
+    if (STRICT_ENV && !GEMINI_API_KEY) {
+      throw new ConfigurationError("GEMINI_API_KEY is missing. Set it or disable STRICT_ENV.");
+    }
     const noHeader = removeWeeklyBriefHeader(brief);
     const coverageLine = brief.find((l) => /\*\*COVERAGE_WINDOW:/i.test(l));
     const topSection = extractTopItemsSection(noHeader);
@@ -435,7 +547,7 @@ async function main() {
     markdown = insertSeparatorBetweenOverviewAndFirstItem(markdown);
     markdown = stripTrailingSeparators(markdown);
   } else {
-    const englishBase = filterImplication(brief);
+    const englishBase = brief;
     const english = removeWeeklyBriefHeader(englishBase);
     const items = parseItemsFromBrief(english);
     console.log(`[publize] parsed items: ${items.length}`);
@@ -460,29 +572,67 @@ function setOutputs(o) {
 main();
 
 
+// Ensure trailing separators are cleaned up regardless of transform mode
+function stripTrailingSeparators(md) {
+  const lines = md.split(/\r?\n/);
+  // remove trailing blank lines
+  while (lines.length && !lines[lines.length - 1].trim()) lines.pop();
+  // remove trailing separators
+  while (lines.length && lines[lines.length - 1].trim() === '---') {
+    lines.pop();
+    while (lines.length && !lines[lines.length - 1].trim()) lines.pop();
+  }
+  return lines.join('\n');
+}
+
+
 function extractTitleSegment(headingText) {
-  // Extract the part before the date separator "— YYYY-MM-DD —" if present
-  const m = headingText.match(/^(.*?)\s+—\s+\d{4}-\d{2}-\d{2}\s+—\s+\[.*?\]/);
+  const m = headingText.match(/^(.*?)\s+—\s+\d{4}-\d{2}-\d{2}\b/);
   if (m) return m[1].trim();
-  const idx = headingText.indexOf("—");
-  if (idx > 0) return headingText.slice(0, idx).trim();
   return headingText.trim();
 }
 
 function parseItemsFromBrief(lines) {
   const items = [];
   let current = null;
-  const topBullet = /^\s*\d+\.\s+\*\*(.+?)\*\*\s*$/;
-  const tldrRe = /^\s*\*\s+\*\*TL;DR:\*\*\s*(.*)$/i;
-  const ktRe = /^\s*\*\s+\*\*(?:Key\s+Takeaways|Takeaways):\*\*\s*(.*)$/i;
-  const compRe = /^\s*\*\s+\*\*CompositeScore:\*\*\s*(.*)$/i;
+  const takeawaysHeaderRe = /^\s*\*\s*(?:\*{1,2}\s*)?Takeaways(?:\s*\*{1,2})?:\s*$/i;
+  const tldrRe = /^\s*\*\s*(?:\*{1,2}\s*)?TL;DR(?:\s*\*{1,2})?:\s*(.*)$/i;
+  const ktRe = /^\s*\*\s*(?:\*{1,2}\s*)?(?:Key\s+Takeaways|Takeaways|Takeaway\s*\d+)(?:\s*\*{1,2})?:\s*(.*)$/i;
+  const implRe = /^\s*\*\s*(?:\*{1,2}\s*)?Implication\s+for\s+Rex\s+Ren(?:\s*\([^)]*\))?(?:\s*\*{1,2})?:\s*(.*)$/i;
+  const compRe = /^\s*\*\s*(?:\*{1,2}\s*)?CompositeScore(?:\s*[:(]\s*|\s+)(.*)$/i;
+  let inTakeaways = false;
+  let takeawaysBuf = [];
+
+  const looksLikeItemHeading = (line) => {
+    if (!/^\s*(?:\d+\.\s+|\*\s+)/.test(line)) return false;
+    if (!/\b\d{4}-\d{2}-\d{2}\b/.test(line)) return false;
+    if (!/—/.test(line)) return false;
+    if (/\bTL;DR\b/i.test(line) || /\bTakeaways\b/i.test(line)) return false;
+    if (/\]\(https?:\/\//.test(line) || /`https?:\/\//.test(line) || /\bhttps?:\/\//.test(line)) return true;
+    return false;
+  };
+
+  const normalizeHeadingText = (line) => {
+    let s = (line || "").trim();
+    s = s.replace(/^\d+\.\s+/, "").replace(/^\*\s+/, "").trim();
+    s = s.replace(/^\*\*(.*)\*\*$/, "$1").trim();
+    return s;
+  };
+
+  const finalizeTakeaways = () => {
+    if (!current) return;
+    if (!current.hasTakeaways && takeawaysBuf.length) current.hasTakeaways = true;
+    if (!current.takeawaysText && takeawaysBuf.length) current.takeawaysText = takeawaysBuf.join(" / ");
+    inTakeaways = false;
+    takeawaysBuf = [];
+  };
 
   for (const line of lines) {
     const t = line.trim();
-    const mTop = line.match(topBullet);
-    if (mTop) {
+    if (looksLikeItemHeading(line)) {
+      finalizeTakeaways();
       if (current) items.push(current);
-      const headingText = mTop[1];
+      const headingText = normalizeHeadingText(line);
       current = {
         headingLine: line,
         headingText,
@@ -501,32 +651,37 @@ function parseItemsFromBrief(lines) {
     let m;
     if ((m = line.match(tldrRe))) { current.tldrText = (m[1] || "").trim(); current.hasTLDR = true; continue; }
     if ((m = line.match(ktRe))) { current.takeawaysText = (m[1] || "").trim(); current.hasTakeaways = true; continue; }
+    if (takeawaysHeaderRe.test(line)) { inTakeaways = true; current.hasTakeaways = true; continue; }
+    if (inTakeaways && (implRe.test(line) || compRe.test(line) || ktRe.test(line))) finalizeTakeaways();
+    if (inTakeaways) {
+      const mb = line.match(/^\s*(?:\*|-)\s+(.+?)\s*$/);
+      if (mb) { takeawaysBuf.push((mb[1] || "").trim()); continue; }
+      if (!t) continue;
+      finalizeTakeaways();
+    }
+    if ((m = line.match(implRe))) { current.implicationText = (m[1] || "").trim(); current.hasImplication = true; continue; }
     if ((m = line.match(compRe))) { current.compositeText = (m[1] || "").trim(); current.hasComposite = true; continue; }
     // Preserve other lines as extras (English-only)
     if (t.length) current.extras.push(line);
   }
+  finalizeTakeaways();
   if (current) items.push(current);
   return items;
 }
 
 async function translateStructured(items) {
-  if (!GEMINI_API_KEY) return null;
   try {
-    const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({
-      model: "gemini-2.5-flash",
+    const payload = {
+      items: items.map((it, index) => ({ index, title: it.titleText, tldr: it.tldrText, takeaways: it.takeawaysText, implication: it.implicationText, topics: extractTopics(it.compositeText), composite: extractComposite(it.compositeText) }))
+    };
+    const raw = await getTextWithFallback(JSON.stringify(payload), {
+      responseMimeType: "application/json",
+      temperature: 0.2,
       systemInstruction:
         "Translate provided fields to Simplified Chinese, preserving Markdown and numbers. " +
-        "Return JSON: {\"translations\":[{\"index\":0,\"titleZh\":\"...\",\"tldrZh\":\"...\",\"takeawaysZh\":\"...\",\"compositeZh\":\"...\"}, ...]}. Only JSON."
+        "Return JSON: {\"translations\":[{\"index\":0,\"titleZh\":\"...\",\"tldrZh\":\"...\",\"takeawaysZh\":\"...\",\"implicationZh\":\"...\",\"topicsZh\":\"...\",\"compositeZh\":\"...\"}, ...]}. Only JSON."
     });
-    const payload = {
-      items: items.map((it, index) => ({ index, title: it.titleText, tldr: it.tldrText, takeaways: it.takeawaysText, composite: it.compositeText }))
-    };
-    const res = await model.generateContent({
-      contents: [{ role: "user", parts: [{ text: JSON.stringify(payload) }] }],
-      generationConfig: { responseMimeType: "application/json", temperature: 0.2 }
-    });
-    const raw = res?.response?.text?.() ?? "";
+    if (!raw) return null;
     let data;
     try { data = JSON.parse(raw); } catch { data = JSON.parse(raw.replace(/^```json\s*|\s*```$/g, "")); }
     const map = new Map();
@@ -540,7 +695,14 @@ async function translateStructured(items) {
 
 function buildStructured(items, zhMap, src) {
   const date = src?.match(/Weekly_Gist_(\d{4}-\d{2}-\d{2})\.md$/)?.[1] || dayjs().format("YYYY-MM-DD");
-  const out = ["# \u672c\u5468 AI + Simulation | \u535a\u6587\u7cbe\u9009", "", `> Date: ${date}`, ""]; // Title in Chinese
+  const out = [
+    `# Weekly Digest – ${date}`,
+    "",
+    `> 整理者：Rex Ren`,
+    "",
+    `---`,
+    ""
+  ];
 
   for (let i = 0; i < items.length; i++) {
     const it = items[i];
@@ -552,30 +714,53 @@ function buildStructured(items, zhMap, src) {
 
     console.log(`[publize] fields for #${i+1}: title=${it.titleText.length} tldr=${it.tldrText.length} take=${it.takeawaysText.length} comp=${it.compositeText.length}`);
 
-    // One bullet for the item; Chinese title first, then English heading on next indented line
-    out.push(`*   **${titleZh}**`);
-    const englishHeadingContent = it.headingLine.replace(/^\s*\*\s+/, "").trim();
-    out.push(`    ${englishHeadingContent}`);
+    // Strict-template bilingual paired section
+    const meta = parseMetaFromHeading(it.headingText);
+    const emoji = mapTypeToEmoji(meta.type);
+    const typeCn = translateTypeCn(meta.type);
+    const compVal = extractComposite(it.compositeText);
+    const topicsEn = extractTopics(it.compositeText);
+    const topicsZhBase = zh?.topicsZh ?? topicsEn ?? "";
+    const topicsZh = topicsZhBase.trim();
+    const implZhBase = zh?.implicationZh ?? it.implicationText ?? "";
+    const implZh = implZhBase.trim();
 
-    // Bilingual labeled sub-lines on the same line (nested bullets)
+    out.push(`**标题｜Title**`);
+    out.push(`${emoji} ${titleZh}（${typeCn}，${meta.date}） ｜ ${emoji} ${it.titleText} (${meta.type}, ${meta.date})`);
+    if (meta.url) out.push(`**来源｜Source**：${meta.url}`);
+    out.push("");
+
     if (it.hasTLDR) {
-      const joined = `${tldrZh || it.tldrText}${it.tldrText ? ` ${it.tldrText}` : ""}`.trim();
-      out.push(`    *   要点/TL;DR: ${joined}`);
+      out.push(`**摘要｜TL;DR**`);
+      out.push(`${tldrZh} ｜ ${it.tldrText}`);
+      out.push("");
     }
+
     if (it.hasTakeaways) {
-      const joined = `${takeZh || it.takeawaysText}${it.takeawaysText ? ` ${it.takeawaysText}` : ""}`.trim();
-      out.push(`    *   主要观点/Key Takeaways: ${joined}`);
+      out.push(`**要点｜Takeaways**`);
+      out.push(`• ${takeZh} ｜ ${it.takeawaysText}`);
+      out.push("");
     }
+
+    if (it.hasImplication) {
+      out.push(`**启示｜Implication**`);
+      out.push(`${implZh} ｜ ${it.implicationText}`);
+      out.push("");
+    }
+
     if (it.hasComposite) {
-      const joined = `${compZh || it.compositeText}${it.compositeText ? ` ${it.compositeText}` : ""}`.trim();
-      out.push(`    *   综合评分/CompositeScore: ${joined}`);
+      out.push(`**综合评分｜CompositeScore**`);
+      out.push(`${compVal}`);
+      out.push("");
     }
 
-    // Preserve any extra English-only lines under this bullet
-    for (const ex of it.extras) {
-      out.push(`    ${ex.replace(/^\s*/, "").replace(/^\*\s*/, "* ")}`);
+    if (topicsEn) {
+      out.push(`**主题｜Topics**`);
+      out.push(`${topicsZh} ｜ ${topicsEn}`);
+      out.push("");
     }
 
+    out.push("---");
     out.push("");
   }
 
