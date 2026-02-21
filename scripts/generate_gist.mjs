@@ -24,11 +24,14 @@ const DEFAULT_MODEL_FALLBACKS = [
 const MODEL_FALLBACKS_RAW = process.env.MODEL_FALLBACKS;
 const MODEL_FALLBACKS = (MODEL_FALLBACKS_RAW !== undefined ? MODEL_FALLBACKS_RAW : DEFAULT_MODEL_FALLBACKS).split(",").map((s) => s.trim()).filter(Boolean);
 
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-const genAI = GEMINI_API_KEY ? new GoogleGenerativeAI(GEMINI_API_KEY) : null;
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY || "";
+const GEMINI_API_KEY_TRIMMED = GEMINI_API_KEY.trim();
+const genAI = GEMINI_API_KEY_TRIMMED ? new GoogleGenerativeAI(GEMINI_API_KEY_TRIMMED) : null;
 
 async function generateWithFallbacks(promptText) {
-  if (!genAI) throw new ConfigurationError("GEMINI_API_KEY missing. Set it in .env/.env.local or export in shell.");
+  if (!GEMINI_API_KEY_TRIMMED || !genAI) {
+    throw new ConfigurationError("GEMINI_API_KEY missing. Set it in .env/.env.local or export in shell.");
+  }
   for (const name of MODEL_FALLBACKS) {
     try {
       const model = genAI.getGenerativeModel({ model: name });
@@ -44,7 +47,9 @@ async function generateWithFallbacks(promptText) {
 }
 
 const prompt = fs.readFileSync("prompt_weekly_gist.md", "utf8");
-const date = dayjs();
+const endOverride = process.env.END_DATE || process.env.TARGET_DATE;
+const date = endOverride ? dayjs(endOverride) : dayjs();
+if (!date.isValid()) throw new Error(`Invalid END_DATE/TARGET_DATE: ${endOverride}`);
 const start = date.subtract(7, "day").format("YYYY-MM-DD");
 const end = date.format("YYYY-MM-DD");
 const folder = "Weekly_Gist";

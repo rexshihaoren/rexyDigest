@@ -12,6 +12,7 @@ const DIGEST_DIR = process.env.DIGEST_DIR || "Weekly_Gist";
 const DIGEST_FILE = process.env.DIGEST_FILE || "";
 const PUBLIC_DIR = process.env.PUBLIC_DIR || "Weekly_Gist/Public";
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || "";
+const GEMINI_API_KEY_TRIMMED = GEMINI_API_KEY.trim();
 const TRANSFORM_MODE = process.env.TRANSFORM_MODE || "structured";
 const PROMPT_PROFILE = process.env.PROMPT_PROFILE || "digest";
 const PROMPT_FILE = process.env.PROMPT_FILE || "";
@@ -32,14 +33,14 @@ const MODEL_FALLBACKS_RAW = process.env.MODEL_FALLBACKS;
 const MODEL_FALLBACKS = (MODEL_FALLBACKS_RAW !== undefined ? MODEL_FALLBACKS_RAW : DEFAULT_MODEL_FALLBACKS).split(",").map((s) => s.trim()).filter(Boolean);
 
 async function getTextWithFallback(inputText, generationConfig) {
-  if (!GEMINI_API_KEY) {
+  if (!GEMINI_API_KEY_TRIMMED) {
     if (STRICT_ENV) throw new ConfigurationError("GEMINI_API_KEY is missing. Set it or disable STRICT_ENV.");
     return null;
   }
   let lastErr = null;
+  const genAI = new GoogleGenerativeAI(GEMINI_API_KEY_TRIMMED);
   for (const m of MODEL_FALLBACKS) {
     try {
-      const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
       const model = genAI.getGenerativeModel({ model: m });
       const res = await model.generateContent({
         contents: [{ role: "user", parts: [{ text: inputText }] }],
