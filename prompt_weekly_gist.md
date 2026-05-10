@@ -37,9 +37,15 @@ TASKS
 
 FILTER RULES
 - Exclude AI-safety-only pieces.
-- Prefer items with transcripts/slides; include links when available.
+- Prefer items with transcripts/slides. **Only include a Link if it is a URL you would paste after verifying it resolves** (your retrieval/search step returned it). If you do not have a verified URL, **do not fabricate one**.
 - Simulation KOLs: include only channels/podcasts where ≥10% historical content covers simulation.
 - Never invent links or dates. If uncertain, mark VERIFY_NEEDED and include the exact query used.
+
+LINK INTEGRITY (hard rules — overrides “fill in Link” habits)
+- **Forbidden:** `example.com`, `example.org`, `localhost`, made-up paths on real domains, “plausible” YouTube/arXiv/blog URLs you did not verify, or URLs built by slugifying the title + date.
+- **Allowed:** A link field may be exactly `VERIFY_NEEDED` plus **one** concrete web search query (in quotes) that a human can run, e.g. `VERIFY_NEEDED: "Max Tegmark digital physics podcast May 2026"`.
+- **arXiv / DOI / YouTube:** Only include if the identifier matches a real resolved source from retrieval. If you are synthesizing from general knowledge without a live fetch, use VERIFY_NEEDED instead of guessing `arxiv.org/abs/...`.
+- **Section C “资源 / Resources”:** Same rules — raw URL only if verified; otherwise `VERIFY_NEEDED` + search query only (no fake URL).
 
 OUTPUT
 A) WEEKLY BRIEF (≤900 words)
