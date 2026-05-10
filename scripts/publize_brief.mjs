@@ -4,6 +4,7 @@ import process from "node:process";
 import dayjs from "dayjs";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import dotenv from "dotenv";
+import { resolveModelFallbacks } from "./lib/config.mjs";
 // Load local env files first if present
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 dotenv.config({ path: path.resolve(process.cwd(), ".env") });
@@ -22,15 +23,7 @@ class ConfigurationError extends Error {
   constructor(message) { super(message); this.name = "ConfigurationError"; }
 }
 
-const DEFAULT_MODEL_FALLBACKS = [
-  "gemini-2.0-flash-lite",
-  "gemini-2.0-flash",
-  "gemini-1.5-flash",
-  "gemini-1.5-pro-002",
-  "gemini-2.5-flash"
-].join(",");
-const MODEL_FALLBACKS_RAW = process.env.MODEL_FALLBACKS;
-const MODEL_FALLBACKS = (MODEL_FALLBACKS_RAW !== undefined ? MODEL_FALLBACKS_RAW : DEFAULT_MODEL_FALLBACKS).split(",").map((s) => s.trim()).filter(Boolean);
+const MODEL_FALLBACKS = resolveModelFallbacks();
 
 async function getTextWithFallback(inputText, generationConfig) {
   if (!GEMINI_API_KEY_TRIMMED) {
@@ -552,6 +545,12 @@ async function main() {
   const outPath = path.join(outDir, `Weekly_Brief_Public_${date}.md`);
   fs.writeFileSync(outPath, markdown, "utf8");
   setOutputs({ public_file: outPath, digest_date: date });
+  const c = String(process.env.CLEAN_TMP_PUBLIC || "").toLowerCase();
+  if ((c === "1" || c === "true") && /(?:^|\/)tmp-public-[^/]+$/.test(PUBLIC_DIR)) {
+    try {
+      fs.rmSync(outDir, { recursive: true, force: true });
+    } catch {}
+  }
 }
 
 function ensureDir(d) { const abs = path.resolve(d); if (!fs.existsSync(abs)) fs.mkdirSync(abs, { recursive: true }); return abs; }
