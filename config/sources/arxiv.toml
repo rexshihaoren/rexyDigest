@@ -1,0 +1,31 @@
+# ArXiv ingestion config (consumed by `python.rexy.sources.arxiv_adapter`).
+#
+# `categories` are official arXiv subject classes; `keywords` further filter
+# titles + abstracts (case-insensitive `OR`). Tune for the curated AGENT/SIM
+# vocabulary in `prompt_weekly_gist.md`.
+
+source_type = "arxiv"
+
+categories = [
+    "cs.AI",
+    "cs.LG",
+    "cs.CL",
+    "cs.MA",
+]
+
+keywords = [
+    "agent",
+    "agentic",
+    "autonomous",
+    "tool use",
+    "tool-use",
+    "multi-agent",
+    "llm agent",
+    "react agent",
+    "chain-of-thought",
+    "simulation hypothesis",
+    "simulated reality",
+    "world model",
+]
+
+max_results = 200

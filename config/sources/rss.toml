@@ -1,0 +1,34 @@
+# RSS / Atom ingestion config (consumed by `python.rexy.sources.rss_adapter`).
+#
+# Each feed is a separate [[feeds]] table. `type` is written to Item.type and
+# enums to {blog, podcast, video, talk, paper}. `default_author` is used when
+# a feed entry lacks <author> info — common for podcast feeds.
+
+source_type = "rss"
+
+[[feeds]]
+url            = "https://lilianweng.github.io/index.xml"
+type           = "blog"
+default_author = "Lilian Weng"
+
+[[feeds]]
+url            = "https://simonwillison.net/atom/everything/"
+type           = "blog"
+default_author = "Simon Willison"
+
+[[feeds]]
+url            = "https://www.latent.space/feed"
+type           = "blog"
+default_author = "Latent Space"
+
+[[feeds]]
+url            = "https://hamel.dev/index.xml"
+type           = "blog"
+default_author = "Hamel Husain"
+
+# blog.langchain.dev/rss/ returns malformed XML at the time of writing
+# (SAXParseException 'not well-formed'). Re-enable once upstream is fixed.
+# [[feeds]]
+# url            = "https://blog.langchain.dev/rss/"
+# type           = "blog"
+# default_author = "LangChain"

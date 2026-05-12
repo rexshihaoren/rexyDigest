@@ -1,48 +1,150 @@
-# Weekly Gist / Brief – Setup & Usage
+# Rexy Digest – Setup & Usage
 
-## Environment
-- Put your Google Gemini API key in a local env file:
-  - Location: `.env.local`
-  - Variable: `GEMINI_API_KEY=<your_key>`
-  - Loaded by the scripts with precedence over `.env` (see [generate_gist.mjs](scripts/generate_gist.mjs) and [publize_brief.mjs](scripts/publize_brief.mjs)).
-- Optional variables:
-  - `STRICT_ENV=1` → fail fast only when the key is missing (network/model errors still fall back to stub or source text).
-  - `MODEL_FALLBACKS=gemini-2.5-flash-lite,gemini-2.5-flash,gemini-2.5-pro,gemini-2.0-flash-001`
+Weekly bilingual brief covering AI agents and the simulation hypothesis.
 
-## Generate a Weekly Gist
-- Command:
-  - `node scripts/generate_gist.mjs`
-- Date override (end of window):
-  - `END_DATE=YYYY-MM-DD node scripts/generate_gist.mjs`
-  - or `TARGET_DATE=YYYY-MM-DD`
-- Output:
-  - `Weekly_Gist/Weekly_Gist_<YYYY-MM-DD>.md` (see [generate_gist.mjs](scripts/generate_gist.mjs))
+## Architecture
 
-## Publish a Public Weekly Brief
-- Default (uses the latest gist by mtime):
-  - `node scripts/publize_brief.mjs`
-- Target a specific gist:
-  - `DIGEST_FILE=Weekly_Gist/Weekly_Gist_YYYY-MM-DD.md node scripts/publize_brief.mjs`
-- Output directory:
-  - Default `PUBLIC_DIR=Weekly_Gist/Public` (see [publize_brief.mjs](scripts/publize_brief.mjs))
-  - File name: `Weekly_Brief_Public_<YYYY-MM-DD>.md` (see [publize_brief.mjs](scripts/publize_brief.mjs))
+The pipeline is **three independent stages** wired through a structured
+**Corpus** on disk. Stage decisions are recorded in `docs/adr/`; vocabulary
+is in [`CONTEXT.md`](CONTEXT.md).
 
-## About tmp-public-* folders
-- Test runs and ad‑hoc local runs sometimes set `PUBLIC_DIR` to a temporary folder (e.g. `tmp-public-XXXXX`) for isolation and easy cleanup.
-- Integration tests explicitly create such temp directories (see [publize_structured.test.mjs](tests/integration/publize_structured.test.mjs)).
-- You can safely remove any `tmp-public-*` directories after inspection; for persistent outputs use the default `Weekly_Gist/Public`.
+```
+┌────────────┐   items.jsonl     ┌────────────┐   Selection_*.jsonl  ┌────────────┐
+│  Ingest    │──────────────────▶│  Generate  │─────────────────────▶│  Publish   │
+│ (Phase 1)  │   payloads/       │ (Phase 2)  │   Weekly_Gist_*.md   │ (Phase 3)  │
+│  Python    │   runs/           │  Python    │                      │  Python    │
+└────────────┘                   └────────────┘                      └────────────┘
+       ▲                                                                     │
+       │                                                                     ▼
+config/sources/*.toml                                       Weekly_Gist/Public/Weekly_Brief_Public_*.md
+```
 
-## Notes
-- If the API key is missing or model calls fail, the generator/publisher will fall back to stub or source text so the pipeline remains testable.
-- For model-backed transformations, ensure `GEMINI_API_KEY` is present in `.env.local`.
+- **Ingest** runs Source Adapters (`config/sources/*.toml`), normalises
+  results to **Items**, persists payloads, and writes per-run provenance.
+- **Generate** runs a five-stage hybrid ranker (deterministic Python +
+  per-Item LLM calls), writes a **Selection** JSONL plus a Markdown gist.
+- **Publish** renders the Selection into the bilingual public **Brief**;
+  it is LLM-free because translations were already written by the generator.
 
-## Roadmap / TODO
-- Add ingestion layer for real sources (RSS/YouTube/podcasts/arXiv/blogs) and feed items into the generator for ranking/summarization.
-- Python migration (staged): Phase 1 Ingestion (Python) → items.jsonl + provenance; Phase 2 Generator (Python) → render Weekly_Gist, keep Node publisher; Phase 3 Publisher (Python) → parity tests, deprecate Node.
-- Improve determinism: set temperature=0 in generator, allow pinning a single model, add date-based cache with `FORCE=1` override.
-- Provenance: keep per-run meta (model, window, counts) and optional per-item URL validation log.
-- Publisher hygiene: opt-in cleanup for `tmp-public-*` on success is implemented via `CLEAN_TMP_PUBLIC=1`; make it default in CI.
-- Tests: add fixtures for ingestion, E2E tests for date overrides and bilingual strict formatting.
-- Docs: expand setup for ENV variables and common workflows; link to Issues/Project board for task tracking.
+See [`docs/adr/`](docs/adr/) for the load-bearing decisions
+(`items.jsonl` as the contract, Source Adapter port, hybrid ranker,
+three-layer provenance, etc.). Deferred and parked work lives in
+[`docs/PARKED.md`](docs/PARKED.md).
 
-Best practice: keep README’s roadmap short and stable; track detailed, actionable tasks in Issues/Projects and optionally maintain a dedicated `ROADMAP.md` for longer-term planning.***
+## Setup
+
+Use a **virtualenv** (Homebrew / PEP 668 Python blocks global `pip install`).
+
+```bash
+python3 -m venv .venv
+.venv/bin/pip install -r requirements.txt
+```
+
+Do **not** rely on `python3 -m pip install -r requirements.txt` on the system interpreter: it fails with `externally-managed-environment` (PEP 668). Always install into `.venv` (or another venv) first.
+
+For tests and CLI, prefer `.venv/bin/python` with `PYTHONPATH=python` (see **Tests** and **Usage** below).
+
+Put your Gemini API key in `.env.local`:
+
+```
+GEMINI_API_KEY=...
+```
+
+## Usage
+
+### Ingest
+
+```bash
+PYTHONPATH=python ./.venv/bin/python -m rexy ingest --window 2026-05-04/2026-05-11
+```
+
+Defaults to a 7-day window ending today. Reads adapter configs from
+`config/sources/*.toml`. Writes to `corpus/items.jsonl`,
+`corpus/payloads/`, and `corpus/runs/Run_*.json`.
+
+### Generate
+
+```bash
+PYTHONPATH=python ./.venv/bin/python -m rexy generate --window 2026-05-04/2026-05-11
+```
+
+Defaults to the latest ingestion run's window. With `--llm gemini`
+(default) calls Gemini per-Item; with `--llm memory` runs the deterministic
+fixture for smoke tests. Writes `corpus/selections/Selection_<end>.jsonl`
+and `Weekly_Gist/Weekly_Gist_<end>.md`.
+
+### Publish
+
+```bash
+PYTHONPATH=python ./.venv/bin/python -m rexy publish --window 2026-05-04/2026-05-11
+```
+
+Renders the Selection JSONL into a deterministic bilingual public brief at
+`Weekly_Gist/Public/Weekly_Brief_Public_<end>.md`. No LLM calls.
+
+### Status
+
+```bash
+PYTHONPATH=python ./.venv/bin/python -m rexy status
+```
+
+Prints corpus item counts by source type and the latest ingestion window.
+
+### Parity check (optional diff vs Node)
+
+```bash
+PYTHONPATH=python ./.venv/bin/python -m rexy parity \
+  --node    Weekly_Gist/Public/<node-output>.md \
+  --python  Weekly_Gist/Public/<python-output>.md
+```
+
+Compares **structural** fields (item set, composite scores, English blurbs)
+between a legacy Node brief and a Python brief. Useful when diffing a
+specific week; **not** a quality gate — legacy output can hallucinate. See
+[`docs/PARKED.md`](docs/PARKED.md) for manual review UI and judge-LLM plans.
+
+## Tests
+
+```bash
+PYTHONPATH=python .venv/bin/pytest python/tests/
+```
+
+## Legacy Node pipeline (deprecated)
+
+The original Node-based generator and publisher live under `scripts/`:
+
+- `scripts/generate_gist.mjs` — calls one LLM prompt to write the gist
+- `scripts/publize_brief.mjs` — parses the gist back out with regex,
+  re-translates with Gemini
+
+These are **superseded** by the Python pipeline above. They remain until
+you **manually** trust the Python pipeline for production (per
+[ADR-0002](docs/adr/0002-node-publisher-stays-through-phase-2.md)) — not
+after parity with legacy output. Then `scripts/`, `package.json`, and
+`tests/` (Node) can be removed. Deferred UX: [`docs/PARKED.md`](docs/PARKED.md).
+
+## Configuration
+
+| File                            | Purpose                                                          |
+|---------------------------------|------------------------------------------------------------------|
+| `config/sources/*.toml`         | One file per Source Adapter instance (reserved keys: `source_type`, `disabled`) |
+| `config/generator.toml` (opt.)  | Override generator defaults (KOL priors, weights, model)          |
+| `.env.local`                    | `GEMINI_API_KEY`                                                  |
+
+## Repo layout
+
+```
+python/rexy/                  # the Python package
+  domain.py                   # Item, SelectionEntry, Window, Scores, ...
+  ingest.py                   # ingestion orchestrator
+  cli.py                      # `python -m rexy ...`
+  sources/                    # Source Adapter port + arxiv/rss adapters
+  corpus/                     # items_store, payloads_store, runs_store, selections_store
+  generate/                   # 5-stage ranker + LLM port + gist renderer
+  publish/                    # bilingual Selection → public-brief renderer
+python/tests/                 # pytest suite (60+ tests)
+config/sources/               # adapter configs
+docs/adr/                     # load-bearing architectural decisions
+CONTEXT.md                    # the shared vocabulary
+scripts/                      # legacy Node pipeline (slated for removal)
+```

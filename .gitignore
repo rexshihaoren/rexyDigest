@@ -1,22 +1,22 @@
-# Node and build artifacts
-node_modules/
-dist/
-build/
-.tmp/
-.temp/
-.cache/
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.venv/
+venv/
 
-# Logs
-npm-debug.log*
-yarn-error.log*
-*.log
-
-# Env files
+# Local env
+.env.local
 .env
-.env.*
 
-# OS files
-.DS_Store
+# Corpus data (per-machine; do not commit)
+corpus/
 
 # Coverage
-coverage/Weekly_Gist/Debug/
+coverage/
+
+# Debug artifacts
+Weekly_Gist/Debug/
+tmp-public-*/
+tmp-ingest-verify/
