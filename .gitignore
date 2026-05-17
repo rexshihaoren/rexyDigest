@@ -20,3 +20,6 @@ coverage/
 Weekly_Gist/Debug/
 tmp-public-*/
 tmp-ingest-verify/
+
+# Generated deep-note Markdown for external knowledgecard import
+KnowledgeCard_Inbox/

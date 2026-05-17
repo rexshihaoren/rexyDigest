@@ -55,6 +55,9 @@ def build_adapter(name: str, source_type: str, config: dict[str, Any]) -> Source
     if st is SourceType.RSS:
         from .rss_adapter import RssAdapter
         return RssAdapter(name=name, config=config)
+    if st is SourceType.YOUTUBE:
+        from .youtube_adapter import YoutubeAdapter
+        return YoutubeAdapter(name=name, config=config)
     raise AdapterError(
         f"No adapter implementation registered for source_type={source_type!r}; "
         f"only {[t.value for t in SourceType]} are valid enum values"

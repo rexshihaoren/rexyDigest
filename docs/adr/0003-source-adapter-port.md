@@ -10,8 +10,11 @@ The port is only justified when at least **two** real adapters exist (per [DEEPE
 - **Adapter writes payloads to disk directly** — rejected: couples adapters to filesystem layout and makes them harder to test.
 - **Generate per-source configs from a master `kols.yaml`** — deferred: do it manually first; only build a generator if the manual cross-reference stops paying.
 
+## Update: YouTube adapter shipped
+
+`YoutubeAdapter` ([python/rexy/sources/youtube_adapter.py](../../python/rexy/sources/youtube_adapter.py)) ingests channel videos via YouTube's public Atom feed (`https://www.youtube.com/feeds/videos.xml?channel_id=…`) reusing the RSS adapter's `parse_feed_document` hook for testability. Transcripts are best-effort through `youtube-transcript-api`; on failure or absence the adapter falls back to the video description (`payload_kind=extract`) or `metadata_only`, **never** an `AdapterError`. Per-channel `kol = "<slug>"` config injects a `kol:<slug>` marker into `Item.topics_raw` so the generator's pre-filter and pre-rank stages can favour KOL-listed sources without touching adapter code.
+
 ## Deferred (intentionally)
 
-- **YouTube transcripts** — `YoutubeAdapter` is later than the inaugural pair. When it arrives, transcripts are best-effort via `youtube-transcript-api`; missing transcripts yield `payload_kind=metadata_only`, never a fetch failure.
 - **Cross-source-type dedup** — a Latent Space episode appearing as both a YouTube video and a podcast RSS entry sits in the **Corpus** as two distinct **Items**. Add a `merged_into` field later without breaking the schema.
 - **Concurrency, rate limiting, retries** — framework-level concerns, not part of the port.

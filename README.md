@@ -82,6 +82,23 @@ PYTHONPATH=python ./.venv/bin/python -m rexy publish --window 2026-05-04/2026-05
 Renders the Selection JSONL into a deterministic bilingual public brief at
 `Weekly_Gist/Public/Weekly_Brief_Public_<end>.md`. No LLM calls.
 
+**KOL prioritization.** Each feed (RSS or YouTube) can declare `kol = "<slug>"` in its TOML
+entry. Items from that feed get a `kol:<slug>` topic marker; the generator's prefilter lets
+them through even with zero AGENT/SIM keyword hits, and prerank applies the configured
+`kol_priors` boost (see [config defaults](python/rexy/generate/config.py)).
+
+### Deep notes (optional, second LLM pass)
+
+After `generate` + `publish`, list **0–2** `item_id`s from that week’s Selection in
+[`config/deep_picks/<end>.toml`](config/deep_picks/README.md), then:
+
+```bash
+PYTHONPATH=python ./.venv/bin/python -m rexy deep-notes --end 2026-05-11 --llm gemini
+```
+
+Writes one Markdown file per id under `KnowledgeCard_Inbox/` (gitignored by default).
+Use `--llm memory` for smoke tests without an API key.
+
 ### Status
 
 ```bash

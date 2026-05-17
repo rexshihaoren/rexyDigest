@@ -6,10 +6,12 @@ to score. Per ADR-0004 we want this to be:
   pre_rank_score = recency * kol_prior * keyword_density
 
 Recency: 1.0 at the Window end, decaying linearly to 0.5 at the Window start.
-KOL prior: 1.0 by default; configured boosts >1 for known KOLs (substring
-match, case-insensitive against `Item.author`).
+KOL prior: 1.0 by default; >1 when the Item matches a configured KOL — either
+by author substring (case-insensitive) or via a `kol:<slug>` marker injected
+by the adapter (`config/sources/*.toml`). See `generate.kol` for the rule.
 Keyword density: 1 + log(1 + hits_per_100_chars), so an Item with 0 hits is
-already filtered (in prefilter), and gains diminish.
+already filtered (in prefilter, unless KOL bypass kicked in), and gains
+diminish.
 """
 
 from __future__ import annotations
@@ -21,6 +23,7 @@ from dataclasses import dataclass
 from ..corpus.payloads_store import PayloadsStore
 from ..domain import Item, PayloadKind, Window
 from .config import GeneratorConfig
+from .kol import kol_prior
 
 
 @dataclass(slots=True, frozen=True)
@@ -45,17 +48,13 @@ def prerank(
         days_from_end = max((window.end - item.published_at).days, 0)
         recency = 1.0 - 0.5 * (days_from_end / span_days)
 
-        author_lc = (item.author or "").lower()
-        kol_prior = 1.0
-        for kol, weight in config.kol_priors.items():
-            if kol in author_lc:
-                kol_prior = max(kol_prior, weight)
+        prior = kol_prior(item, config)
 
         haystack_len, hits = _count_hits(item, keywords, payloads)
         per_100 = (hits * 100.0) / max(haystack_len, 1)
         keyword_density = 1.0 + math.log1p(per_100)
 
-        score = recency * kol_prior * keyword_density
+        score = recency * prior * keyword_density
         scored.append(PreRanked(item=item, score=score))
 
     scored.sort(key=lambda x: x.score, reverse=True)

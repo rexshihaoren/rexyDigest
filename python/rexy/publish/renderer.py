@@ -50,6 +50,12 @@ def render_public_brief(
     lines.append("")
     lines.append(_coverage_line(window, len(entries_list)))
     lines.append("")
+
+    lead_block = _render_lead_block(entries_list, items_by_id)
+    if lead_block:
+        lines.extend(lead_block)
+        lines.append("")
+
     lines.append("---")
 
     for entry in entries_list:
@@ -64,6 +70,12 @@ def render_public_brief(
         lines.pop()
         while lines and not lines[-1].strip():
             lines.pop()
+
+    kol_block = _render_kol_roster(entries_list, items_by_id)
+    if kol_block:
+        lines.append("")
+        lines.append("")
+        lines.extend(kol_block)
 
     return "\n".join(lines).rstrip() + "\n"
 
@@ -118,6 +130,77 @@ def _render_entry(entry: SelectionEntry, item: Item) -> list[str]:
     out.append("")
     out.append("**主题｜Topics**")
     out.append(f"{', '.join(topics_zh)} ｜ {', '.join(entry.topics) if entry.topics else 'Agent'}")
+    return out
+
+
+_KOL_TOPIC_PREFIX = "kol:"
+
+
+def _render_lead_block(
+    entries_list: list[SelectionEntry],
+    items_by_id: dict[str, Item],
+) -> list[str]:
+    """Top-ranked Item as '本周亮点｜Lead' anchor. Empty if no usable entries."""
+
+    lead: SelectionEntry | None = None
+    lead_item: Item | None = None
+    for e in entries_list:
+        it = items_by_id.get(e.item_id)
+        if it is not None:
+            if lead is None or e.rank < lead.rank:
+                lead, lead_item = e, it
+    if lead is None or lead_item is None:
+        return []
+
+    title_zh = lead.translations.title_zh or lead_item.title
+    tldr_zh = (lead.translations.tldr_zh or lead.tldr_en).strip()
+    tldr_en = lead.tldr_en.strip()
+    out: list[str] = []
+    out.append("**本周亮点｜Lead**")
+    out.append(
+        f"⭐ **{_safe(lead_item.author)}** — {_safe(title_zh)} ｜ {_safe(lead_item.title)}"
+    )
+    out.append(f"{tldr_zh} ｜ {tldr_en}")
+    out.append(f"_综合评分｜CompositeScore: {lead.scores.composite:.1f}_")
+    return out
+
+
+def _render_kol_roster(
+    entries_list: list[SelectionEntry],
+    items_by_id: dict[str, Item],
+) -> list[str]:
+    """List unique KOL slugs (from `kol:*` topic markers) that landed in this brief.
+
+    Slugs are normalised lower-case for stability; ordering follows first
+    appearance in the Selection rank order so output is deterministic.
+    """
+
+    seen: list[str] = []
+    seen_lc: set[str] = set()
+    for e in entries_list:
+        it = items_by_id.get(e.item_id)
+        if it is None:
+            continue
+        for topic in it.topics_raw or ():
+            if not isinstance(topic, str):
+                continue
+            if not topic.lower().startswith(_KOL_TOPIC_PREFIX):
+                continue
+            slug = topic[len(_KOL_TOPIC_PREFIX):].strip()
+            slug_lc = slug.lower()
+            if not slug_lc or slug_lc in seen_lc:
+                continue
+            seen.append(slug)
+            seen_lc.add(slug_lc)
+    if not seen:
+        return []
+
+    out: list[str] = []
+    out.append("---")
+    out.append("")
+    out.append(
+        f"**本周 KOL｜KOL roster**: {', '.join(seen)}"
+    )
     return out
 
 

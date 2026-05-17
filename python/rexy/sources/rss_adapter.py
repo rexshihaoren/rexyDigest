@@ -80,6 +80,7 @@ class RssAdapter:
                 "url": entry["url"],
                 "type": item_type,
                 "default_author": entry.get("default_author", ""),
+                "kol": (entry.get("kol") or "").strip(),
             })
 
     def fetch(self, window: Window) -> Iterator[FetchedItem]:
@@ -133,6 +134,11 @@ class RssAdapter:
                 t.term for t in (entry.get("tags") or [])
                 if getattr(t, "term", None)
             ]
+            kol_tag = feed_cfg.get("kol") or ""
+            if kol_tag:
+                marker = f"kol:{kol_tag.lower()}"
+                if marker not in topics_raw:
+                    topics_raw.insert(0, marker)
 
             item = Item(
                 id=item_id,

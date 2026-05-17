@@ -13,6 +13,7 @@ from collections.abc import Iterable
 from ..corpus.payloads_store import PayloadsStore
 from ..domain import Item, PayloadKind, Window
 from .config import GeneratorConfig
+from .kol import is_kol_item
 
 
 def prefilter(
@@ -39,6 +40,10 @@ def prefilter(
 
     for item in items:
         if not window.contains(item.published_at):
+            continue
+
+        if is_kol_item(item, config):
+            kept.append(item)
             continue
 
         haystack_parts = [item.title.lower(), " ".join(item.topics_raw).lower()]

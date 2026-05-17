@@ -10,21 +10,25 @@ source_type = "rss"
 url            = "https://lilianweng.github.io/index.xml"
 type           = "blog"
 default_author = "Lilian Weng"
+kol            = "lilian weng"
 
 [[feeds]]
 url            = "https://simonwillison.net/atom/everything/"
 type           = "blog"
 default_author = "Simon Willison"
+kol            = "simon willison"
 
 [[feeds]]
 url            = "https://www.latent.space/feed"
 type           = "blog"
 default_author = "Latent Space"
+kol            = "latent space"
 
 [[feeds]]
 url            = "https://hamel.dev/index.xml"
 type           = "blog"
 default_author = "Hamel Husain"
+kol            = "hamel husain"
 
 # blog.langchain.dev/rss/ returns malformed XML at the time of writing
 # (SAXParseException 'not well-formed'). Re-enable once upstream is fixed.

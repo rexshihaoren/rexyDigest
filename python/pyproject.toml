@@ -13,6 +13,7 @@ dependencies = [
     "feedparser>=6.0.10",
     "google-genai>=1.0.0",
     "python-dotenv>=1.0.0",
+    "youtube-transcript-api>=1.2.0",
 ]
 
 [project.optional-dependencies]

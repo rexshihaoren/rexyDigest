@@ -30,6 +30,8 @@ DEFAULT_CONFIG = Path("config/sources")
 DEFAULT_GENERATOR_CONFIG = Path("config/generator.toml")
 DEFAULT_GIST_DIR = Path("Weekly_Gist")
 DEFAULT_PUBLIC_DIR = Path("Weekly_Gist/Public")
+DEFAULT_DEEP_PICKS_DIR = Path("config/deep_picks")
+DEFAULT_KC_INBOX = Path("KnowledgeCard_Inbox")
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -107,6 +109,31 @@ def main(argv: list[str] | None = None) -> int:
     par.add_argument("--node", type=Path, required=True, help="Node-published brief markdown")
     par.add_argument("--python", type=Path, required=True, help="Python-published brief markdown")
 
+    deep = sub.add_parser(
+        "deep-notes",
+        help="Second-pass LLM: read config/deep_picks/<end>.toml (≤2 item_ids) → one .md per Item.",
+    )
+    deep.add_argument(
+        "--end", type=str, required=True,
+        help="Window end YYYY-MM-DD; start = end-7d (must match Selection file).",
+    )
+    deep.add_argument(
+        "--deep-picks-dir", type=Path, default=DEFAULT_DEEP_PICKS_DIR,
+        help=f"directory of YYYY-MM-DD.toml picks (default: {DEFAULT_DEEP_PICKS_DIR})",
+    )
+    deep.add_argument(
+        "--inbox-dir", type=Path, default=DEFAULT_KC_INBOX,
+        help=f"where to write deep_*.md (default: {DEFAULT_KC_INBOX})",
+    )
+    deep.add_argument(
+        "--generator-config", type=Path, default=DEFAULT_GENERATOR_CONFIG,
+        help=f"for --llm gemini model name (default: {DEFAULT_GENERATOR_CONFIG})",
+    )
+    deep.add_argument(
+        "--llm", choices=["gemini", "memory"], default="gemini",
+        help="gemini (default) or memory stub",
+    )
+
     args = parser.parse_args(argv)
 
     if args.cmd == "ingest":
@@ -119,6 +146,8 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_publish(args)
     if args.cmd == "parity":
         return _cmd_parity(args)
+    if args.cmd == "deep-notes":
+        return _cmd_deep_notes(args)
     parser.error(f"unknown command {args.cmd}")
     return 2
 
@@ -243,6 +272,43 @@ def _cmd_generate(args: argparse.Namespace) -> int:
     print(f"  selection      ={run.selection_path}")
     print(f"  gist           ={run.gist_path}")
     return 0 if run.items_in_selection > 0 else 1
+
+
+def _cmd_deep_notes(args: argparse.Namespace) -> int:
+    from .generate.config import GeneratorConfig
+    from .generate.deep_notes import make_deep_note_writer, run_deep_notes
+
+    end = date.fromisoformat(args.end)
+    window = Window(start=end - timedelta(days=7), end=end)
+    corpus_root: Path = args.corpus
+
+    print(f"[rexy] deep-notes window={window} corpus={corpus_root}")
+    print(f"[rexy] llm={args.llm} picks_dir={args.deep_picks_dir} inbox={args.inbox_dir}")
+
+    try:
+        cfg = GeneratorConfig.load(args.generator_config)
+        writer = make_deep_note_writer(args.llm, cfg.model)
+        run = run_deep_notes(
+            window,
+            corpus_root,
+            args.deep_picks_dir,
+            args.inbox_dir,
+            writer,
+        )
+    except FileNotFoundError as e:
+        print(f"[rexy] {e}", file=sys.stderr)
+        return 1
+    except ValueError as e:
+        print(f"[rexy] {e}", file=sys.stderr)
+        return 1
+
+    print(f"[rexy] picks_file={run.picks_file}")
+    if not run.written:
+        print("[rexy] item_ids empty — nothing to write (use item_ids = [] in picks file)")
+        return 0
+    for p in run.written:
+        print(f"[rexy] wrote {p}")
+    return 0
 
 
 def _cmd_status(args: argparse.Namespace) -> int:
