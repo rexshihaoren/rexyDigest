@@ -242,6 +242,52 @@ class TestFinalise:
         assert out[0].scores.composite == 5.0
         assert out[1].scores.composite == 4.0
 
+    def test_replaces_lowest_ranked_agent_only_item_to_meet_sim_bridge_floor(self):
+        from rexy.generate.prerank import PreRanked
+        from rexy.generate.summarise import Summarised
+
+        def summarised(
+            i: int,
+            title: str,
+            topics: list[str],
+            relevance: float,
+        ) -> tuple[Summarised, float]:
+            return (
+                Summarised(
+                    pre_ranked=PreRanked(
+                        item=Item(
+                            id=f"arxiv:{i}", source_type=SourceType.ARXIV, source_native_id=str(i),
+                            canonical_url=f"https://x/{i}", title=title, author="a",
+                            published_at=date(2026, 5, 5), type="paper", topics_raw=[],
+                            payload_kind=PayloadKind.METADATA_ONLY, payload_ref=None,
+                            fetched_at=datetime(2026, 5, 10, tzinfo=timezone.utc),
+                            adapter="test",
+                        ),
+                        score=1.0,
+                    ),
+                    analysis=ItemAnalysis(
+                        item_id=f"arxiv:{i}",
+                        relevance=relevance, actionability=relevance,
+                        tldr_en="x", takeaways_en=[], implication_en="", topics=topics,
+                    ),
+                ),
+                relevance,
+            )
+
+        cfg = GeneratorConfig(final_size=4, min_sim_bridge_items=2)
+        window = Window.parse("2026-05-03/2026-05-10")
+        out = finalise([
+            summarised(1, "Agent orchestration", ["Agent"], 5.0),
+            summarised(2, "Agent tool use", ["Agent"], 4.9),
+            summarised(3, "Prompt router", ["Agent"], 4.8),
+            summarised(4, "RAG benchmark", ["Agent"], 4.7),
+            summarised(5, "Synthetic worlds for evaluation", ["Agent"], 4.6),
+            summarised(6, "Simulation hypothesis evidence", ["Simulation"], 4.5),
+        ], window, cfg, model="m", prompt_version="v")
+
+        assert [e.item_id for e in out] == ["arxiv:1", "arxiv:2", "arxiv:5", "arxiv:6"]
+        assert [e.rank for e in out] == [1, 2, 3, 4]
+
 
 # ---- renderer ---------------------------------------------------------------
 

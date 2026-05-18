@@ -19,6 +19,8 @@ from ..domain import (
 from .config import GeneratorConfig
 from .summarise import Summarised
 
+Scored = tuple[Summarised, Scores]
+
 
 def finalise(
     summarised_with_novelty: Iterable[tuple[Summarised, float]],
@@ -35,7 +37,7 @@ def finalise(
     rank.
     """
 
-    scored: list[tuple[Summarised, Scores]] = []
+    scored: list[Scored] = []
     for s, novelty in summarised_with_novelty:
         a = s.analysis
         composite = round(
@@ -52,7 +54,7 @@ def finalise(
         )))
 
     scored.sort(key=lambda pair: pair[1].composite, reverse=True)
-    scored = scored[: config.final_size]
+    scored = _enforce_mission_filter(scored, config)
 
     generated_at = now_utc()
     out: list[SelectionEntry] = []
@@ -79,3 +81,78 @@ def finalise(
             generated_at=generated_at,
         ))
     return out
+
+
+def _enforce_mission_filter(scored: list[Scored], config: GeneratorConfig) -> list[Scored]:
+    selected = list(scored[: config.final_size])
+    remaining = list(scored[config.final_size:])
+
+    while (
+        _mission_count(selected, config) < config.min_sim_bridge_items
+        or _agent_only_count(selected, config) > config.max_agent_only_items
+    ):
+        replacement_index = _first_mission_candidate_index(remaining, config)
+        victim_index = _lowest_ranked_agent_only_index(selected, config)
+        if replacement_index is None or victim_index is None:
+            break
+
+        selected[victim_index] = remaining.pop(replacement_index)
+        selected.sort(key=lambda pair: pair[1].composite, reverse=True)
+
+    return selected
+
+
+def _mission_count(scored: list[Scored], config: GeneratorConfig) -> int:
+    return sum(1 for pair in scored if _is_sim_core(pair, config) or _is_ai_sim_bridge(pair, config))
+
+
+def _agent_only_count(scored: list[Scored], config: GeneratorConfig) -> int:
+    return sum(1 for pair in scored if _is_agent_only(pair, config))
+
+
+def _first_mission_candidate_index(scored: list[Scored], config: GeneratorConfig) -> int | None:
+    for index, pair in enumerate(scored):
+        if _is_sim_core(pair, config) or _is_ai_sim_bridge(pair, config):
+            return index
+    return None
+
+
+def _lowest_ranked_agent_only_index(scored: list[Scored], config: GeneratorConfig) -> int | None:
+    for index in range(len(scored) - 1, -1, -1):
+        if _is_agent_only(scored[index], config):
+            return index
+    return None
+
+
+def _is_agent_only(pair: Scored, config: GeneratorConfig) -> bool:
+    topics = _normalised_topics(pair)
+    return "agent" in topics and not _is_sim_core(pair, config) and not _is_ai_sim_bridge(pair, config)
+
+
+def _is_sim_core(pair: Scored, config: GeneratorConfig) -> bool:
+    return "simulation" in _normalised_topics(pair) or _has_keyword(pair, config.keywords_sim)
+
+
+def _is_ai_sim_bridge(pair: Scored, config: GeneratorConfig) -> bool:
+    return _has_keyword(pair, config.keywords_ai_sim_bridge)
+
+
+def _normalised_topics(pair: Scored) -> set[str]:
+    return {topic.strip().lower() for topic in pair[0].analysis.topics}
+
+
+def _has_keyword(pair: Scored, keywords: tuple[str, ...]) -> bool:
+    summarised = pair[0]
+    item = summarised.pre_ranked.item
+    analysis = summarised.analysis
+    haystack = " ".join([
+        item.title,
+        item.author,
+        item.type,
+        " ".join(item.topics_raw),
+        analysis.tldr_en,
+        " ".join(analysis.takeaways_en),
+        analysis.implication_en,
+        " ".join(analysis.topics),
+    ]).lower()
+    return any(keyword.lower() in haystack for keyword in keywords)

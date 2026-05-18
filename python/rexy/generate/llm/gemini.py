@@ -1,8 +1,8 @@
 """GeminiAnalyser — production LLM adapter.
 
 Calls google-genai (`google.genai`) with JSON-mode prompt and parses the
-response into an `ItemAnalysis`. API failures use short user-facing copy only —
-never raw quota/rate-limit payloads in Markdown.
+response into an `ItemAnalysis`. API failures raise short user-facing errors
+only, so generation fails before writing fallback text into digests.
 """
 
 from __future__ import annotations
@@ -110,13 +110,15 @@ class GeminiAnalyser:
                 prompt.item_id,
                 type(exc).__name__,
             )
-            return _failure_analysis(prompt.item_id, user_facing_gemini_error(exc))
+            raise RuntimeError(
+                f"Gemini analysis failed for {prompt.item_id}: {user_facing_gemini_error(exc)}"
+            ) from exc
 
         return _parse_or_fallback(prompt.item_id, text)
 
 
 def _parse_or_fallback(item_id: str, text: str) -> ItemAnalysis:
-    """Best-effort JSON parse; on failure, return a low-conf analysis (no raw payload in TL;DR)."""
+    """Best-effort JSON parse; on failure, abort without echoing raw model text."""
     try:
         data = json.loads(text)
     except json.JSONDecodeError:
@@ -127,9 +129,9 @@ def _parse_or_fallback(item_id: str, text: str) -> ItemAnalysis:
             logger.warning(
                 "Gemini JSON parse failed for %s (length=%s)", item_id, len(text)
             )
-            return _failure_analysis(
-                item_id,
-                "model returned text that was not valid JSON (check logs / rerun)",
+            raise RuntimeError(
+                f"Gemini analysis failed for {item_id}: "
+                "model returned text that was not valid JSON (check logs / rerun)"
             )
 
     return ItemAnalysis(
@@ -146,19 +148,6 @@ def _parse_or_fallback(item_id: str, text: str) -> ItemAnalysis:
         implication_zh=_as_optional_str(data.get("implication_zh")),
         topics_zh=_as_str_list(data.get("topics_zh")) or None,
     )
-
-
-def _failure_analysis(item_id: str, msg: str) -> ItemAnalysis:
-    return ItemAnalysis(
-        item_id=item_id,
-        relevance=1.0,
-        actionability=1.0,
-        tldr_en=f"[generator error: {msg}]",
-        takeaways_en=[],
-        implication_en="",
-        topics=[],
-    )
-
 
 def _as_float(v: Any, default: float = 0.0) -> float:
     try:

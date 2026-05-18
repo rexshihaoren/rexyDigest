@@ -22,6 +22,13 @@ _DEFAULT_KEYWORDS_SIM: tuple[str, ...] = (
     "are we living in a simulation", "simulation evidence", "reality+",
     "simulation theory", "digital physics",
 )
+_DEFAULT_KEYWORDS_AI_SIM_BRIDGE: tuple[str, ...] = (
+    "world model", "world models", "digital physics", "simulation-based eval",
+    "simulation-based evals", "simulation based eval", "simulation based evals",
+    "simulation eval", "simulation evals", "simulation evaluation",
+    "simulation evaluations", "synthetic world", "synthetic worlds",
+    "consciousness modeling", "epistemic simulation",
+)
 _DEFAULT_KOL_PRIORS: dict[str, float] = {
     # Authors / outlets that get a ranking boost (case-insensitive substring).
     "karpathy": 1.5,
@@ -47,10 +54,13 @@ _DEFAULT_KOL_PRIORS: dict[str, float] = {
 class GeneratorConfig:
     keywords_agent: tuple[str, ...] = _DEFAULT_KEYWORDS_AGENT
     keywords_sim: tuple[str, ...] = _DEFAULT_KEYWORDS_SIM
+    keywords_ai_sim_bridge: tuple[str, ...] = _DEFAULT_KEYWORDS_AI_SIM_BRIDGE
     kol_priors: dict[str, float] = field(default_factory=lambda: dict(_DEFAULT_KOL_PRIORS))
 
     shortlist_size: int = 30      # top-N out of pre-rank
     final_size: int = 8           # top-N in the Selection
+    min_sim_bridge_items: int = 2
+    max_agent_only_items: int = 3
     novelty_lookback_weeks: int = 4  # how far back to check for similar prior items
     novelty_similarity_threshold: float = 0.6  # 0..1; above means "we covered this"
 
@@ -78,4 +88,8 @@ class GeneratorConfig:
 
     @property
     def all_keywords(self) -> tuple[str, ...]:
-        return tuple(self.keywords_agent) + tuple(self.keywords_sim)
+        return (
+            tuple(self.keywords_agent)
+            + tuple(self.keywords_sim)
+            + tuple(self.keywords_ai_sim_bridge)
+        )

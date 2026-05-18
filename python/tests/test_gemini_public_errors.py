@@ -37,8 +37,8 @@ def test_user_facing_generic_when_unclassified() -> None:
     assert len(out) < 120
 
 
-def test_gemini_analyse_exception_yields_safe_tldr(monkeypatch: pytest.MonkeyPatch) -> None:
-    """Regression: TL;DR must not embed raw SDK / HTTP error bodies."""
+def test_gemini_analyse_exception_fails_without_raw_payload(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Regression: Gemini failure must abort generation without raw SDK / HTTP bodies."""
 
     import rexy.generate.llm.gemini as gemini_mod
 
@@ -65,13 +65,15 @@ def test_gemini_analyse_exception_yields_safe_tldr(monkeypatch: pytest.MonkeyPat
         payload="p",
         lens="l",
     )
-    result = a.analyse(p)
-    assert "generativelanguage" not in result.tldr_en
-    assert "429" not in result.tldr_en
-    assert result.tldr_en.startswith("[generator error:")
+    with pytest.raises(RuntimeError) as excinfo:
+        a.analyse(p)
+    msg = str(excinfo.value)
+    assert "generativelanguage" not in msg
+    assert "429" not in msg
+    assert "Gemini analysis failed for x:" in msg
 
 
-def test_parse_failure_does_not_embed_raw_response(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_parse_failure_fails_without_raw_response(monkeypatch: pytest.MonkeyPatch) -> None:
     import rexy.generate.llm.gemini as gemini_mod
 
     if gemini_mod.genai is None:
@@ -94,6 +96,9 @@ def test_parse_failure_does_not_embed_raw_response(monkeypatch: pytest.MonkeyPat
         payload=None,
         lens="l",
     )
-    result = a.analyse(p)
-    assert "{{{" not in result.tldr_en
-    assert "parse" in result.tldr_en.lower() or "json" in result.tldr_en.lower()
+    with pytest.raises(RuntimeError) as excinfo:
+        a.analyse(p)
+    msg = str(excinfo.value)
+    assert "{{{" not in msg
+    assert "Gemini analysis failed for y:" in msg
+    assert "json" in msg.lower()

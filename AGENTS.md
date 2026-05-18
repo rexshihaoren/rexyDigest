@@ -25,15 +25,16 @@ If another agent-specific file exists (`AGENT.md`, `CLAUDE.md`, `CURSOR.md`, `.c
 
 ## Skills
 
-This repo stores reusable skills in a model-agnostic canonical location:
+This repo registers reusable agent coding skills from the Cursor skill source:
 
-- `docs/ai/skills/`
+- `.cursor/skills/`
 
-Runtime adapters may mirror from canonical source, for example:
+Other adapter or reference locations may mirror from this source, for example:
 
+- Legacy/reference path: `docs/ai/skills/`
 - Trae runtime path: `.trae/skills/`
 
-Use these skills when relevant:
+Registered agent coding skills:
 
 - `grill-me`
 - `grill-with-docs`
@@ -50,7 +51,7 @@ These skills are intended to work regardless of model family (Codex, DeepSeek, G
 Portable protocol:
 
 1. Resolve requested skill from user intent or explicit name.
-2. Read `docs/ai/skills/<skill-name>/SKILL.md`.
+2. Read `.cursor/skills/<skill-name>/SKILL.md`.
 3. Apply that skill as task workflow guidance.
 4. Load any companion files referenced by that skill.
 
