@@ -8,11 +8,6 @@ source_type = "youtube"
 disabled    = false
 
 [[channels]]
-channel_id     = "UCoookXUzPciGrEZEXmh4Jjg"
-default_author = "Andrej Karpathy"
-kol            = "karpathy"
-
-[[channels]]
 channel_id     = "UCYqc84mh-05GwxmHmtA4zcQ"
 default_author = "Simon Willison"
 kol            = "simon willison"

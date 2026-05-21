@@ -21,9 +21,12 @@ def test_render_includes_all_seeded_slugs_in_priors_order():
     assert "source_type = \"youtube\"" in body
     assert "disabled    = false" in body
     assert body.count("[[channels]]") == len(YOUTUBE_SEED)
-    # Order follows kol_priors insertion order (defaults): karpathy before simon, etc.
-    assert body.index("kol            = \"karpathy\"") < body.index(
-        'kol            = "simon willison"'
+    # Known-bad / unverified channel IDs must not be emitted.
+    assert "UCoookXUzPciGrEZEXmh4Jjg" not in body
+    assert 'kol            = "karpathy"' not in body
+    # Order follows kol_priors insertion order for verified seeded channels.
+    assert body.index('kol            = "simon willison"') < body.index(
+        'kol            = "latent space"'
     )
 
 
@@ -31,5 +34,5 @@ def test_missing_seed_lists_expected_gaps():
     cfg = GeneratorConfig()
     miss = missing_seed_slugs(cfg)
     assert "lilian weng" in miss
-    assert "karpathy" not in miss
+    assert "karpathy" in miss
     assert len(miss) == len(cfg.kol_priors) - len(YOUTUBE_SEED)

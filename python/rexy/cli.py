@@ -81,8 +81,8 @@ def main(argv: list[str] | None = None) -> int:
         help=f"generator config TOML (default: {DEFAULT_GENERATOR_CONFIG})",
     )
     gen.add_argument(
-        "--llm", choices=["gemini", "memory"], default="gemini",
-        help="which LLM adapter to use (memory = deterministic fixture for smoke tests)",
+        "--llm", choices=["gemini", "deepseek", "memory"], default=None,
+        help="LLM provider override (default: generator config; memory = deterministic fixture)",
     )
 
     pub = sub.add_parser(
@@ -127,7 +127,7 @@ def main(argv: list[str] | None = None) -> int:
     )
     deep.add_argument(
         "--generator-config", type=Path, default=DEFAULT_GENERATOR_CONFIG,
-        help=f"for --llm gemini model name (default: {DEFAULT_GENERATOR_CONFIG})",
+        help=f"for deep-note Gemini model name (default: {DEFAULT_GENERATOR_CONFIG})",
     )
     deep.add_argument(
         "--llm", choices=["gemini", "memory"], default="gemini",
@@ -233,33 +233,31 @@ def _cmd_generate(args: argparse.Namespace) -> int:
     corpus_root: Path = args.corpus
     window = _resolve_generation_window(args, corpus_root)
     config = GeneratorConfig.load(args.generator_config)
+    provider = args.llm or config.llm_provider
 
     print(f"[rexy] generate window={window} corpus={corpus_root}")
-    print(f"[rexy] llm adapter={args.llm} model={config.model}")
+    print(f"[rexy] llm provider={provider} model={_provider_model(provider, config)}")
 
-    if args.llm == "gemini":
-        from .generate.llm.gemini import GeminiAnalyser
-        analyser = GeminiAnalyser(model=config.model)
-    else:
-        from .generate.llm.memory import InMemoryAnalyser
-        from .generate.llm import ItemAnalysis, ItemPrompt
+    from .generate.llm import ItemAnalysis, ItemPrompt
+    from .generate.llm.factory import make_analyser
 
-        def _stub(prompt: ItemPrompt) -> ItemAnalysis:
-            return ItemAnalysis(
-                item_id=prompt.item_id,
-                relevance=3.0,
-                actionability=3.0,
-                tldr_en=f"[smoke-test stub] {prompt.title[:80]}",
-                takeaways_en=["Memory adapter active.", "No real LLM call.", "Use --llm gemini for real run."],
-                implication_en="Smoke-test only; switch to --llm gemini for real analysis.",
-                topics=["Agent"],
-                title_zh="（占位）",
-                tldr_zh="（占位 TL;DR）",
-                takeaways_zh=["占位 1", "占位 2", "占位 3"],
-                implication_zh="（占位）",
-                topics_zh=["智能体"],
-            )
-        analyser = InMemoryAnalyser(analyse_fn=_stub, model="memory-stub", prompt_version=config.prompt_version)
+    def _stub(prompt: ItemPrompt) -> ItemAnalysis:
+        return ItemAnalysis(
+            item_id=prompt.item_id,
+            relevance=3.0,
+            actionability=3.0,
+            tldr_en=f"[smoke-test stub] {prompt.title[:80]}",
+            takeaways_en=["Memory adapter active.", "No real LLM call.", "Use --llm gemini/deepseek for real run."],
+            implication_en="Smoke-test only; switch to --llm gemini/deepseek for real analysis.",
+            topics=["Agent"],
+            title_zh="（占位）",
+            tldr_zh="（占位 TL;DR）",
+            takeaways_zh=["占位 1", "占位 2", "占位 3"],
+            implication_zh="（占位）",
+            topics_zh=["智能体"],
+        )
+
+    analyser = make_analyser(provider, config, memory_stub=_stub)
 
     run = run_generation(window, config, analyser, corpus_root, args.gist_dir)
     duration = (run.finished_at - run.started_at).total_seconds() if run.finished_at else 0.0
@@ -272,6 +270,17 @@ def _cmd_generate(args: argparse.Namespace) -> int:
     print(f"  selection      ={run.selection_path}")
     print(f"  gist           ={run.gist_path}")
     return 0 if run.items_in_selection > 0 else 1
+
+
+def _provider_model(provider: str, config: GeneratorConfig) -> str:
+    provider = provider.strip().lower()
+    if provider == "gemini":
+        return config.gemini_model
+    if provider == "deepseek":
+        return config.deepseek_model
+    if provider == "memory":
+        return "memory-stub"
+    return "(unknown)"
 
 
 def _cmd_deep_notes(args: argparse.Namespace) -> int:
@@ -287,7 +296,7 @@ def _cmd_deep_notes(args: argparse.Namespace) -> int:
 
     try:
         cfg = GeneratorConfig.load(args.generator_config)
-        writer = make_deep_note_writer(args.llm, cfg.model)
+        writer = make_deep_note_writer(args.llm, cfg.gemini_model)
         run = run_deep_notes(
             window,
             corpus_root,

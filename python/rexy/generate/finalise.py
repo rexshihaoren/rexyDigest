@@ -53,6 +53,7 @@ def finalise(
             composite=composite,
         )))
 
+    scored = [pair for pair in scored if _passes_final_gate(pair, config)]
     scored.sort(key=lambda pair: pair[1].composite, reverse=True)
     scored = _enforce_mission_filter(scored, config)
 
@@ -122,6 +123,14 @@ def _lowest_ranked_agent_only_index(scored: list[Scored], config: GeneratorConfi
         if _is_agent_only(scored[index], config):
             return index
     return None
+
+
+def _passes_final_gate(pair: Scored, config: GeneratorConfig) -> bool:
+    scores = pair[1]
+    return (
+        scores.relevance >= config.min_final_relevance
+        and scores.actionability >= config.min_final_actionability
+    )
 
 
 def _is_agent_only(pair: Scored, config: GeneratorConfig) -> bool:

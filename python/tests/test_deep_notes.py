@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from datetime import date, datetime, timezone
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
@@ -116,3 +117,42 @@ def test_run_deep_notes_rejects_id_not_in_selection(tmp_path: Path) -> None:
 def test_picks_path_matches_end_date() -> None:
     w = Window(start=date(2026, 1, 1), end=date(2026, 1, 8))
     assert picks_path(Path("/cfg"), w) == Path("/cfg/2026-01-08.toml")
+
+
+def test_deep_notes_cli_uses_gemini_model_from_generator_config(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import rexy.generate.deep_notes as deep_notes_mod
+    from rexy import cli
+
+    seen: dict[str, str] = {}
+
+    def fake_make_deep_note_writer(llm: str, model: str):
+        seen["llm"] = llm
+        seen["model"] = model
+        return object()
+
+    def fake_run_deep_notes(*_args, **_kwargs):
+        return SimpleNamespace(picks_file=tmp_path / "2026-01-15.toml", written=[])
+
+    cfg = tmp_path / "generator.toml"
+    cfg.write_text(
+        'model = "legacy-gemini"\n'
+        'gemini_model = "gemini-for-deep-notes"\n',
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(deep_notes_mod, "make_deep_note_writer", fake_make_deep_note_writer)
+    monkeypatch.setattr(deep_notes_mod, "run_deep_notes", fake_run_deep_notes)
+
+    rc = cli._cmd_deep_notes(SimpleNamespace(
+        end="2026-01-15",
+        corpus=tmp_path / "corpus",
+        deep_picks_dir=tmp_path / "picks",
+        inbox_dir=tmp_path / "inbox",
+        llm="gemini",
+        generator_config=cfg,
+    ))
+
+    assert rc == 0
+    assert seen == {"llm": "gemini", "model": "gemini-for-deep-notes"}

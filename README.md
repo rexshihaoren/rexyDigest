@@ -68,10 +68,15 @@ Defaults to a 7-day window ending today. Reads adapter configs from
 PYTHONPATH=python ./.venv/bin/python -m rexy generate --window 2026-05-04/2026-05-11
 ```
 
-Defaults to the latest ingestion run's window. With `--llm gemini`
-(default) calls Gemini per-Item; with `--llm memory` runs the deterministic
-fixture for smoke tests. Writes `corpus/selections/Selection_<end>.jsonl`
-and `Weekly_Gist/Weekly_Gist_<end>.md`.
+Defaults to the latest ingestion run's window. With the production default
+config, `generate` calls DeepSeek per-Item; `--llm gemini` calls Gemini
+per-Item; `--llm memory` runs the deterministic fixture for smoke tests.
+For DeepSeek, put `DEEPSEEK_API_KEY=...` in repo-root `.env.local`.
+For Gemini, put `GEMINI_API_KEY=...` in repo-root `.env.local`.
+Writes `corpus/selections/Selection_<end>.jsonl`
+and `Weekly_Gist/Weekly_Gist_<end>.md`. The internal gist's
+`Top Items for Rex Ren` table includes an `ItemID` column so deep-note picks
+can be copied without opening the JSONL.
 
 ### Publish
 
@@ -89,14 +94,16 @@ them through even with zero AGENT/SIM keyword hits, and prerank applies the conf
 
 ### Deep notes (optional, second LLM pass)
 
-After `generate` + `publish`, list **0–2** `item_id`s from that week’s Selection in
-[`config/deep_picks/<end>.toml`](config/deep_picks/README.md), then:
+After `generate` + `publish`, choose **0–2** `ItemID`s from that week's
+`Weekly_Gist/Weekly_Gist_<end>.md` `Top Items for Rex Ren` table, then list
+them in [`config/deep_picks/<end>.toml`](config/deep_picks/README.md):
 
 ```bash
 PYTHONPATH=python ./.venv/bin/python -m rexy deep-notes --end 2026-05-11 --llm gemini
 ```
 
 Writes one Markdown file per id under `KnowledgeCard_Inbox/` (gitignored by default).
+Deep notes default to Gemini because this is the scarce editorial-quality pass.
 Use `--llm memory` for smoke tests without an API key.
 
 ### Status

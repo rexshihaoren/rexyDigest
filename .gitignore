@@ -13,11 +13,16 @@ venv/
 # Corpus data (per-machine; do not commit)
 corpus/
 
+# Node dependencies (installed locally; do not commit)
+node_modules/
+
+# Generated weekly digest outputs (older committed examples remain tracked)
+Weekly_Gist/
+
 # Coverage
 coverage/
 
 # Debug artifacts
-Weekly_Gist/Debug/
 tmp-public-*/
 tmp-ingest-verify/
 

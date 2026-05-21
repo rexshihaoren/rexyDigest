@@ -113,8 +113,8 @@ def _render_table(
     out = [
         "## Top Items for Rex Ren",
         "",
-        "| KOL | Title | Date | Topics | Type | Link | ReadPriority | ShortSummary | CompositeScore | Relevance | Novelty | Actionability |",
-        "|---|---|---|---|---|---|---|---|---|---|---|---|",
+        "| ItemID | KOL | Title | Date | Topics | Type | Link | ReadPriority | ShortSummary | CompositeScore | Relevance | Novelty | Actionability |",
+        "|---|---|---|---|---|---|---|---|---|---|---|---|---|",
     ]
     for entry in entries:
         item = items_by_id.get(entry.item_id)
@@ -128,6 +128,7 @@ def _render_table(
         topics_str = ", ".join(entry.topics) if entry.topics else "Agent"
         short = entry.tldr_en.strip().replace("|", "/")
         out.append(
+            f"| {entry.item_id} "
             f"| {_safe(item.author)} "
             f"| {_safe(item.title)} "
             f"| {item.published_at.isoformat()} "

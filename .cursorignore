@@ -1,0 +1,32 @@
+# dependency / virtual env
+node_modules/
+.venv/
+
+# Cursor internal / local state
+.cursor/
+
+# generated outputs
+Weekly_Gist/
+corpus/
+
+# caches
+__pycache__/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage/
+
+# build artifacts
+dist/
+build/
+*.egg-info/
+
+# logs / temp
+*.log
+tmp/
+temp/
+
+# secrets
+.env
+.env.*

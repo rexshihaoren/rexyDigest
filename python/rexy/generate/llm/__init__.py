@@ -1,11 +1,12 @@
 """LLM port + adapters.
 
 The generator's per-Item summarise stage talks to LLMs through the
-`LLMAnalyser` Protocol. Two adapters ship:
+`LLMAnalyser` Protocol. Adapters ship behind `llm.factory.make_analyser`:
 
   - `InMemoryAnalyser` (`memory.py`) — deterministic, used by tests; takes
     a fixture map keyed by item_id.
   - `GeminiAnalyser`  (`gemini.py`)  — production, calls `google-genai` (`google.genai`).
+  - `DeepSeekAnalyser` (`deepseek.py`) — production, calls DeepSeek's OpenAI-compatible chat API.
   - `GeminiDeepNoteWriter` / `MemoryDeepNoteWriter` (`llm/deep_note.py`) — optional second-pass Markdown per Item (`rexy deep-notes`).
 
 Per ADR-0007, translation is part of analysis, not a separate post-step.

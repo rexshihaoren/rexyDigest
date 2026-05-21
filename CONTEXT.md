@@ -37,7 +37,7 @@ A 1-decimal score per Selection entry, computed as `0.4*relevance + 0.3*novelty 
 _Avoid_: Score (alone), rating, rank.
 
 **Gist**:
-The internal Markdown document rendered from a **Selection** — `Weekly_Gist/Weekly_Gist_<end-date>.md`. Contains the full long-form content (today's prompt's Sections A/B/C).
+The internal Markdown document rendered from a **Selection** — `Weekly_Gist/Weekly_Gist_<end-date>.md`. Contains the full long-form content (today's prompt's Sections A/B/C) and exposes `ItemID` in the `Top Items for Rex Ren` table for manual deep-note picks.
 _Avoid_: Digest, weekly, summary, internal brief.
 
 **Brief**:

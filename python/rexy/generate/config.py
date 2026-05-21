@@ -61,6 +61,8 @@ class GeneratorConfig:
     final_size: int = 8           # top-N in the Selection
     min_sim_bridge_items: int = 2
     max_agent_only_items: int = 3
+    min_final_relevance: float = 2.0
+    min_final_actionability: float = 2.0
     novelty_lookback_weeks: int = 4  # how far back to check for similar prior items
     novelty_similarity_threshold: float = 0.6  # 0..1; above means "we covered this"
 
@@ -69,7 +71,12 @@ class GeneratorConfig:
     weight_novelty: float = 0.3
     weight_actionability: float = 0.3
 
+    llm_provider: str = "deepseek"
     model: str = "gemini-2.5-flash"
+    gemini_model: str = "gemini-2.5-flash"
+    deepseek_model: str = "deepseek-v4-pro"
+    deepseek_base_url: str = "https://api.deepseek.com"
+    deepseek_thinking: str = "disabled"
     prompt_version: str = "v1.0"
 
     @classmethod
@@ -84,6 +91,8 @@ class GeneratorConfig:
                     f"{path}: unknown generator config key {key!r}"
                 )
             setattr(cfg, key, value)
+        if "model" in data and "gemini_model" not in data:
+            cfg.gemini_model = cfg.model
         return cfg
 
     @property

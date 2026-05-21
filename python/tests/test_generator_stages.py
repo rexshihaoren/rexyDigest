@@ -288,6 +288,51 @@ class TestFinalise:
         assert [e.item_id for e in out] == ["arxiv:1", "arxiv:2", "arxiv:5", "arxiv:6"]
         assert [e.rank for e in out] == [1, 2, 3, 4]
 
+    def test_drops_low_relevance_mission_items_before_final_selection(self):
+        from rexy.generate.prerank import PreRanked
+        from rexy.generate.summarise import Summarised
+
+        def summarised(
+            i: int,
+            title: str,
+            topics: list[str],
+            relevance: float,
+            actionability: float,
+        ) -> tuple[Summarised, float]:
+            return (
+                Summarised(
+                    pre_ranked=PreRanked(
+                        item=Item(
+                            id=f"arxiv:{i}", source_type=SourceType.ARXIV, source_native_id=str(i),
+                            canonical_url=f"https://x/{i}", title=title, author="a",
+                            published_at=date(2026, 5, 5), type="paper", topics_raw=[],
+                            payload_kind=PayloadKind.METADATA_ONLY, payload_ref=None,
+                            fetched_at=datetime(2026, 5, 10, tzinfo=timezone.utc),
+                            adapter="test",
+                        ),
+                        score=1.0,
+                    ),
+                    analysis=ItemAnalysis(
+                        item_id=f"arxiv:{i}",
+                        relevance=relevance, actionability=actionability,
+                        tldr_en="x", takeaways_en=[], implication_en="", topics=topics,
+                    ),
+                ),
+                5.0,
+            )
+
+        cfg = GeneratorConfig(final_size=3, min_sim_bridge_items=1, max_agent_only_items=3)
+        window = Window.parse("2026-05-03/2026-05-10")
+        out = finalise([
+            summarised(1, "Agent orchestration", ["Agent"], 5.0, 5.0),
+            summarised(2, "Agent tool use", ["Agent"], 4.9, 4.9),
+            summarised(3, "Agent benchmark", ["Agent"], 4.8, 4.8),
+            summarised(4, "Simulation-labelled irrelevant roundup", ["Simulation"], 1.2, 1.0),
+        ], window, cfg, model="m", prompt_version="v")
+
+        assert [e.item_id for e in out] == ["arxiv:1", "arxiv:2", "arxiv:3"]
+        assert "arxiv:4" not in {e.item_id for e in out}
+
 
 # ---- renderer ---------------------------------------------------------------
 
@@ -327,6 +372,8 @@ class TestRenderer:
         assert "**Takeaways:**" in md
         assert "**Implication for Rex Ren:**" in md
         assert "**CompositeScore (3.9) | Topics: Agent**" in md
+        assert "| ItemID | KOL | Title |" in md
+        assert "| arxiv:1 |" in md
 
 
 # ---- end-to-end -------------------------------------------------------------

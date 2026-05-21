@@ -14,7 +14,6 @@ from ..generate.config import GeneratorConfig
 # Slug keys MUST match `GeneratorConfig.kol_priors` (defaults or generator.toml).
 # Values: (channel_id, default_author on Item when feed omits author).
 YOUTUBE_SEED: dict[str, tuple[str, str]] = {
-    "karpathy": ("UCoookXUzPciGrEZEXmh4Jjg", "Andrej Karpathy"),
     "yannic kilcher": ("UCZHmQk67mSJgfCCTn7xBfew", "Yannic Kilcher"),
     "latent space": ("UCcO7fE1uD3UDtmyIJUw1VMA", "Latent Space"),
     "hamel husain": ("UC__dUuqF5w4OnbW221JxmKg", "Hamel Husain"),
