@@ -25,6 +25,8 @@ config/sources/*.toml                                       Weekly_Gist/Public/W
   per-Item LLM calls), writes a **Selection** JSONL plus a Markdown gist.
 - **Publish** renders the Selection into the bilingual public **Brief**;
   it is LLM-free because translations were already written by the generator.
+- Human-readable render contracts live in [`docs/templates/`](docs/templates/);
+  Python renderers remain the runtime source of truth.
 
 See [`docs/adr/`](docs/adr/) for the load-bearing decisions
 (`items.jsonl` as the contract, Source Adapter port, hybrid ranker,

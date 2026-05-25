@@ -375,6 +375,24 @@ class TestRenderer:
         assert "| ItemID | KOL | Title |" in md
         assert "| arxiv:1 |" in md
 
+    def test_weekly_gist_template_spec_tracks_renderer_contract(self):
+        spec = (
+            Path(__file__).resolve().parents[2] / "docs" / "templates" / "weekly_gist.md"
+        ).read_text(encoding="utf-8")
+
+        for marker in [
+            "# Weekly Gist – {end_date}",
+            "# WEEKLY BRIEF",
+            "**COVERAGE_WINDOW:",
+            "**TL;DR:**",
+            "**Takeaways:**",
+            "**Implication for Rex Ren:**",
+            "**CompositeScore ({composite_score}) | Topics: {topics}**",
+            "## Top Items for Rex Ren",
+            "| ItemID | KOL | Title | Date | Topics | Type | Link | ReadPriority | ShortSummary | CompositeScore | Relevance | Novelty | Actionability |",
+        ]:
+            assert marker in spec
+
 
 # ---- end-to-end -------------------------------------------------------------
 

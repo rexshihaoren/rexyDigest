@@ -68,15 +68,61 @@ def _entry(*, with_translations: bool = True) -> SelectionEntry:
 class TestRenderer:
     def test_happy_path_includes_both_languages(self):
         md = render_public_brief(WINDOW, [_entry()], {"arxiv:1": _item()})
-        assert "# Weekly Digest – 2026-05-10" in md
+        assert "# AI×Simulation｜每周雷达" in md
+        assert "## 智能体×世界模型｜本周严选：论文·视频·博文" in md
         assert "整理者：Rex Ren" in md
         assert "覆盖范围 Coverage window：**2026年05月03日 至 2026年05月10日**" in md
+        assert "### 核心看点 Overview（双语）" in md
         assert "智能体工具使用的突破" in md
         assert "A breakthrough in agentic tool use" in md
         assert "一项重要进展。 ｜ A major step forward." in md
         assert "要点 1 ｜ Point 1" in md
         assert "**综合评分｜CompositeScore**" in md
         assert "4.1" in md or "4.0" in md  # composite formatted as 1dp
+
+    def test_public_brief_renders_top_five_selection_entries_only(self):
+        entries = []
+        items = {}
+        for i in range(1, 7):
+            item = _item()
+            item.id = f"arxiv:{i}"
+            item.source_native_id = str(i)
+            item.title = f"Title {i}"
+            item.canonical_url = f"https://example.com/{i}"
+            entry = _entry()
+            entry.item_id = item.id
+            entry.rank = i
+            entry.translations.title_zh = f"标题 {i}"
+            entries.append(entry)
+            items[item.id] = item
+
+        md = render_public_brief(WINDOW, entries, items)
+
+        assert "入选 Items: **5**" in md
+        assert "Title 5" in md
+        assert "Title 6" not in md
+
+    def test_public_brief_template_spec_tracks_renderer_contract(self):
+        spec = (
+            Path(__file__).resolve().parents[2] / "docs" / "templates" / "public_brief.md"
+        ).read_text(encoding="utf-8")
+
+        for marker in [
+            "# AI×Simulation｜每周雷达",
+            "## 智能体×世界模型｜本周严选：论文·视频·博文",
+            "> 整理者：Rex Ren",
+            "覆盖范围 Coverage window：**{start_date_zh} 至 {end_date_zh}** ｜ 入选 Items: **{item_count}**",
+            "### 核心看点 Overview（双语）",
+            "**标题｜Title**",
+            "**来源｜Source**",
+            "**摘要｜TL;DR**",
+            "**要点｜Takeaways**",
+            "**启示｜Implication**",
+            "**综合评分｜CompositeScore**",
+            "**主题｜Topics**",
+            "**本周 KOL｜KOL roster**",
+        ]:
+            assert marker in spec
 
     def test_missing_translation_falls_back_to_english(self):
         md = render_public_brief(WINDOW, [_entry(with_translations=False)], {"arxiv:1": _item()})
@@ -100,7 +146,7 @@ class TestRenderer:
         e.item_id = "arxiv:does-not-exist"
         md = render_public_brief(WINDOW, [e], {})
         # Header still rendered, no entry body
-        assert "Weekly Digest" in md
+        assert "AI×Simulation｜每周雷达" in md
         assert "**标题｜Title**" not in md
 
 

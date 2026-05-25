@@ -1,8 +1,7 @@
 """Bilingual public-brief renderer.
 
-Output shape mirrors the Node publisher's "structured" mode (see
-`scripts/publize_brief.mjs:buildStructured`) so existing readers don't see
-a sudden format break. Differences:
+Output is a deterministic Python render that keeps the legacy public identity
+without publish-time LLM calls. Differences from the old Node prompt transform:
 
   - No LLM round-trip — Chinese fields come straight from
     `SelectionEntry.translations`. If a translation is missing the EN
@@ -32,6 +31,8 @@ _TYPE_CN = {
     "video": "视频",
     "talk": "演讲",
 }
+_PUBLIC_ITEM_LIMIT = 5
+_OVERVIEW_ITEM_LIMIT = 3
 
 
 def render_public_brief(
@@ -41,24 +42,26 @@ def render_public_brief(
 ) -> str:
     """Return the bilingual public-brief Markdown for one Selection."""
 
-    entries_list = list(entries)
+    entries_list = sorted(list(entries), key=lambda e: e.rank)
+    public_entries = entries_list[:_PUBLIC_ITEM_LIMIT]
     end = window.end.isoformat()
     lines: list[str] = []
-    lines.append(f"# Weekly Digest – {end}")
+    lines.append("# AI×Simulation｜每周雷达")
+    lines.append("## 智能体×世界模型｜本周严选：论文·视频·博文")
     lines.append("")
     lines.append("> 整理者：Rex Ren")
     lines.append("")
-    lines.append(_coverage_line(window, len(entries_list)))
+    lines.append(_coverage_line(window, len(public_entries)))
     lines.append("")
 
-    lead_block = _render_lead_block(entries_list, items_by_id)
-    if lead_block:
-        lines.extend(lead_block)
+    overview_block = _render_overview(public_entries, items_by_id)
+    if overview_block:
+        lines.extend(overview_block)
         lines.append("")
 
     lines.append("---")
 
-    for entry in entries_list:
+    for entry in public_entries:
         item = items_by_id.get(entry.item_id)
         if item is None:
             continue
@@ -71,7 +74,7 @@ def render_public_brief(
         while lines and not lines[-1].strip():
             lines.pop()
 
-    kol_block = _render_kol_roster(entries_list, items_by_id)
+    kol_block = _render_kol_roster(public_entries, items_by_id)
     if kol_block:
         lines.append("")
         lines.append("")
@@ -136,33 +139,56 @@ def _render_entry(entry: SelectionEntry, item: Item) -> list[str]:
 _KOL_TOPIC_PREFIX = "kol:"
 
 
-def _render_lead_block(
+def _render_overview(
     entries_list: list[SelectionEntry],
     items_by_id: dict[str, Item],
 ) -> list[str]:
-    """Top-ranked Item as '本周亮点｜Lead' anchor. Empty if no usable entries."""
+    """Top 3 highlights, mission/bridge first, then composite and rank."""
 
-    lead: SelectionEntry | None = None
-    lead_item: Item | None = None
-    for e in entries_list:
-        it = items_by_id.get(e.item_id)
-        if it is not None:
-            if lead is None or e.rank < lead.rank:
-                lead, lead_item = e, it
-    if lead is None or lead_item is None:
+    pairs = [(e, items_by_id[e.item_id]) for e in entries_list if e.item_id in items_by_id]
+    if not pairs:
         return []
 
-    title_zh = lead.translations.title_zh or lead_item.title
-    tldr_zh = (lead.translations.tldr_zh or lead.tldr_en).strip()
-    tldr_en = lead.tldr_en.strip()
+    highlights = sorted(
+        pairs,
+        key=lambda pair: (
+            0 if _is_mission_or_bridge(pair[0], pair[1]) else 1,
+            -pair[0].scores.composite,
+            pair[0].rank,
+        ),
+    )[:_OVERVIEW_ITEM_LIMIT]
+
     out: list[str] = []
-    out.append("**本周亮点｜Lead**")
-    out.append(
-        f"⭐ **{_safe(lead_item.author)}** — {_safe(title_zh)} ｜ {_safe(lead_item.title)}"
-    )
-    out.append(f"{tldr_zh} ｜ {tldr_en}")
-    out.append(f"_综合评分｜CompositeScore: {lead.scores.composite:.1f}_")
+    out.append("### 核心看点 Overview（双语）")
+    for entry, item in highlights:
+        title_zh = entry.translations.title_zh or item.title
+        out.append(f"- 🏅 {_safe(title_zh)} ｜ {_safe(item.title)}")
     return out
+
+
+def _is_mission_or_bridge(entry: SelectionEntry, item: Item) -> bool:
+    topics = {topic.strip().lower() for topic in entry.topics}
+    if "simulation" in topics:
+        return True
+
+    bridge_keywords = (
+        "world model", "world models", "digital physics", "simulation-based eval",
+        "simulation-based evals", "simulation based eval", "simulation based evals",
+        "simulation eval", "simulation evals", "simulation evaluation",
+        "simulation evaluations", "synthetic world", "synthetic worlds",
+        "consciousness modeling", "epistemic simulation",
+    )
+    haystack = " ".join([
+        item.title,
+        item.author,
+        item.type,
+        " ".join(item.topics_raw),
+        entry.tldr_en,
+        " ".join(entry.takeaways_en),
+        entry.implication_en,
+        " ".join(entry.topics),
+    ]).lower()
+    return any(keyword in haystack for keyword in bridge_keywords)
 
 
 def _render_kol_roster(
