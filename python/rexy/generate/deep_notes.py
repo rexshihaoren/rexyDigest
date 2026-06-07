@@ -1,4 +1,4 @@
-"""Manual picks → second-pass LLM → one Markdown file per Item."""
+"""Generated picks → second-pass LLM → one Markdown file per Item."""
 
 from __future__ import annotations
 
@@ -9,6 +9,7 @@ from ..corpus.items_store import ItemsStore
 from ..corpus.payloads_store import PayloadsStore
 from ..corpus.selections_store import SelectionsStore
 from ..domain import Item, Window
+from .deep_note_format import prepare_deep_note_markdown
 from .deep_picks import load_deep_picks, picks_path as deep_picks_toml_path
 from .llm.deep_note import DeepNoteWriter, MemoryDeepNoteWriter, safe_filename_part
 
@@ -58,11 +59,13 @@ def run_deep_notes(
         md = writer.write(
             item_id=item.id,
             item_type=item.type,
+            source=_source_label(item),
             title=item.title,
             author=item.author,
             url=item.canonical_url,
             payload=payload_text,
         )
+        md = prepare_deep_note_markdown(md)
         fname = f"deep_{safe_filename_part(iid)}_{end_s}.md"
         out = inbox_dir / fname
         out.write_text(md.rstrip() + "\n", encoding="utf-8")
@@ -77,6 +80,18 @@ def _read_payload(item: Item, payloads: PayloadsStore) -> str:
     if not payloads.exists(item.payload_ref):
         return ""
     return payloads.read(item.payload_ref)
+
+
+def _source_label(item: Item) -> str:
+    labels = {
+        "arxiv": "arXiv",
+        "rss": "RSS",
+        "podcast": "Podcast",
+        "youtube": "YouTube",
+        "blog": "Blog",
+    }
+    raw = str(item.source_type.value if hasattr(item.source_type, "value") else item.source_type)
+    return labels.get(raw, raw)
 
 
 def make_deep_note_writer(llm: str, model: str) -> DeepNoteWriter:

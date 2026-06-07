@@ -111,27 +111,32 @@ def main(argv: list[str] | None = None) -> int:
 
     deep = sub.add_parser(
         "deep-notes",
-        help="Second-pass LLM: read config/deep_picks/<end>.toml (≤2 item_ids) → one .md per Item.",
+        help="Interactive second-pass Gemini deep-note picker.",
     )
-    deep.add_argument(
-        "--end", type=str, required=True,
-        help="Window end YYYY-MM-DD; start = end-7d (must match Selection file).",
+    deep_sub = deep.add_subparsers(dest="deep_cmd", required=True)
+    deep_pick = deep_sub.add_parser(
+        "pick",
+        help="Review public overview AI×Simulation candidates, pick up to 2, and generate deep notes.",
     )
-    deep.add_argument(
+    deep_pick.add_argument(
+        "--end", type=str, default=None,
+        help="Window end YYYY-MM-DD; omit to choose from latest Selection dates.",
+    )
+    deep_pick.add_argument(
         "--deep-picks-dir", type=Path, default=DEFAULT_DEEP_PICKS_DIR,
-        help=f"directory of YYYY-MM-DD.toml picks (default: {DEFAULT_DEEP_PICKS_DIR})",
+        help=f"where to write generated pick audit TOML (default: {DEFAULT_DEEP_PICKS_DIR})",
     )
-    deep.add_argument(
+    deep_pick.add_argument(
         "--inbox-dir", type=Path, default=DEFAULT_KC_INBOX,
         help=f"where to write deep_*.md (default: {DEFAULT_KC_INBOX})",
     )
-    deep.add_argument(
-        "--generator-config", type=Path, default=DEFAULT_GENERATOR_CONFIG,
-        help=f"for deep-note Gemini model name (default: {DEFAULT_GENERATOR_CONFIG})",
+    deep_pick.add_argument(
+        "--public-dir", type=Path, default=DEFAULT_PUBLIC_DIR,
+        help=f"where to require Weekly_Brief_Public_<end>.md (default: {DEFAULT_PUBLIC_DIR})",
     )
-    deep.add_argument(
-        "--llm", choices=["gemini", "memory"], default="gemini",
-        help="gemini (default) or memory stub",
+    deep_pick.add_argument(
+        "--generator-config", type=Path, default=DEFAULT_GENERATOR_CONFIG,
+        help=f"generator config TOML (default: {DEFAULT_GENERATOR_CONFIG})",
     )
 
     args = parser.parse_args(argv)
@@ -147,7 +152,9 @@ def main(argv: list[str] | None = None) -> int:
     if args.cmd == "parity":
         return _cmd_parity(args)
     if args.cmd == "deep-notes":
-        return _cmd_deep_notes(args)
+        if args.deep_cmd == "pick":
+            return _cmd_deep_notes_pick(args)
+        parser.error(f"unknown deep-notes command {args.deep_cmd}")
     parser.error(f"unknown command {args.cmd}")
     return 2
 
@@ -283,41 +290,84 @@ def _provider_model(provider: str, config: GeneratorConfig) -> str:
     return "(unknown)"
 
 
-def _cmd_deep_notes(args: argparse.Namespace) -> int:
-    from .generate.config import GeneratorConfig
-    from .generate.deep_notes import make_deep_note_writer, run_deep_notes
+def _cmd_deep_notes_pick(args: argparse.Namespace) -> int:
+    from .generate.deep_note_picker import (
+        available_selection_ends,
+        run_interactive_deep_note_pick,
+        window_for_end,
+    )
+    from .generate.deep_notes import make_deep_note_writer
 
-    end = date.fromisoformat(args.end)
-    window = Window(start=end - timedelta(days=7), end=end)
+    if not sys.stdin.isatty():
+        print("[rexy] deep-notes pick requires an interactive terminal", file=sys.stderr)
+        return 1
+
     corpus_root: Path = args.corpus
-
-    print(f"[rexy] deep-notes window={window} corpus={corpus_root}")
-    print(f"[rexy] llm={args.llm} picks_dir={args.deep_picks_dir} inbox={args.inbox_dir}")
-
     try:
+        if args.end:
+            window = window_for_end(date.fromisoformat(args.end))
+        else:
+            ends = available_selection_ends(corpus_root, limit=10)
+            if not ends:
+                print(f"[rexy] no Selection files found under {corpus_root / 'selections'}", file=sys.stderr)
+                return 1
+            window = window_for_end(_choose_selection_end(ends))
+
         cfg = GeneratorConfig.load(args.generator_config)
-        writer = make_deep_note_writer(args.llm, cfg.gemini_model)
-        run = run_deep_notes(
-            window,
-            corpus_root,
-            args.deep_picks_dir,
-            args.inbox_dir,
-            writer,
+
+        def writer_factory():
+            return make_deep_note_writer("gemini", cfg.gemini_model)
+
+        run = run_interactive_deep_note_pick(
+            window=window,
+            corpus_root=corpus_root,
+            public_dir=args.public_dir,
+            picks_root=args.deep_picks_dir,
+            inbox_dir=args.inbox_dir,
+            config=cfg,
+            writer_factory=writer_factory,
         )
-    except FileNotFoundError as e:
-        print(f"[rexy] {e}", file=sys.stderr)
-        return 1
-    except ValueError as e:
+    except (FileNotFoundError, ValueError, RuntimeError) as e:
         print(f"[rexy] {e}", file=sys.stderr)
         return 1
 
-    print(f"[rexy] picks_file={run.picks_file}")
-    if not run.written:
-        print("[rexy] item_ids empty — nothing to write (use item_ids = [] in picks file)")
-        return 0
-    for p in run.written:
-        print(f"[rexy] wrote {p}")
+    if run.item_ids:
+        print(f"[rexy] picks_file={run.picks_file}")
+    for path in run.written:
+        print(f"[rexy] wrote {path}")
+    for path in run.skipped_existing:
+        print(f"[rexy] skipped existing {path}")
     return 0
+
+
+def _choose_selection_end(ends: list[date]) -> date:
+    latest = ends[0]
+    if _ask_cli_yes_no(f"Use latest available selection: {latest.isoformat()}? [y/n]: "):
+        return latest
+
+    print("Available selection windows:")
+    for index, end in enumerate(ends, start=1):
+        print(f"{index}. {end.isoformat()}")
+    while True:
+        raw = input(f"Choose end date [1-{len(ends)}]: ").strip()
+        try:
+            value = int(raw)
+        except ValueError:
+            print("Please enter a number.")
+            continue
+        if 1 <= value <= len(ends):
+            return ends[value - 1]
+        print(f"Please enter a number from 1 to {len(ends)}.")
+
+
+def _ask_cli_yes_no(prompt: str) -> bool:
+    while True:
+        answer = input(prompt).strip().lower()
+        if answer == "y":
+            return True
+        if answer == "n":
+            return False
+        print("Please answer y or n.")
 
 
 def _cmd_status(args: argparse.Namespace) -> int:

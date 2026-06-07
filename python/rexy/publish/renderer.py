@@ -42,8 +42,7 @@ def render_public_brief(
 ) -> str:
     """Return the bilingual public-brief Markdown for one Selection."""
 
-    entries_list = sorted(list(entries), key=lambda e: e.rank)
-    public_entries = entries_list[:_PUBLIC_ITEM_LIMIT]
+    public_entries = select_public_entries(entries)
     end = window.end.isoformat()
     lines: list[str] = []
     lines.append("# AI×Simulation｜每周雷达")
@@ -97,6 +96,29 @@ def _to_cn_date(s: str) -> str:
     return f"{y}年{m}月{d}日"
 
 
+def select_public_entries(entries: Iterable[SelectionEntry]) -> list[SelectionEntry]:
+    """Return Selection rank Top 5 entries rendered in the public Brief body."""
+
+    return sorted(list(entries), key=lambda e: e.rank)[:_PUBLIC_ITEM_LIMIT]
+
+
+def select_overview_highlights(
+    entries: Iterable[SelectionEntry],
+    items_by_id: dict[str, Item],
+) -> list[tuple[SelectionEntry, Item]]:
+    """Return public overview highlights from renderable public body entries."""
+
+    pairs = [(e, items_by_id[e.item_id]) for e in entries if e.item_id in items_by_id]
+    return sorted(
+        pairs,
+        key=lambda pair: (
+            0 if _is_mission_or_bridge(pair[0], pair[1]) else 1,
+            -pair[0].scores.composite,
+            pair[0].rank,
+        ),
+    )[:_OVERVIEW_ITEM_LIMIT]
+
+
 def _render_entry(entry: SelectionEntry, item: Item) -> list[str]:
     emoji = _TYPE_EMOJI.get(item.type, "🔗")
     type_cn = _TYPE_CN.get(item.type, item.type)
@@ -145,18 +167,9 @@ def _render_overview(
 ) -> list[str]:
     """Top 3 highlights, mission/bridge first, then composite and rank."""
 
-    pairs = [(e, items_by_id[e.item_id]) for e in entries_list if e.item_id in items_by_id]
-    if not pairs:
+    highlights = select_overview_highlights(entries_list, items_by_id)
+    if not highlights:
         return []
-
-    highlights = sorted(
-        pairs,
-        key=lambda pair: (
-            0 if _is_mission_or_bridge(pair[0], pair[1]) else 1,
-            -pair[0].scores.composite,
-            pair[0].rank,
-        ),
-    )[:_OVERVIEW_ITEM_LIMIT]
 
     out: list[str] = []
     out.append("### 核心看点 Overview（双语）")

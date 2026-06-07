@@ -96,17 +96,20 @@ them through even with zero AGENT/SIM keyword hits, and prerank applies the conf
 
 ### Deep notes (optional, second LLM pass)
 
-After `generate` + `publish`, choose **0–2** `ItemID`s from that week's
-`Weekly_Gist/Weekly_Gist_<end>.md` `Top Items for Rex Ren` table, then list
-them in [`config/deep_picks/<end>.toml`](config/deep_picks/README.md):
+After `generate` + `publish`, run the interactive picker:
 
 ```bash
-PYTHONPATH=python ./.venv/bin/python -m rexy deep-notes --end 2026-05-11 --llm gemini
+PYTHONPATH=python ./.venv/bin/python -m rexy deep-notes pick --end 2026-05-11
 ```
 
-Writes one Markdown file per id under `KnowledgeCard_Inbox/` (gitignored by default).
-Deep notes default to Gemini because this is the scarce editorial-quality pass.
-Use `--llm memory` for smoke tests without an API key.
+The picker requires the public brief for that date, shows Top 3 overview
+AI×Simulation candidates one by one, writes an audit file under
+[`config/deep_picks/`](config/deep_picks/README.md), then writes one Markdown
+file per confirmed item under `KnowledgeCard_Inbox/` (gitignored by default).
+Before writing each note, the picker shows the drafted `00｜为什么在意这篇`
+section and requires explicit accept/rewrite confirmation. Deep notes use
+Gemini for the scarce editorial-quality pass and must follow the strict
+KnowledgeCard contract in [`docs/templates/deep_note.md`](docs/templates/deep_note.md).
 
 ### Status
 
@@ -155,7 +158,7 @@ after parity with legacy output. Then `scripts/`, `package.json`, and
 |---------------------------------|------------------------------------------------------------------|
 | `config/sources/*.toml`         | One file per Source Adapter instance (reserved keys: `source_type`, `disabled`) |
 | `config/generator.toml` (opt.)  | Override generator defaults (KOL priors, weights, model)          |
-| `.env.local`                    | `GEMINI_API_KEY`                                                  |
+| `.env.local`                    | `GEMINI_API_KEY`, `DEEPSEEK_API_KEY`                              |
 
 ## Repo layout
 

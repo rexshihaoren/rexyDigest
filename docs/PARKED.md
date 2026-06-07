@@ -26,8 +26,8 @@ Implementation is done; **merge and branch deletion** are process steps on your 
 
 | Item | Notes |
 |------|--------|
-| **Per-item blog notes** | **Shipped**: long-form deep dives — manual picks in `config/deep_picks/<end>.toml` (≤2 ids) → `rexy deep-notes --end …` → `KnowledgeCard_Inbox/*.md` (see [config/deep_picks/README.md](../../config/deep_picks/README.md)). Narrative polish still optional. |
-| **Conversational picks agent (narqs)** | Post-merge. The deep-notes contract is the manual picks TOML; if a chat agent is ever built, its only output must be that file — never gate the merge on it. |
+| **Per-item blog notes** | **Shipped**: long-form deep dives — interactive AI×Simulation picks from public Top 3 overview → `rexy deep-notes pick` → generated audit TOML under `config/deep_picks/` + `KnowledgeCard_Inbox/*.md`. Narrative polish still optional. |
+| **Agentic taste-learning picker** | Parked. Current deep-note picks require Rex's interactive `y/n` taste decisions. A future agentic flow may learn those preferences, but it must be explicit and reviewable. |
 | **Public brief 每周雷达 polish** | **Shipped**: bilingual 本周亮点 lead block + 本周 KOL roster footer in `python/rexy/publish/renderer.py`. Further narrative polish (e.g. cross-item synthesis paragraphs) parked. |
 | **Simple UI for manual quality review** | Rex needs a lightweight way to skim Selection + rendered Brief/Gist before ship. Not started. |
 | **Judge LLM for quality gates** | Later automation to score faithfulness / hallucination risk vs sources; not started. |

@@ -13,6 +13,7 @@ from rexy.corpus.selections_store import SelectionsStore
 from rexy.domain import Item, PayloadKind, Scores, SelectionEntry, SourceType, Translations, Window
 from rexy.generate.deep_picks import load_deep_picks, picks_path
 from rexy.generate.deep_notes import make_deep_note_writer, run_deep_notes
+from rexy.generate.llm.deep_note import GeminiDeepNoteWriter
 
 
 def test_load_deep_picks_ok(tmp_path: Path) -> None:
@@ -114,45 +115,55 @@ def test_run_deep_notes_rejects_id_not_in_selection(tmp_path: Path) -> None:
         run_deep_notes(window, corpus, picks_root, tmp_path / "inbox", writer)
 
 
+def test_run_deep_notes_rejects_invalid_markdown_without_writing_file(tmp_path: Path) -> None:
+    class BadWriter:
+        model = "bad"
+
+        def write(self, **_kwargs):
+            return "# Bad\n\nNo strict KnowledgeCard structure.\n"
+
+    window = Window(start=date(2026, 1, 8), end=date(2026, 1, 15))
+    corpus = tmp_path / "corpus"
+    (corpus / "selections").mkdir(parents=True)
+    (corpus / "payloads").mkdir(parents=True)
+    ItemsStore(corpus / "items.jsonl").upsert_many([_item("rss:test1", "body.txt")])
+    (corpus / "payloads" / "body.txt").write_text("payload body", encoding="utf-8")
+    SelectionsStore(corpus / "selections").write(window, [_entry("rss:test1", window)])
+
+    picks_root = tmp_path / "deep_picks"
+    picks_root.mkdir()
+    (picks_root / "2026-01-15.toml").write_text('item_ids = ["rss:test1"]\n', encoding="utf-8")
+    inbox = tmp_path / "inbox"
+
+    with pytest.raises(ValueError, match="invalid deep note Markdown"):
+        run_deep_notes(window, corpus, picks_root, inbox, BadWriter())
+
+    if inbox.exists():
+        assert not list(inbox.glob("*.md"))
+
+
 def test_picks_path_matches_end_date() -> None:
     w = Window(start=date(2026, 1, 1), end=date(2026, 1, 8))
     assert picks_path(Path("/cfg"), w) == Path("/cfg/2026-01-08.toml")
 
 
-def test_deep_notes_cli_uses_gemini_model_from_generator_config(
-    tmp_path: Path,
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    import rexy.generate.deep_notes as deep_notes_mod
-    from rexy import cli
+def test_gemini_deep_note_failure_raises_without_fallback_markdown() -> None:
+    writer = GeminiDeepNoteWriter.__new__(GeminiDeepNoteWriter)
+    writer.model = "gemini-test"
+    writer._types = SimpleNamespace(GenerateContentConfig=lambda **_kwargs: object())
 
-    seen: dict[str, str] = {}
+    def boom(**_kwargs):
+        raise RuntimeError("raw provider failure")
 
-    def fake_make_deep_note_writer(llm: str, model: str):
-        seen["llm"] = llm
-        seen["model"] = model
-        return object()
+    writer._client = SimpleNamespace(models=SimpleNamespace(generate_content=boom))
 
-    def fake_run_deep_notes(*_args, **_kwargs):
-        return SimpleNamespace(picks_file=tmp_path / "2026-01-15.toml", written=[])
-
-    cfg = tmp_path / "generator.toml"
-    cfg.write_text(
-        'model = "legacy-gemini"\n'
-        'gemini_model = "gemini-for-deep-notes"\n',
-        encoding="utf-8",
-    )
-    monkeypatch.setattr(deep_notes_mod, "make_deep_note_writer", fake_make_deep_note_writer)
-    monkeypatch.setattr(deep_notes_mod, "run_deep_notes", fake_run_deep_notes)
-
-    rc = cli._cmd_deep_notes(SimpleNamespace(
-        end="2026-01-15",
-        corpus=tmp_path / "corpus",
-        deep_picks_dir=tmp_path / "picks",
-        inbox_dir=tmp_path / "inbox",
-        llm="gemini",
-        generator_config=cfg,
-    ))
-
-    assert rc == 0
-    assert seen == {"llm": "gemini", "model": "gemini-for-deep-notes"}
+    with pytest.raises(RuntimeError, match="Gemini deep note failed for rss:test1"):
+        writer.write(
+            item_id="rss:test1",
+            item_type="blog",
+            source="RSS",
+            title="Hello",
+            author="A",
+            url="https://example.com",
+            payload="payload",
+        )
