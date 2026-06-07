@@ -47,7 +47,7 @@ Agent pass (~30m): consolidated YouTube bootstrap into `python/rexy/sources/yout
 | # | Topic | Options / notes |
 |---|--------|-------------------|
 | 1 | **CI Python version** | Workflow uses **3.12**; local `.venv` may be **3.14**. Align versions or keep matrix later. |
-| 2 | **Weekly Gist GitHub Action** | `.github/workflows/weekly-gist.yml` is still **Node** (`generate_gist.mjs`). Migrate to `python -m rexy generate`, keep both, or leave as-is until Node removal. |
+| 2 | **Weekly Gist GitHub Action** | **Shipped**: `.github/workflows/weekly-gist.yml` now runs Python `ingest -> generate --llm gemini -> publish` and commits the generated internal gist + public brief. Node source removal stays separate. |
 | 3 | **KOL ↔ org YouTube rows** | `harrison chase` → LangChain, `jerry liu` → LlamaIndex, `shane legg` → Google DeepMind: keep **org channel + personal `kol` slug**, or split slugs / drop org rows. |
 | 4 | **Six missing `YOUTUBE_SEED` slugs** | Add verified `channel_id`s for `lilian weng`, `tegmark`, `sean carroll`, `scott aaronson`, `nick bostrom`, `anil seth`, or explicitly **RSS-only** and remove from YouTube expectations. |
 | 5 | **`youtube.toml` source of truth** | Prefer always **`scripts/bootstrap_youtube_from_kols.py`** after editing `YOUTUBE_SEED`, or allow **hand-only** edits and drop script drift risk. |
