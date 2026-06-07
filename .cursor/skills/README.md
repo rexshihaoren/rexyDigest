@@ -9,4 +9,4 @@ Canonical source of truth:
 
 To refresh this adapter, run:
 
-- ./scripts/generate_cursor_adapter.sh
+- <path-to-rexy_vibing_setup>/scripts/generate_cursor_adapter.sh --target <repo>
