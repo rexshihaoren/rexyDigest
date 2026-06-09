@@ -11,7 +11,7 @@ venv/
 .env
 
 # Corpus data (per-machine; do not commit)
-corpus/
+/corpus/
 
 # Node dependencies (installed locally; do not commit)
 node_modules/
