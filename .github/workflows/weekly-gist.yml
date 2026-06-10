@@ -41,10 +41,10 @@ jobs:
         run: PYTHONPATH=python python -m rexy ingest --end "$END_DATE"
 
       - name: Generate weekly gist
-        run: PYTHONPATH=python python -m rexy generate --end "$END_DATE" --llm gemini
+        run: PYTHONPATH=python python -m rexy generate --end "$END_DATE" --llm deepseek
         env:
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          GEMINI_MODEL_FALLBACKS: gemini-2.5-flash-lite,gemini-2.5-flash,gemini-2.0-flash-001
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+          DEEPSEEK_MODEL_FALLBACKS: deepseek-v4-pro
 
       - name: Publish public brief
         run: PYTHONPATH=python python -m rexy publish --end "$END_DATE"
