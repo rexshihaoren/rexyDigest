@@ -103,13 +103,11 @@ PYTHONPATH=python ./.venv/bin/python -m rexy deep-notes pick --end 2026-05-11
 ```
 
 The picker requires the public brief for that date, shows Top 3 overview
-AI×Simulation candidates one by one, writes an audit file under
-[`config/deep_picks/`](config/deep_picks/README.md), then writes one Markdown
-file per confirmed item under `KnowledgeCard_Inbox/` (gitignored by default).
-Before writing each note, the picker shows the drafted `00｜为什么在意这篇`
-section and requires explicit accept/rewrite confirmation. Deep notes use
-Gemini for the scarce editorial-quality pass and must follow the strict
-KnowledgeCard contract in [`docs/templates/deep_note.md`](docs/templates/deep_note.md).
+AI×Simulation candidates one by one, writes a generated local audit file under
+`corpus/deep_picks/`, then writes one Markdown file per confirmed item under
+`KnowledgeCard_Inbox/` (both gitignored by default). Deep notes use Gemini for
+the scarce editorial-quality pass and must follow the strict KnowledgeCard
+contract in [`docs/templates/deep_note.md`](docs/templates/deep_note.md).
 
 ### Status
 

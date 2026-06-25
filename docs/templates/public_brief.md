@@ -50,10 +50,6 @@ runtime.
 
 **主题｜Topics**
 {topics_zh} ｜ {topics_en}
-
----
-
-**本周 KOL｜KOL roster**: {kol_slug_1}, {kol_slug_2}
 ```
 
 ## Rules
@@ -72,6 +68,4 @@ runtime.
   modeling, or epistemic simulation.
 - Each entry uses paired bilingual lines joined by ` ｜ `.
 - Entry blocks are separated by `---`.
-- KOL roster is optional. It appears only when selected Items have `kol:*`
-  markers in `topics_raw`, ordered by first appearance in Selection rank order.
 - Missing corpus Items are skipped rather than fabricated.

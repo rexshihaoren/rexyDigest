@@ -16,7 +16,6 @@ STRICT_NOTE = """# 世界模型正在变成 AI 的实验室
 Source: arXiv
 Original Title: World Model Eval
 Author: A
-ItemID: arxiv:2605.15185
 
 ---
 
@@ -104,6 +103,36 @@ def test_prepare_repairs_safe_formatting_variants() -> None:
     assert "\n---\n" in prepared
 
 
+def test_prepare_repairs_known_bullet_label_aliases() -> None:
+    rough = STRICT_NOTE
+    rough = rough.replace("- 为什么成立：", "- 为什么这个判断成立：")
+    rough = rough.replace("- 重要性：", "- 为什么重要：")
+    rough = rough.replace("- 支撑材料：", "- 证据材料：")
+
+    raw_errors = validate_deep_note_markdown(rough)
+    assert "missing bullet 为什么成立 in ### 02｜创新点" in raw_errors
+    assert "missing bullet 重要性 in ### 03｜与 AI X Simulation 的关系" in raw_errors
+    assert "missing bullet 支撑材料 in ### 04｜关键论据" in raw_errors
+
+    prepared = prepare_deep_note_markdown(rough)
+
+    assert "- 为什么成立：评测不只看回答对错，也看模型能否维持环境一致性。" in prepared
+    assert "- 为什么这个判断成立：" not in prepared
+    assert "- 重要性：两者接上后，agent 能先在环境里试错，而不是直接赌输出。" in prepared
+    assert "- 为什么重要：" not in prepared
+    assert "- 支撑材料：作者使用一组环境诊断任务来观察模型行为。" in prepared
+    assert "- 证据材料：" not in prepared
+
+
+def test_prepare_accepts_required_bullet_with_nested_content() -> None:
+    rough = STRICT_NOTE.replace(
+        "- 支撑材料：作者使用一组环境诊断任务来观察模型行为。",
+        "- 支撑材料：\n    * **Vending Bench**：模拟自动售货机运营。\n    * **Project Vend**：真实办公室部署。",
+    )
+
+    assert prepare_deep_note_markdown(rough) == rough
+
+
 @pytest.mark.parametrize(
     ("broken", "message"),
     [
@@ -111,7 +140,7 @@ def test_prepare_repairs_safe_formatting_variants() -> None:
         (STRICT_NOTE.replace("Source: arXiv\n", ""), "Source"),
         (STRICT_NOTE.replace("Original Title: World Model Eval\n", ""), "Original Title"),
         (STRICT_NOTE.replace("Author: A\n", ""), "Author"),
-        (STRICT_NOTE.replace("ItemID: arxiv:2605.15185\n", ""), "ItemID"),
+        (STRICT_NOTE.replace("Author: A", "Author: A\nItemID: arxiv:2605.15185"), "ItemID metadata is not allowed"),
         (STRICT_NOTE.replace("Source: arXiv", "Source: https://example.com/world-model"), "Source must be human-readable"),
         (STRICT_NOTE.replace("### 参考文献", "### 参考"), "参考文献"),
         (STRICT_NOTE.replace("https://example.com/world-model", "data:image/png;base64,abc"), "base64"),
@@ -178,7 +207,6 @@ def test_prepare_rejects_old_bilingual_template_shape() -> None:
 
 Source: https://example.com/world-model
 Author: A
-ItemID: rss:test
 
 引言：聚焦世界模型评测机制与可核验诊断信号。
 - 世界模型评测 World Model Evaluation

@@ -26,9 +26,11 @@ Implementation is done; **merge and branch deletion** are process steps on your 
 
 | Item | Notes |
 |------|--------|
-| **Per-item blog notes** | **Shipped**: long-form deep dives — interactive AI×Simulation picks from public Top 3 overview → `rexy deep-notes pick` → generated audit TOML under `config/deep_picks/` + `KnowledgeCard_Inbox/*.md`. Narrative polish still optional. |
+| **Per-item blog notes** | **Shipped**: long-form deep dives — interactive AI×Simulation picks from public Top 3 overview → `rexy deep-notes pick` → generated audit TOML under ignored `corpus/deep_picks/` + `KnowledgeCard_Inbox/*.md`. Narrative polish still optional. |
+| **Post-edit deep-note skill extraction** | After Rex edits a generated `xxx_edit.md`, diff `xxx_edit` vs `xxx`, summarize the reusable editing skills/patterns, and append them to the deep-note skill or prompt source of truth. Track in GitHub issue [#7](https://github.com/rexshihaoren/rexyDigest/issues/7). |
+| **Deep-note no-hallucination test skill** | After deep-note generation, run a grounding check that verifies each key claim in the note is traceable to source payload evidence before the note is treated as ready. Track in GitHub issue [#7](https://github.com/rexshihaoren/rexyDigest/issues/7). |
 | **Agentic taste-learning picker** | Parked. Current deep-note picks require Rex's interactive `y/n` taste decisions. A future agentic flow may learn those preferences, but it must be explicit and reviewable. |
-| **Public brief 每周雷达 polish** | **Shipped**: bilingual 本周亮点 lead block + 本周 KOL roster footer in `python/rexy/publish/renderer.py`. Further narrative polish (e.g. cross-item synthesis paragraphs) parked. |
+| **Public brief 每周雷达 polish** | **Shipped**: bilingual 本周亮点 lead block in `python/rexy/publish/renderer.py`. The KOL roster footer was removed because it added little reader value. Further narrative polish (e.g. cross-item synthesis paragraphs) parked. |
 | **Simple UI for manual quality review** | Rex needs a lightweight way to skim Selection + rendered Brief/Gist before ship. Not started. |
 | **Judge LLM for quality gates** | Later automation to score faithfulness / hallucination risk vs sources; not started. |
 | **Structural parity vs Node (`rexy parity`)** | Optional diff tool when comparing legacy Node output to Python output. **Not** a merge gate: legacy digests hallucinate; parity to them is not a quality bar ([ADR-0002](adr/0002-node-publisher-stays-through-phase-2.md)). |
@@ -51,7 +53,7 @@ Agent pass (~30m): consolidated YouTube bootstrap into `python/rexy/sources/yout
 | 3 | **KOL ↔ org YouTube rows** | `harrison chase` → LangChain, `jerry liu` → LlamaIndex, `shane legg` → Google DeepMind: keep **org channel + personal `kol` slug**, or split slugs / drop org rows. |
 | 4 | **Six missing `YOUTUBE_SEED` slugs** | Add verified `channel_id`s for `lilian weng`, `tegmark`, `sean carroll`, `scott aaronson`, `nick bostrom`, `anil seth`, or explicitly **RSS-only** and remove from YouTube expectations. |
 | 5 | **`youtube.toml` source of truth** | Prefer always **`scripts/bootstrap_youtube_from_kols.py`** after editing `YOUTUBE_SEED`, or allow **hand-only** edits and drop script drift risk. |
-| 6 | **Public brief “每周雷达” depth** | Lead + KOL roster shipped; add **weekly synthesis paragraph** (new LLM or hand), or leave minimal. |
+| 6 | **Public brief “每周雷达” depth** | Lead shipped; KOL roster removed. Add **weekly synthesis paragraph** (new LLM or hand), or leave minimal. |
 
 ## Local dev (PEP 668)
 

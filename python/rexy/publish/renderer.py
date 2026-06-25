@@ -73,12 +73,6 @@ def render_public_brief(
         while lines and not lines[-1].strip():
             lines.pop()
 
-    kol_block = _render_kol_roster(public_entries, items_by_id)
-    if kol_block:
-        lines.append("")
-        lines.append("")
-        lines.extend(kol_block)
-
     return "\n".join(lines).rstrip() + "\n"
 
 
@@ -158,9 +152,6 @@ def _render_entry(entry: SelectionEntry, item: Item) -> list[str]:
     return out
 
 
-_KOL_TOPIC_PREFIX = "kol:"
-
-
 def _render_overview(
     entries_list: list[SelectionEntry],
     items_by_id: dict[str, Item],
@@ -202,45 +193,6 @@ def _is_mission_or_bridge(entry: SelectionEntry, item: Item) -> bool:
         " ".join(entry.topics),
     ]).lower()
     return any(keyword in haystack for keyword in bridge_keywords)
-
-
-def _render_kol_roster(
-    entries_list: list[SelectionEntry],
-    items_by_id: dict[str, Item],
-) -> list[str]:
-    """List unique KOL slugs (from `kol:*` topic markers) that landed in this brief.
-
-    Slugs are normalised lower-case for stability; ordering follows first
-    appearance in the Selection rank order so output is deterministic.
-    """
-
-    seen: list[str] = []
-    seen_lc: set[str] = set()
-    for e in entries_list:
-        it = items_by_id.get(e.item_id)
-        if it is None:
-            continue
-        for topic in it.topics_raw or ():
-            if not isinstance(topic, str):
-                continue
-            if not topic.lower().startswith(_KOL_TOPIC_PREFIX):
-                continue
-            slug = topic[len(_KOL_TOPIC_PREFIX):].strip()
-            slug_lc = slug.lower()
-            if not slug_lc or slug_lc in seen_lc:
-                continue
-            seen.append(slug)
-            seen_lc.add(slug_lc)
-    if not seen:
-        return []
-
-    out: list[str] = []
-    out.append("---")
-    out.append("")
-    out.append(
-        f"**本周 KOL｜KOL roster**: {', '.join(seen)}"
-    )
-    return out
 
 
 def _pad(zh: list[str], target_len: int) -> list[str]:

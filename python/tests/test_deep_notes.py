@@ -96,7 +96,9 @@ def test_run_deep_notes_memory_writes_one_file(tmp_path: Path) -> None:
     assert len(run.written) == 1
     text = run.written[0].read_text(encoding="utf-8")
     assert "Hello" in text
-    assert "rss:test1" in text
+    assert "rss:test1" not in text
+    assert run.written[0].name == "deep_rss_test1_2026-01-15.md"
+    assert 'item_ids = ["rss:test1"]' in run.picks_file.read_text(encoding="utf-8")
     assert "memory stub" in text
 
 

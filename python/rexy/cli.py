@@ -30,7 +30,7 @@ DEFAULT_CONFIG = Path("config/sources")
 DEFAULT_GENERATOR_CONFIG = Path("config/generator.toml")
 DEFAULT_GIST_DIR = Path("Weekly_Gist")
 DEFAULT_PUBLIC_DIR = Path("Weekly_Gist/Public")
-DEFAULT_DEEP_PICKS_DIR = Path("config/deep_picks")
+DEFAULT_DEEP_PICKS_DIR = Path("corpus/deep_picks")
 DEFAULT_KC_INBOX = Path("KnowledgeCard_Inbox")
 
 

@@ -26,7 +26,6 @@ Required exact structure:
 Source: <human-readable source>
 Original Title: <source title>
 Author: <author>
-ItemID: <item id>
 
 ---
 
@@ -105,9 +104,9 @@ Rules:
 - Include images only if the payload already contains a real source image URL or local image path.
 - Put any image immediately after the section it supports using `(配图: <url-or-path>)`.
 - Do not generate images. Do not emit base64 data URIs.
+- Do not include ItemID in the Markdown. Internal item ids stay in filenames and deep_picks TOML, not the KnowledgeCard body.
 - Length: roughly 1200–1800 Chinese characters unless payload is tiny (then shorter).
 
-Item id: {item_id}
 Type: {item_type}
 Source: {source}
 Title: {title}
@@ -210,8 +209,7 @@ class MemoryDeepNoteWriter:
             "──────────────────────────────\n\n"
             f"Source: {source}\n"
             f"Original Title: {title}\n"
-            f"Author: {author or 'Unknown'}\n"
-            f"ItemID: {item_id}\n\n"
+            f"Author: {author or 'Unknown'}\n\n"
             "---\n\n"
             "### 00｜为什么在意这篇\n\n"
             "- 直觉：这条内容把 AI 能力放回到可试错的世界接口里看。\n"

@@ -27,6 +27,64 @@ REQUIRED_BULLETS = {
     "### 06｜沉淀一下": ["一个判断", "可复用的视角", "继续追的问题"],
 }
 
+BULLET_LABEL_ALIASES = {
+    "### 02｜创新点": {
+        "为什么成立": {
+            "为什么这个判断成立",
+            "为什么它成立",
+            "为什么说得通",
+            "成立依据",
+            "成立理由",
+            "论证依据",
+            "判断依据",
+            "支撑理由",
+            "支撑逻辑",
+            "原因",
+            "理由",
+            "依据",
+        },
+    },
+    "### 03｜与 AI X Simulation 的关系": {
+        "重要性": {
+            "为什么重要",
+            "为什么这重要",
+            "为什么它重要",
+            "为什么关键",
+            "重要在哪里",
+            "重要之处",
+            "关键性",
+            "意义",
+            "价值",
+            "关键价值",
+        },
+    },
+    "### 04｜关键论据": {
+        "支撑材料": {
+            "证据",
+            "证据材料",
+            "主要证据",
+            "核心证据",
+            "证据与案例",
+            "支撑证据",
+            "支撑资料",
+            "支撑论据",
+            "支撑案例",
+            "案例",
+            "案例材料",
+            "事实依据",
+            "来源依据",
+            "关键依据",
+            "依据",
+            "论据",
+            "论据材料",
+            "材料依据",
+            "实证材料",
+            "观察材料",
+            "材料",
+        },
+    },
+}
+
 
 def prepare_deep_note_markdown(markdown: str) -> str:
     """Return normalized strict Markdown or raise ValueError with validation errors."""
@@ -45,9 +103,12 @@ def normalize_deep_note_markdown(markdown: str) -> str:
     normalized: list[str] = []
     author_seen = False
     decorative_seen_after_author = False
+    current_heading = ""
 
     for line in lines:
         stripped = line.strip()
+        if stripped.startswith("### "):
+            current_heading = stripped
         if _is_author_variant(stripped):
             normalized.append("> 整理者：Rex Ren")
             author_seen = True
@@ -60,7 +121,7 @@ def normalize_deep_note_markdown(markdown: str) -> str:
         if _is_delimiter_variant(stripped):
             normalized.append("---")
             continue
-        normalized.append(line.rstrip())
+        normalized.append(_normalize_bullet_label(line.rstrip(), current_heading))
 
     normalized = _insert_missing_decorative_separator(normalized)
     return "\n".join(normalized).rstrip() + "\n"
@@ -126,6 +187,21 @@ def _insert_missing_decorative_separator(lines: list[str]) -> list[str]:
     return lines
 
 
+def _normalize_bullet_label(line: str, heading: str) -> str:
+    aliases = BULLET_LABEL_ALIASES.get(heading)
+    if not aliases:
+        return line
+    match = re.match(r"^(\s*-\s+)([^：:]+)([：:])(.*)$", line)
+    if not match:
+        return line
+    prefix, label, delimiter, rest = match.groups()
+    label_clean = label.strip()
+    for canonical, variants in aliases.items():
+        if label_clean in variants:
+            return f"{prefix}{canonical}{delimiter}{rest}"
+    return line
+
+
 def _intro_chunk(markdown: str) -> str:
     return re.split(r"(?m)^---$", markdown, maxsplit=1)[0]
 
@@ -137,7 +213,7 @@ def _has_cjk(text: str) -> bool:
 def _validate_metadata(intro: str) -> list[str]:
     errors: list[str] = []
     metadata = _metadata_lines(intro)
-    required = ["Source", "Original Title", "Author", "ItemID"]
+    required = ["Source", "Original Title", "Author"]
     for key in required:
         value = metadata.get(key, "").strip()
         if not value:
@@ -147,6 +223,8 @@ def _validate_metadata(intro: str) -> list[str]:
         errors.append("Source must be human-readable, not a URL")
     if "URL" in metadata:
         errors.append("URL metadata is not allowed; put URL in 参考文献")
+    if "ItemID" in metadata:
+        errors.append("ItemID metadata is not allowed; keep item ids in filename and deep_picks TOML")
     return errors
 
 
@@ -182,8 +260,22 @@ def _section_map(markdown: str) -> dict[str, str]:
 
 
 def _has_bullet(section: str, label: str) -> bool:
-    pattern = rf"(?m)^-\s+{re.escape(label)}[：:].+"
-    return bool(re.search(pattern, section))
+    pattern = re.compile(rf"^-\s+{re.escape(label)}[：:](.*)$")
+    lines = section.splitlines()
+    for index, line in enumerate(lines):
+        match = pattern.match(line)
+        if not match:
+            continue
+        if match.group(1).strip():
+            return True
+        for next_line in lines[index + 1:]:
+            stripped = next_line.strip()
+            if not stripped:
+                continue
+            if next_line.startswith((" ", "\t")):
+                return True
+            return False
+    return False
 
 
 def _validate_personal_view(markdown: str) -> list[str]:

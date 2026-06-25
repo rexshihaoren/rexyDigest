@@ -16,6 +16,7 @@ from unittest.mock import patch
 import pytest
 
 from rexy.domain import PayloadKind, SourceType, Window
+from rexy.sources import AdapterError
 from rexy.sources import youtube_adapter as yt_mod
 from rexy.sources.youtube_adapter import YoutubeAdapter
 
@@ -152,6 +153,34 @@ def test_transcript_fetcher_exception_does_not_break_run():
     # transcript fetch failed → fall back to description (EXTRACT)
     assert items[0].item.payload_kind is PayloadKind.EXTRACT
     assert items[0].payload == "desc fallback"
+
+
+def test_bad_channel_feed_does_not_block_later_channels():
+    adapter = _adapter([
+        {"channel_id": "UCYqc84mh-05GwxmHmtA4zcQ", "default_author": "Broken"},
+        {"channel_id": "UCcO7fE1uD3UDtmyIJUw1VMA", "default_author": "Good"},
+    ])
+    entries = [_entry(title="Good video", video_id="good1234567", summary="desc")]
+
+    def parse(url: str) -> Any:
+        if "UCYqc84mh-05GwxmHmtA4zcQ" in url:
+            return SimpleNamespace(
+                entries=[],
+                feed={},
+                bozo=True,
+                bozo_exception=ValueError("not well-formed (invalid token)"),
+            )
+        return _stub_feed(entries, feed_title="Good channel")
+
+    with patch.object(yt_mod, "parse_feed_document", parse), \
+            patch.object(yt_mod, "fetch_transcript", lambda vid: None):
+        fetched = adapter.fetch(WINDOW)
+        first = next(fetched)
+        with pytest.raises(AdapterError, match="skipped 1 channel feed"):
+            next(fetched)
+
+    assert first.item.id == "youtube:good1234567"
+    assert first.item.author == "Good channel"
 
 
 def test_rejects_entry_without_channel_id_or_user():

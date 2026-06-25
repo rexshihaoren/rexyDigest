@@ -18,7 +18,6 @@ Markdown structure:
 Source: <arXiv / YouTube / Blog / Podcast / RSS / ...>
 Original Title: <source original title>
 Author: <source author or Unknown>
-ItemID: <stable internal item id>
 
 ---
 
@@ -87,14 +86,17 @@ ItemID: <stable internal item id>
 ## Rules
 
 - H1 must be a Chinese judgment sentence. Do not use the source title as H1.
-- Metadata `Source`, `Original Title`, `Author`, and `ItemID` are required.
+- Metadata `Source`, `Original Title`, and `Author` are required.
 - `Source` is human-readable, such as `arXiv` or `YouTube`; it is not a URL.
 - `URL` is not allowed in metadata. Put the URL only in `### 参考文献`.
+- `ItemID` is not emitted in Markdown. Internal item ids remain in generated
+  filenames and `corpus/deep_picks/<end-date>.toml`.
 - The 7 numbered sections are fixed and must keep their exact headings.
 - The bullet labels inside each section are fixed.
+- Required bullets may either carry content on the same line or introduce
+  indented nested bullets immediately below the label.
 - `### 00｜为什么在意这篇` is the personal opening layer. The LLM may draft
-  it, but `rexy deep-notes pick` asks for explicit Rex confirmation or rewrite
-  before writing the final note.
+  it, and Rex edits the generated Markdown afterward in an editor when needed.
 - Body sections contain exactly one `我的视角：` bullet. It must appear in
   either `02｜创新点` or `03｜与 AI X Simulation 的关系`, not both.
 - `05｜习惯性反思` is mandatory. It handles boundaries, likely misreadings, and
@@ -119,6 +121,11 @@ deterministic cleanup:
 - Normalize `整理者：...` variants to `> 整理者：Rex Ren`.
 - Insert the decorative separator after the author line when missing.
 - Normalize delimiter variants to `---`.
+- Normalize known section-aware bullet label aliases when the intended strict
+  label is unambiguous, for example `为什么这个判断成立` -> `为什么成立`
+  only inside `### 02｜创新点`, `为什么重要` -> `重要性` only inside
+  `### 03｜与 AI X Simulation 的关系`, and `证据材料` -> `支撑材料`
+  only inside `### 04｜关键论据`.
 
 After cleanup, validation fails hard if required structure or content is still
 missing. The pipeline does not use an LLM repair loop.

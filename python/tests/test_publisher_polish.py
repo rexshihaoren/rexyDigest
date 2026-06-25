@@ -1,4 +1,4 @@
-"""Publisher polish — Top 3 overview and KOL roster footer.
+"""Publisher polish — Top 3 overview and deterministic rendering.
 
 Both additions are deterministic; we re-render twice to assert byte-equality.
 """
@@ -114,7 +114,7 @@ def test_overview_only_uses_items_rendered_in_public_top_five():
     assert "- 🏅 标题 youtube:f ｜ Title youtube:f" not in md
 
 
-def test_kol_roster_lists_unique_slugs_in_rank_order():
+def test_public_brief_suppresses_internal_kol_markers():
     items = {
         "youtube:a": _item("youtube:a", author="A", topics=["kol:karpathy"]),
         "youtube:b": _item("youtube:b", author="B", topics=["kol:lilian weng"]),
@@ -126,7 +126,10 @@ def test_kol_roster_lists_unique_slugs_in_rank_order():
         _entry("youtube:c", rank=3, composite=4.0),
     ]
     md = render_public_brief(WINDOW, entries, items)
-    assert "**本周 KOL｜KOL roster**: karpathy, lilian weng" in md
+    assert "KOL roster" not in md
+    assert "本周 KOL" not in md
+    assert "karpathy" not in md
+    assert "lilian weng" not in md
 
 
 def test_no_kol_roster_when_no_kol_markers():
@@ -134,11 +137,10 @@ def test_no_kol_roster_when_no_kol_markers():
     entries = [_entry("x:1", rank=1)]
     md = render_public_brief(WINDOW, entries, items)
     assert "KOL roster" not in md
-    # Overview still rendered (KOL roster is optional)
     assert "### 核心看点 Overview（双语）" in md
 
 
-def test_renderer_remains_deterministic_with_lead_and_roster():
+def test_renderer_remains_deterministic_with_lead():
     items = {"youtube:a": _item("youtube:a", author="A", topics=["kol:karpathy"])}
     entries = [_entry("youtube:a", rank=1, composite=4.5)]
     a = render_public_brief(WINDOW, entries, items)

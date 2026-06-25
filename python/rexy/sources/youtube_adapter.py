@@ -91,8 +91,19 @@ class YoutubeAdapter:
             })
 
     def fetch(self, window: Window) -> Iterator[FetchedItem]:
+        errors: list[str] = []
         for channel_cfg in self.channels:
-            yield from self._fetch_one(channel_cfg, window)
+            try:
+                yield from self._fetch_one(channel_cfg, window)
+            except AdapterError as exc:
+                errors.append(str(exc))
+            except Exception as exc:  # pragma: no cover - defensive per-feed isolation
+                errors.append(f"{channel_cfg['url']!r}: {type(exc).__name__}: {exc}")
+        if errors:
+            raise AdapterError(
+                f"{self.name}: skipped {len(errors)} channel feed(s): "
+                + "; ".join(errors)
+            )
 
     def _fetch_one(
         self, channel_cfg: dict[str, Any], window: Window,

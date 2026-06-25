@@ -120,7 +120,6 @@ class TestRenderer:
             "**启示｜Implication**",
             "**综合评分｜CompositeScore**",
             "**主题｜Topics**",
-            "**本周 KOL｜KOL roster**",
         ]:
             assert marker in spec
 

@@ -1,4 +1,4 @@
-"""Load generated deep-note picks from `config/deep_picks/<end>.toml`."""
+"""Load generated deep-note picks from `corpus/deep_picks/<end>.toml`."""
 
 from __future__ import annotations
 

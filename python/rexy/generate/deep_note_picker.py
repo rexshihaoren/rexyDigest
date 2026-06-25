@@ -333,7 +333,6 @@ def _generate_selected_notes(
             payload=payload_text,
         )
         md = prepare_deep_note_markdown(md)
-        md = _confirm_opening_section(md, input_fn, output_fn)
         out.write_text(md.rstrip() + "\n", encoding="utf-8")
         written.append(out)
         output_fn(f"Wrote deep note: {out}")
@@ -358,51 +357,6 @@ def _copy_path(path: Path) -> Path:
         if not candidate.exists():
             return candidate
     raise RuntimeError(f"could not find available copy filename for {path}")
-
-
-def _confirm_opening_section(md: str, input_fn: InputFn, output_fn: OutputFn) -> str:
-    section = _extract_section(md, "### 00｜为什么在意这篇")
-    output_fn("")
-    output_fn("Draft section 00:")
-    output_fn(section.rstrip())
-    if _ask_yes_no("Accept section 00? [y/n]: ", input_fn, output_fn):
-        return md
-
-    output_fn("Paste replacement bullets or full section 00 Markdown.")
-    output_fn("Finish with a single '.' line.")
-    replacement_lines: list[str] = []
-    while True:
-        line = input_fn("> ")
-        if line.strip() == ".":
-            break
-        replacement_lines.append(line.rstrip())
-    replacement = "\n".join(replacement_lines).strip()
-    if not replacement:
-        raise ValueError("section 00 replacement is empty")
-    if not replacement.startswith("### 00｜为什么在意这篇"):
-        replacement = "### 00｜为什么在意这篇\n\n" + replacement
-    updated = _replace_section(md, "### 00｜为什么在意这篇", replacement.rstrip() + "\n")
-    return prepare_deep_note_markdown(updated)
-
-
-def _extract_section(md: str, heading: str) -> str:
-    start = md.find(heading)
-    if start < 0:
-        raise ValueError(f"missing section: {heading}")
-    next_delimiter = md.find("\n---\n", start + len(heading))
-    if next_delimiter < 0:
-        return md[start:].rstrip()
-    return md[start:next_delimiter].rstrip()
-
-
-def _replace_section(md: str, heading: str, replacement: str) -> str:
-    start = md.find(heading)
-    if start < 0:
-        raise ValueError(f"missing section: {heading}")
-    next_delimiter = md.find("\n---\n", start + len(heading))
-    if next_delimiter < 0:
-        return md[:start] + replacement
-    return md[:start] + replacement.rstrip() + md[next_delimiter:]
 
 
 def _source_label(item: Item) -> str:

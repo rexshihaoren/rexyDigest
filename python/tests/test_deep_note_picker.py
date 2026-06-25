@@ -103,14 +103,14 @@ def test_interactive_picker_writes_audit_toml_and_generates_note(tmp_path: Path)
     public_dir = tmp_path / "Weekly_Gist" / "Public"
     public_dir.mkdir(parents=True)
     (public_dir / "Weekly_Brief_Public_2026-05-17.md").write_text("public", encoding="utf-8")
-    answers = iter(["y", "y", "y", "y"])
+    answers = iter(["y", "y", "y"])
     seen: list[str] = []
 
     run = run_interactive_deep_note_pick(
         window=WINDOW,
         corpus_root=corpus,
         public_dir=public_dir,
-        picks_root=tmp_path / "config" / "deep_picks",
+        picks_root=tmp_path / "corpus" / "deep_picks",
         inbox_dir=tmp_path / "KnowledgeCard_Inbox",
         config=GeneratorConfig(),
         writer_factory=lambda: MemoryDeepNoteWriter(),
@@ -125,6 +125,7 @@ def test_interactive_picker_writes_audit_toml_and_generates_note(tmp_path: Path)
     )
     assert 'source = "public_top3_overview_ai_sim"' in run.picks_file.read_text(encoding="utf-8")
     assert "memory stub" in run.written[0].read_text(encoding="utf-8")
+    assert "Accept section 00? [y/n]: " not in seen
 
 
 def test_interactive_picker_zero_selected_does_not_create_picks_file(tmp_path: Path) -> None:
@@ -138,7 +139,7 @@ def test_interactive_picker_zero_selected_does_not_create_picks_file(tmp_path: P
         window=WINDOW,
         corpus_root=corpus,
         public_dir=public_dir,
-        picks_root=tmp_path / "config" / "deep_picks",
+        picks_root=tmp_path / "corpus" / "deep_picks",
         inbox_dir=tmp_path / "KnowledgeCard_Inbox",
         config=GeneratorConfig(),
         writer_factory=lambda: MemoryDeepNoteWriter(),
@@ -160,14 +161,14 @@ def test_existing_note_uses_yes_no_copy_prompt(tmp_path: Path) -> None:
     inbox_dir.mkdir()
     existing = inbox_dir / "deep_arxiv_1_2026-05-17.md"
     existing.write_text("keep me\n", encoding="utf-8")
-    answers = iter(["y", "y", "y", "n", "y", "y"])
+    answers = iter(["y", "y", "y", "n", "y"])
     prompts: list[str] = []
 
     run = run_interactive_deep_note_pick(
         window=WINDOW,
         corpus_root=corpus,
         public_dir=public_dir,
-        picks_root=tmp_path / "config" / "deep_picks",
+        picks_root=tmp_path / "corpus" / "deep_picks",
         inbox_dir=inbox_dir,
         config=GeneratorConfig(),
         writer_factory=lambda: MemoryDeepNoteWriter(),
@@ -181,37 +182,30 @@ def test_existing_note_uses_yes_no_copy_prompt(tmp_path: Path) -> None:
     assert "Create a suffixed copy instead? [y/n]: " in prompts
 
 
-def test_interactive_picker_can_replace_opening_section_before_writing(tmp_path: Path) -> None:
+def test_interactive_picker_writes_generated_opening_without_edit_prompt(tmp_path: Path) -> None:
     corpus = _populate(tmp_path)
     public_dir = tmp_path / "Weekly_Gist" / "Public"
     public_dir.mkdir(parents=True)
     (public_dir / "Weekly_Brief_Public_2026-05-17.md").write_text("public", encoding="utf-8")
-    answers = iter([
-        "y",
-        "y",
-        "y",
-        "n",
-        "- 直觉：这是我改写后的判断。",
-        "- 它戳中的变化：AI 需要通过 simulation 观察世界。",
-        "- 持续观察的方向：持续追踪 world model 的反馈闭环。",
-        ".",
-    ])
+    answers = iter(["y", "y", "y"])
+    prompts: list[str] = []
 
     run = run_interactive_deep_note_pick(
         window=WINDOW,
         corpus_root=corpus,
         public_dir=public_dir,
-        picks_root=tmp_path / "config" / "deep_picks",
+        picks_root=tmp_path / "corpus" / "deep_picks",
         inbox_dir=tmp_path / "KnowledgeCard_Inbox",
         config=GeneratorConfig(),
         writer_factory=lambda: MemoryDeepNoteWriter(),
-        input_fn=lambda _prompt: next(answers),
+        input_fn=lambda prompt: (prompts.append(prompt) or next(answers)),
         output_fn=lambda _line: None,
     )
 
     text = run.written[0].read_text(encoding="utf-8")
-    assert "- 直觉：这是我改写后的判断。" in text
-    assert "这条内容把 AI 能力放回到可试错的世界接口里看" not in text
+    assert "这条内容把 AI 能力放回到可试错的世界接口里看" in text
+    assert "Accept section 00? [y/n]: " not in prompts
+    assert "> " not in prompts
 
 
 def test_interactive_picker_rejects_invalid_markdown_without_writing_note(tmp_path: Path) -> None:
@@ -233,7 +227,7 @@ def test_interactive_picker_rejects_invalid_markdown_without_writing_note(tmp_pa
             window=WINDOW,
             corpus_root=corpus,
             public_dir=public_dir,
-            picks_root=tmp_path / "config" / "deep_picks",
+            picks_root=tmp_path / "corpus" / "deep_picks",
             inbox_dir=inbox_dir,
             config=GeneratorConfig(),
             writer_factory=lambda: BadWriter(),
