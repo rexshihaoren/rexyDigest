@@ -1,22 +1,30 @@
-# Node and build artifacts
-node_modules/
-dist/
-build/
-.tmp/
-.temp/
-.cache/
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.venv/
+venv/
 
-# Logs
-npm-debug.log*
-yarn-error.log*
-*.log
-
-# Env files
+# Local env
+.env.local
 .env
-.env.*
 
-# OS files
-.DS_Store
+# Corpus data (per-machine; do not commit)
+/corpus/
+
+# Node dependencies (installed locally; do not commit)
+node_modules/
+
+# Generated weekly digest outputs (older committed examples remain tracked)
+Weekly_Gist/
 
 # Coverage
-coverage/Weekly_Gist/Debug/
+coverage/
+
+# Debug artifacts
+tmp-public-*/
+tmp-ingest-verify/
+
+# Generated deep-note Markdown for external knowledgecard import
+KnowledgeCard_Inbox/

@@ -47,6 +47,25 @@ All input markdown files MUST follow this strict structure to ensure reliable pa
 ---
 ```
 
+## Rexy Deep Notes
+
+`rexyDigest` deep notes use a stricter Rex-native structure documented in
+`docs/templates/deep_note.md`. That format is Chinese-first and fixed to seven
+sections:
+
+- `00｜为什么在意这篇`
+- `01｜尝试回答的问题`
+- `02｜创新点`
+- `03｜与 AI X Simulation 的关系`
+- `04｜关键论据`
+- `05｜习惯性反思`
+- `06｜沉淀一下`
+- `参考文献`
+
+Deep notes are not required to use `**中文**` / `**English**` markers or
+`| Chinese / English` headings. They also must not use inline numeric citations
+such as `[1]`; references belong only in `### 参考文献`.
+
 ## Field Specifications
 
 ### 1. Title (REQUIRED)
@@ -104,6 +123,9 @@ All input markdown files MUST follow this strict structure to ensure reliable pa
   - URLs: `https://example.com/image.jpg`
   - Absolute paths: `/path/to/image.png`
   - Data URIs: `data:image/png;base64,...`
+- Generator guidance: prefer source-provided URLs or paths. `rexyDigest` deep
+  notes must not generate or convert images to base64; base64 is a renderer
+  input format, not the preferred digest output.
 
 ## Validation Checklist
 
@@ -186,5 +208,3 @@ Content...
 The parser will validate markdown before generation and display errors if structure doesn't match this specification.
 
 See `docs/generic-template.md` for more flexible usage examples.
-
-

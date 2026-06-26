@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-SOURCE_DIR="${ROOT_DIR}/docs/ai/skills"
+SOURCE_DIR="${ROOT_DIR}/.cursor/skills"
 TRAE_TARGET_DIR="${ROOT_DIR}/.trae/skills"
 
 if [[ ! -d "${SOURCE_DIR}" ]]; then
@@ -12,7 +12,7 @@ fi
 
 mkdir -p "${TRAE_TARGET_DIR}"
 
-# Keep target in sync with canonical source, but do not duplicate canonical README.
+# Keep target in sync with canonical Cursor source, but do not duplicate canonical README.
 rsync -a --delete --exclude "README.md" "${SOURCE_DIR}/" "${TRAE_TARGET_DIR}/"
 
 cat > "${TRAE_TARGET_DIR}/README.md" <<'EOF'
@@ -23,7 +23,7 @@ Do not edit files here manually.
 
 Canonical source of truth:
 
-- docs/ai/skills/
+- .cursor/skills/
 
 To refresh this adapter, run:
 

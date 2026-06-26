@@ -1,0 +1,25 @@
+name: Python tests
+on:
+  push:
+    paths:
+      - "python/**"
+      - "requirements.txt"
+      - ".github/workflows/python-tests.yml"
+  pull_request:
+    paths:
+      - "python/**"
+      - "requirements.txt"
+      - ".github/workflows/python-tests.yml"
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install deps
+        run: pip install -r requirements.txt pytest
+      - name: Pytest
+        run: PYTHONPATH=python python -m pytest python/tests/ -q

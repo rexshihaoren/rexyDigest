@@ -1,0 +1,11 @@
+# Phase 2 generator (Gemini)
+google-genai>=1.0.0
+python-dotenv>=1.0.0
+
+# Phase 1 ingestion (Source Adapters per ADR-0003)
+arxiv>=2.1.0
+feedparser>=6.0.10
+youtube-transcript-api>=1.2.0
+
+# Test (dev)
+pytest>=8.0.0
