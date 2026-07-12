@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import json
 import threading
+import urllib.error
 import urllib.request
 from datetime import date, datetime, timezone
 from pathlib import Path
@@ -82,9 +83,8 @@ def test_offline_review_ui_serves_gist_and_edits_brief(tmp_path: Path) -> None:
         "files": files,
     }), encoding="utf-8")
     inbox = tmp_path / "KnowledgeCard_Inbox"
-    server, url = start_weekly_review_server(
-        WeeklyReviewSession.open(package, inbox, tmp_path / "workspace")
-    )
+    session = WeeklyReviewSession.open(package, inbox, tmp_path / "workspace")
+    server, url = start_weekly_review_server(session)
     thread = threading.Thread(target=server.serve_forever, daemon=True)
     thread.start()
     try:
@@ -92,6 +92,11 @@ def test_offline_review_ui_serves_gist_and_edits_brief(tmp_path: Path) -> None:
         assert "Weekly Review" in page
         assert "reference gist" in page
         assert "generated brief" in page
+        assert "Discard Brief" in page
+        assert "No eligible DeepNote candidates." in page
+        assert "Generate selected DeepNotes" not in page
+        assert "position:fixed" in page
+        assert "catch(error)" in page
 
         token = url.split("token=", 1)[1]
         save = urllib.request.Request(
@@ -101,14 +106,26 @@ def test_offline_review_ui_serves_gist_and_edits_brief(tmp_path: Path) -> None:
             method="POST",
         )
         urllib.request.urlopen(save, timeout=2).read()
+        discard = urllib.request.Request(
+            f"http://127.0.0.1:{server.server_port}/api/discard?token={token}",
+            data=b"{}",
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        discard_result = json.loads(urllib.request.urlopen(discard, timeout=2).read())
+        assert discard_result == {"discarded": True}
+        assert not (tmp_path / "workspace" / "work" / "edited_weekly_brief.md").exists()
+        assert session.brief_discarded
         finish = urllib.request.Request(
             f"http://127.0.0.1:{server.server_port}/api/finish?token={token}",
             data=b"{}",
             headers={"Content-Type": "application/json"},
             method="POST",
         )
-        result = json.loads(urllib.request.urlopen(finish, timeout=2).read())
-        assert Path(result["final_path"]).read_text() == "reviewed brief\n"
+        with pytest.raises(urllib.error.HTTPError) as exc_info:
+            urllib.request.urlopen(finish, timeout=2).read()
+        assert exc_info.value.code == 400
+        assert not (inbox / "weekly_brief_2026-07-12.md").exists()
     finally:
         server.shutdown()
         server.server_close()

@@ -74,9 +74,24 @@ class WeeklyReviewSession:
         return source.read_text(encoding="utf-8")
 
     def save_brief(self, markdown: str) -> Path:
+        self.brief_discard_path.unlink(missing_ok=True)
         self.working_brief_path.parent.mkdir(parents=True, exist_ok=True)
         self.working_brief_path.write_text(markdown.rstrip() + "\n", encoding="utf-8")
         return self.working_brief_path
+
+    def discard_brief(self) -> None:
+        """Record a local no-publication decision without altering generated evidence."""
+        self.working_brief_path.unlink(missing_ok=True)
+        self.brief_discard_path.parent.mkdir(parents=True, exist_ok=True)
+        self.brief_discard_path.write_text("discarded\n", encoding="utf-8")
+
+    @property
+    def brief_discard_path(self) -> Path:
+        return self.workspace_root / "work" / "brief_discarded"
+
+    @property
+    def brief_discarded(self) -> bool:
+        return self.brief_discard_path.is_file()
 
     def deep_note_candidates(self, config: GeneratorConfig) -> list[DeepNoteCandidate]:
         from .generate.deep_note_picker import collect_deep_note_candidates
@@ -128,6 +143,8 @@ class WeeklyReviewSession:
         return written
 
     def finish(self) -> Path:
+        if self.brief_discarded:
+            raise ValueError("Brief publication was discarded for this review")
         picks_file = self.workspace_root / "work" / "deep_picks" / f"{self.window.end.isoformat()}.toml"
         if picks_file.exists():
             from .generate.llm.deep_note import safe_filename_part
