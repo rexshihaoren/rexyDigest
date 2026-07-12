@@ -19,6 +19,9 @@ node_modules/
 # Generated weekly digest outputs (older committed examples remain tracked)
 Weekly_Gist/
 
+# Legacy generated Brief location. Existing tracked history remains intact.
+Weekly_Gist/Public/
+
 # Coverage
 coverage/
 
@@ -28,3 +31,6 @@ tmp-ingest-verify/
 
 # Generated deep-note Markdown for external knowledgecard import
 KnowledgeCard_Inbox/
+
+# Downloaded/built immutable review packages
+.rexy/

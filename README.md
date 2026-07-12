@@ -16,7 +16,7 @@ is in [`CONTEXT.md`](CONTEXT.md).
 └────────────┘                   └────────────┘                      └────────────┘
        ▲                                                                     │
        │                                                                     ▼
-config/sources/*.toml                                       Weekly_Gist/Public/Weekly_Brief_Public_*.md
+config/sources/*.toml                                       Weekly_Gist/Weekly_Brief_*.md
 ```
 
 - **Ingest** runs Source Adapters (`config/sources/*.toml`), normalises
@@ -86,8 +86,27 @@ can be copied without opening the JSONL.
 PYTHONPATH=python ./.venv/bin/python -m rexy publish --window 2026-05-04/2026-05-11
 ```
 
-Renders the Selection JSONL into a deterministic bilingual public brief at
-`Weekly_Gist/Public/Weekly_Brief_Public_<end>.md`. No LLM calls.
+Renders the Selection JSONL into a deterministic bilingual Brief beside the
+Gist at `Weekly_Gist/Weekly_Brief_<end>.md`. No LLM calls.
+
+### Review latest automated run
+
+```bash
+PYTHONPATH=python ./.venv/bin/python -m rexy review latest
+```
+
+Runs `git pull --ff-only`, then opens the newest verified Review Package under
+`Weekly_Gist/Review_Packages/<end>/<run-id>/`. Obsidian's periodic pull keeps
+the same Git-tracked packages up to date. The package supplies the exact
+Selection, Items, Payloads, Provenance, generator configuration, Gist, and
+Brief from one run; it never merges into the machine-local `corpus/`.
+Workspace-only edits and generated DeepNote drafts live under
+`.rexy/reviews/<run-id>/`. The offline UI lets you read the Gist, edit the
+Brief, and select 0–2 DeepNotes. Selected DeepNotes open in the existing strict
+Markdown/visual review pages. **Finish Review** succeeds only after selected
+DeepNotes reach `KnowledgeCard_Inbox/`, then writes
+`KnowledgeCard_Inbox/weekly_brief_<end>.md`. Existing reviewed outputs are
+never overwritten.
 
 **KOL prioritization.** Each feed (RSS or YouTube) can declare `kol = "<slug>"` in its TOML
 entry. Items from that feed get a `kol:<slug>` topic marker; the generator's prefilter lets
@@ -102,7 +121,7 @@ After `generate` + `publish`, run the interactive picker:
 PYTHONPATH=python ./.venv/bin/python -m rexy deep-notes pick --end 2026-05-11
 ```
 
-The picker requires the public brief for that date, shows Top 3 overview
+The picker requires the weekly Brief for that date, shows Top 3 overview
 AI×Simulation candidates one by one, writes a generated local audit file under
 `corpus/deep_picks/`, and stages each confirmed note under `corpus/deep_notes/`.
 It then opens a local review page. The staged Markdown remains readable and
@@ -143,8 +162,8 @@ Prints corpus item counts by source type and the latest ingestion window.
 
 ```bash
 PYTHONPATH=python ./.venv/bin/python -m rexy parity \
-  --node    Weekly_Gist/Public/<node-output>.md \
-  --python  Weekly_Gist/Public/<python-output>.md
+  --node    Weekly_Gist/<node-output>.md \
+  --python  Weekly_Gist/<python-output>.md
 ```
 
 Compares **structural** fields (item set, composite scores, English blurbs)

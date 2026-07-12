@@ -1,6 +1,6 @@
 # Public Brief Template
 
-This is the human-readable contract for the current Python public Brief
+This is the human-readable contract for the current Python weekly Brief
 renderer.
 Runtime source of truth: `python/rexy/publish/renderer.py`.
 
@@ -10,7 +10,7 @@ runtime.
 
 ## Output Path
 
-`Weekly_Gist/Public/Weekly_Brief_Public_<end-date>.md`
+`Weekly_Gist/Weekly_Brief_<end-date>.md`
 
 ## Structure
 
@@ -60,7 +60,7 @@ runtime.
 - If a Chinese translation is missing, the English value is rendered on both
   sides as a transparent fallback.
 - The overview block is optional and lists up to three renderable highlights
-  chosen from the public Brief body, so every overview item appears below.
+  chosen from the Brief body, so every overview item appears below.
 - Overview ranking is deterministic: mission/bridge items first, then
   `CompositeScore` descending, then Selection rank ascending.
 - Mission/bridge means Simulation topic or bridge-shaped content such as world

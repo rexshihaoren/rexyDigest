@@ -100,16 +100,16 @@ def test_collect_candidates_requires_ai_and_simulation(tmp_path: Path) -> None:
 
 def test_interactive_picker_writes_audit_toml_and_generates_note(tmp_path: Path) -> None:
     corpus = _populate(tmp_path)
-    public_dir = tmp_path / "Weekly_Gist" / "Public"
-    public_dir.mkdir(parents=True)
-    (public_dir / "Weekly_Brief_Public_2026-05-17.md").write_text("public", encoding="utf-8")
+    brief_dir = tmp_path / "Weekly_Gist"
+    brief_dir.mkdir(parents=True)
+    (brief_dir / "Weekly_Brief_2026-05-17.md").write_text("brief", encoding="utf-8")
     answers = iter(["y", "y", "y"])
     seen: list[str] = []
 
     run = run_interactive_deep_note_pick(
         window=WINDOW,
         corpus_root=corpus,
-        public_dir=public_dir,
+        brief_dir=brief_dir,
         picks_root=tmp_path / "corpus" / "deep_picks",
         inbox_dir=tmp_path / "KnowledgeCard_Inbox",
         config=GeneratorConfig(),
@@ -130,15 +130,15 @@ def test_interactive_picker_writes_audit_toml_and_generates_note(tmp_path: Path)
 
 def test_interactive_picker_zero_selected_does_not_create_picks_file(tmp_path: Path) -> None:
     corpus = _populate(tmp_path)
-    public_dir = tmp_path / "Weekly_Gist" / "Public"
-    public_dir.mkdir(parents=True)
-    (public_dir / "Weekly_Brief_Public_2026-05-17.md").write_text("public", encoding="utf-8")
+    brief_dir = tmp_path / "Weekly_Gist"
+    brief_dir.mkdir(parents=True)
+    (brief_dir / "Weekly_Brief_2026-05-17.md").write_text("brief", encoding="utf-8")
     answers = iter(["y", "n"])
 
     run = run_interactive_deep_note_pick(
         window=WINDOW,
         corpus_root=corpus,
-        public_dir=public_dir,
+        brief_dir=brief_dir,
         picks_root=tmp_path / "corpus" / "deep_picks",
         inbox_dir=tmp_path / "KnowledgeCard_Inbox",
         config=GeneratorConfig(),
@@ -154,9 +154,9 @@ def test_interactive_picker_zero_selected_does_not_create_picks_file(tmp_path: P
 
 def test_existing_note_uses_yes_no_copy_prompt(tmp_path: Path) -> None:
     corpus = _populate(tmp_path)
-    public_dir = tmp_path / "Weekly_Gist" / "Public"
-    public_dir.mkdir(parents=True)
-    (public_dir / "Weekly_Brief_Public_2026-05-17.md").write_text("public", encoding="utf-8")
+    brief_dir = tmp_path / "Weekly_Gist"
+    brief_dir.mkdir(parents=True)
+    (brief_dir / "Weekly_Brief_2026-05-17.md").write_text("brief", encoding="utf-8")
     inbox_dir = tmp_path / "KnowledgeCard_Inbox"
     inbox_dir.mkdir()
     existing = inbox_dir / "deep_arxiv_1_2026-05-17.md"
@@ -167,7 +167,7 @@ def test_existing_note_uses_yes_no_copy_prompt(tmp_path: Path) -> None:
     run = run_interactive_deep_note_pick(
         window=WINDOW,
         corpus_root=corpus,
-        public_dir=public_dir,
+        brief_dir=brief_dir,
         picks_root=tmp_path / "corpus" / "deep_picks",
         inbox_dir=inbox_dir,
         config=GeneratorConfig(),
@@ -190,16 +190,16 @@ def test_existing_note_uses_yes_no_copy_prompt(tmp_path: Path) -> None:
 
 def test_interactive_picker_writes_generated_opening_without_edit_prompt(tmp_path: Path) -> None:
     corpus = _populate(tmp_path)
-    public_dir = tmp_path / "Weekly_Gist" / "Public"
-    public_dir.mkdir(parents=True)
-    (public_dir / "Weekly_Brief_Public_2026-05-17.md").write_text("public", encoding="utf-8")
+    brief_dir = tmp_path / "Weekly_Gist"
+    brief_dir.mkdir(parents=True)
+    (brief_dir / "Weekly_Brief_2026-05-17.md").write_text("brief", encoding="utf-8")
     answers = iter(["y", "y", "y"])
     prompts: list[str] = []
 
     run = run_interactive_deep_note_pick(
         window=WINDOW,
         corpus_root=corpus,
-        public_dir=public_dir,
+        brief_dir=brief_dir,
         picks_root=tmp_path / "corpus" / "deep_picks",
         inbox_dir=tmp_path / "KnowledgeCard_Inbox",
         config=GeneratorConfig(),
@@ -222,9 +222,9 @@ def test_interactive_picker_rejects_invalid_markdown_without_writing_note(tmp_pa
             return "# Bad\n\nNo strict KnowledgeCard structure.\n"
 
     corpus = _populate(tmp_path)
-    public_dir = tmp_path / "Weekly_Gist" / "Public"
-    public_dir.mkdir(parents=True)
-    (public_dir / "Weekly_Brief_Public_2026-05-17.md").write_text("public", encoding="utf-8")
+    brief_dir = tmp_path / "Weekly_Gist"
+    brief_dir.mkdir(parents=True)
+    (brief_dir / "Weekly_Brief_2026-05-17.md").write_text("brief", encoding="utf-8")
     inbox_dir = tmp_path / "KnowledgeCard_Inbox"
     answers = iter(["y", "y", "y"])
 
@@ -232,7 +232,7 @@ def test_interactive_picker_rejects_invalid_markdown_without_writing_note(tmp_pa
         run_interactive_deep_note_pick(
             window=WINDOW,
             corpus_root=corpus,
-            public_dir=public_dir,
+            brief_dir=brief_dir,
             picks_root=tmp_path / "corpus" / "deep_picks",
             inbox_dir=inbox_dir,
             config=GeneratorConfig(),
