@@ -1,0 +1,55 @@
+NVIDIA founder and CEO Jensen Huang sits down with Harrison Chase to discuss why the last six months finally made AI useful, and what it takes to turn a large language model into a real, deployable product. The path there, Jensen says, is building your own "super agents": domain-specific systems wrapped in an open harness, grounded in your data, and improved over time. NVIDIA and LangChain also announce a new blueprint for running Deep Agents with Nemotron 3 Ultra inside OpenShell, a secure, open runtime, giving every enterprise the building blocks to create and deploy super agents anywhere.
+
+We also discuss:
+• Why companies of the future are built on harnesses, not business processes
+• The difference between open vs. frontier models
+• How Nemotron 3 Ultra reaches near-frontier performance at a low cost
+• Why cheaper, faster intelligence finds better answers
+• When to start with frontier models and when to specialize
+• Why more AI means more jobs
+
+Timestamps:
+00:00 Introduction
+00:34 Why NVIDIA invests in an open agent ecosystem
+04:14 How to specialize agentic systems
+05:54 Nemotron 3 Ultra hits frontier performance in Deep Agents
+06:48 How cost changes the equation for builders
+08:50 Frontier vs. open models: when to use each
+09:50 Building specialized super sub-agents
+11:16 Advice for enterprises: when to specialize
+13:10 Companies built on harnesses, not business processes
+14:48 Why open stacks empower enterprises
+17:25 Announcing the Deep Agents + OpenShell blueprint
+18:53 Runtime, security, and access control
+20:21 How much should we anthropomorphize agents?
+22:12 Why more AI means more jobs
+24:17 The missing pieces of the agentic stack
+
+Referenced:
+• Anthropic: https://www.anthropic.com/
+• Claude Code: https://www.anthropic.com/claude-code
+• Claude Opus: https://www.anthropic.com/claude/opus
+• Codex: https://openai.com/codex/
+• Deep Agents: https://docs.langchain.com/oss/python/deepagents/overview
+• Deep Agents + OpenShell blueprint: https://www.langchain.com/blog/nvidia-enterprise
+• Deep Agents + OpenShell blueprint (GitHub): https://github.com/langchain-ai/openshell-deepagent
+• DeepSeek: https://www.deepseek.com/
+• Google DeepMind: https://deepmind.google/
+• MiniMax: https://www.minimax.io/
+• NVIDIA: http://nvidia.com/
+• NVIDIA DGX Spark: https://www.nvidia.com/en-us/products/workstations/dgx-spark/
+• NVIDIA Nemoclaw: https://www.nvidia.com/en-au/ai/nemoclaw/
+• NVIDIA Nemotron: https://www.nvidia.com/en-us/ai-data-science/foundation-models/nemotron/
+• OpenAI: https://openai.com/
+• OpenClaw: https://openclaw.ai/
+
+Where to find Jensen:
+• LinkedIn: https://www.linkedin.com/in/jenhsunhuang/
+
+Where to find Harrison:
+• LinkedIn: https://www.linkedin.com/in/harrison-chase-961287118/
+• Twitter/X: https://x.com/hwchase17
+
+Where to find LangChain:
+• Website: http://langchain.com
+• Docs: https://docs.langchain.com/

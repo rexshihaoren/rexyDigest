@@ -1,0 +1,7 @@
+OpenWiki 0.1.0 introduces a new personal "brain" concept that allows you to generate and maintain a general-purpose memory wiki automatically, via the agent.
+
+In this video, we walk through how to set up OpenWiki Personal Brain, its connectors, how it works under the hood, and what the result looks like.
+
+Try out OpenWiki today: https://www.npmjs.com/package/openwiki
+
+And see the OSS GitHub repository here: https://github.com/langchain-ai/openwiki

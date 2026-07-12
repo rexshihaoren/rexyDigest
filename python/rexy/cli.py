@@ -29,9 +29,11 @@ DEFAULT_CORPUS = Path("corpus")
 DEFAULT_CONFIG = Path("config/sources")
 DEFAULT_GENERATOR_CONFIG = Path("config/generator.toml")
 DEFAULT_GIST_DIR = Path("Weekly_Gist")
-DEFAULT_PUBLIC_DIR = Path("Weekly_Gist/Public")
+DEFAULT_BRIEF_DIR = Path("Weekly_Gist")
 DEFAULT_DEEP_PICKS_DIR = Path("corpus/deep_picks")
 DEFAULT_KC_INBOX = Path("KnowledgeCard_Inbox")
+DEFAULT_REVIEW_CACHE = Path(".rexy/reviews")
+DEFAULT_REVIEW_PACKAGES = Path("Weekly_Gist/Review_Packages")
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -98,8 +100,8 @@ def main(argv: list[str] | None = None) -> int:
         help="Window end YYYY-MM-DD (overrides --window)",
     )
     pub.add_argument(
-        "--public-dir", type=Path, default=DEFAULT_PUBLIC_DIR,
-        help=f"where to write Weekly_Brief_Public_<end>.md (default: {DEFAULT_PUBLIC_DIR})",
+        "--brief-dir", type=Path, default=DEFAULT_BRIEF_DIR,
+        help=f"where to write Weekly_Brief_<end>.md (default: {DEFAULT_BRIEF_DIR})",
     )
 
     par = sub.add_parser(
@@ -131,8 +133,8 @@ def main(argv: list[str] | None = None) -> int:
         help=f"where to write deep_*.md (default: {DEFAULT_KC_INBOX})",
     )
     deep_pick.add_argument(
-        "--public-dir", type=Path, default=DEFAULT_PUBLIC_DIR,
-        help=f"where to require Weekly_Brief_Public_<end>.md (default: {DEFAULT_PUBLIC_DIR})",
+        "--brief-dir", type=Path, default=DEFAULT_BRIEF_DIR,
+        help=f"where to require Weekly_Brief_<end>.md (default: {DEFAULT_BRIEF_DIR})",
     )
     deep_pick.add_argument(
         "--generator-config", type=Path, default=DEFAULT_GENERATOR_CONFIG,
@@ -155,6 +157,37 @@ def main(argv: list[str] | None = None) -> int:
     deep_review.add_argument("--port", type=int, default=0, help="localhost port; 0 chooses an available port")
     deep_review.add_argument("--no-open", action="store_true", help="print URL without opening browser")
 
+    review = sub.add_parser(
+        "review",
+        help="Pull and open an immutable weekly review package from Git.",
+    )
+    review_sub = review.add_subparsers(dest="review_cmd", required=True)
+    review_latest = review_sub.add_parser(
+        "latest",
+        help="Pull Git, then open the latest verified Weekly Gist review package.",
+    )
+    review_latest.add_argument(
+        "--packages-dir", type=Path, default=DEFAULT_REVIEW_PACKAGES,
+        help=f"Git-synchronised review packages (default: {DEFAULT_REVIEW_PACKAGES})",
+    )
+    review_latest.add_argument(
+        "--inbox-dir", type=Path, default=DEFAULT_KC_INBOX,
+        help=f"reviewed KnowledgeCard outputs (default: {DEFAULT_KC_INBOX})",
+    )
+    review_latest.add_argument("--port", type=int, default=0, help="localhost port; 0 chooses an available port")
+    review_latest.add_argument("--no-pull", action="store_true", help="use already-synchronised Git files without pulling")
+    review_latest.add_argument("--no-open", action="store_true", help="pull and verify without opening UI")
+    review_build = review_sub.add_parser(
+        "build",
+        help="Build the immutable review package for the current Actions run.",
+    )
+    review_build.add_argument("--end", required=True, help="Window end YYYY-MM-DD")
+    review_build.add_argument("--run-id", required=True, help="GitHub Actions run id")
+    review_build.add_argument("--source-sha", required=True, help="Git commit SHA used by the run")
+    review_build.add_argument("--output", type=Path, required=True, help="new package output directory")
+    review_build.add_argument("--gist-path", type=Path, default=None)
+    review_build.add_argument("--brief-path", type=Path, default=None)
+
     args = parser.parse_args(argv)
 
     if args.cmd == "ingest":
@@ -173,8 +206,73 @@ def main(argv: list[str] | None = None) -> int:
         if args.deep_cmd == "review":
             return _cmd_deep_notes_review(args)
         parser.error(f"unknown deep-notes command {args.deep_cmd}")
+    if args.cmd == "review":
+        if args.review_cmd == "latest":
+            return _cmd_review_latest(args)
+        if args.review_cmd == "build":
+            return _cmd_review_build(args)
+        parser.error(f"unknown review command {args.review_cmd}")
     parser.error(f"unknown command {args.cmd}")
     return 2
+
+
+def _cmd_review_latest(args: argparse.Namespace) -> int:
+    from .review_package import latest_git_review_package, pull_git_review_updates
+
+    try:
+        if not args.no_pull:
+            pull_git_review_updates()
+        package = latest_git_review_package(args.packages_dir)
+    except (OSError, RuntimeError, ValueError) as exc:
+        print(f"[rexy] review sync failed: {exc}", file=sys.stderr)
+        return 1
+    print(f"[rexy] review_package={package.resolve()}")
+    if not args.no_open:
+        from .weekly_review import WeeklyReviewSession
+        from .weekly_review_ui import serve_weekly_review
+        from .generate.deep_notes import make_deep_note_writer
+
+        try:
+            session = WeeklyReviewSession.open(
+                package, args.inbox_dir, DEFAULT_REVIEW_CACHE / package.name,
+            )
+            config = session.generator_config()
+            serve_weekly_review(
+                session,
+                port=args.port,
+                open_browser=True,
+                config=config,
+                writer_factory=lambda: make_deep_note_writer("gemini", config.gemini_model),
+            )
+        except (OSError, ValueError) as exc:
+            print(f"[rexy] review failed: {exc}", file=sys.stderr)
+            return 1
+    return 0
+
+
+def _cmd_review_build(args: argparse.Namespace) -> int:
+    from .review_package import build_review_package
+
+    end = date.fromisoformat(args.end)
+    window = Window(start=end - timedelta(days=7), end=end)
+    gist_path = args.gist_path or DEFAULT_GIST_DIR / f"Weekly_Gist_{args.end}.md"
+    brief_path = args.brief_path or DEFAULT_BRIEF_DIR / f"Weekly_Brief_{args.end}.md"
+    try:
+        package = build_review_package(
+            corpus_root=args.corpus,
+            window=window,
+            gist_path=gist_path,
+            brief_path=brief_path,
+            output_root=args.output,
+            run_id=args.run_id,
+            source_sha=args.source_sha,
+            generator_config_path=DEFAULT_GENERATOR_CONFIG,
+        )
+    except (OSError, ValueError) as exc:
+        print(f"[rexy] review package build failed: {exc}", file=sys.stderr)
+        return 1
+    print(f"[rexy] review_package={package.resolve()}")
+    return 0
 
 
 def _cmd_parity(args: argparse.Namespace) -> int:
@@ -339,7 +437,7 @@ def _cmd_deep_notes_pick(args: argparse.Namespace) -> int:
         run = run_interactive_deep_note_pick(
             window=window,
             corpus_root=corpus_root,
-            public_dir=args.public_dir,
+            brief_dir=args.brief_dir,
             picks_root=args.deep_picks_dir,
             inbox_dir=args.inbox_dir,
             config=cfg,

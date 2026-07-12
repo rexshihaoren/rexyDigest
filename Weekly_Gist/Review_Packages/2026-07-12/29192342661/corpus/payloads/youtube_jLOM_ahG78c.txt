@@ -1,0 +1,15 @@
+Amy Lu from the LangChain product team walks through configuring Claude Code so every session traces straight into LangSmith. You'll see the exact plugin install and settings file needed to capture every message, tool call, and sub agent run, then how to read that trace and follow a full multi-turn session in the Threads tab.
+
+Chapters:
+0:00 Why your Claude Code agent's black box moments cost you debugging time
+0:29 Three things you need before you start
+0:44 Installing the LangSmith tracing plugin
+1:10 Pointing the plugin at LangSmith with one settings file
+1:21 The settings file, line by line
+1:39 Running Claude Code with tracing turned on
+1:49 Viewing your first trace in LangSmith
+2:06 Following a full session in the Threads tab
+2:17 Recap: three commands and one JSON block
+2:25 Troubleshooting and what's next
+
+Docs: https://docs.langchain.com/langsmith/trace-claude-code

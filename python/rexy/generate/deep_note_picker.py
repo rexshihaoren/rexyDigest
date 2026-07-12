@@ -80,8 +80,8 @@ def window_for_end(end: date) -> Window:
     return Window(start=end - timedelta(days=7), end=end)
 
 
-def public_brief_path(public_dir: Path, window: Window) -> Path:
-    return public_dir / f"Weekly_Brief_Public_{window.end.isoformat()}.md"
+def weekly_brief_path(brief_dir: Path, window: Window) -> Path:
+    return brief_dir / f"Weekly_Brief_{window.end.isoformat()}.md"
 
 
 def collect_deep_note_candidates(
@@ -132,7 +132,7 @@ def run_interactive_deep_note_pick(
     *,
     window: Window,
     corpus_root: Path,
-    public_dir: Path,
+    brief_dir: Path,
     picks_root: Path,
     inbox_dir: Path,
     config: GeneratorConfig,
@@ -140,10 +140,10 @@ def run_interactive_deep_note_pick(
     input_fn: InputFn = input,
     output_fn: OutputFn = print,
 ) -> DeepNotePickRun:
-    brief_path = public_brief_path(public_dir, window)
+    brief_path = weekly_brief_path(brief_dir, window)
     if not brief_path.exists():
         raise FileNotFoundError(
-            f"public brief missing: {brief_path}; run `rexy publish --end {window.end.isoformat()}` first"
+            f"weekly Brief missing: {brief_path}; run `rexy publish --end {window.end.isoformat()}` first"
         )
 
     output_fn(f"Public brief: {brief_path}")

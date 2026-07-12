@@ -17,6 +17,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && github.ref || 'main' }}
 
       - uses: actions/setup-python@v5
         with:
@@ -46,13 +48,21 @@ jobs:
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
           DEEPSEEK_MODEL_FALLBACKS: deepseek-v4-pro
 
-      - name: Publish public brief
+      - name: Render weekly brief
         run: PYTHONPATH=python python -m rexy publish --end "$END_DATE"
+
+      - name: Build review package
+        run: >-
+          PYTHONPATH=python python -m rexy review build
+          --end "$END_DATE"
+          --run-id "${{ github.run_id }}"
+          --source-sha "$(git rev-parse HEAD)"
+          --output "Weekly_Gist/Review_Packages/${END_DATE}/${{ github.run_id }}"
 
       - name: Commit & Push
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
-          git add -f "Weekly_Gist/Weekly_Gist_${END_DATE}.md" "Weekly_Gist/Public/Weekly_Brief_Public_${END_DATE}.md"
+          git add -f "Weekly_Gist/Weekly_Gist_${END_DATE}.md" "Weekly_Gist/Weekly_Brief_${END_DATE}.md" "Weekly_Gist/Review_Packages/${END_DATE}/${{ github.run_id }}"
           git commit -m "chore: weekly gist ${END_DATE}" || echo "no changes"
           git push

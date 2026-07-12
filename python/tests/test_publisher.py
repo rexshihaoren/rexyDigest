@@ -6,6 +6,7 @@ same Markdown out, byte-for-byte. (No LLM noise per ADR-0007.)
 
 from datetime import date, datetime, timezone
 from pathlib import Path
+from types import SimpleNamespace
 
 from rexy.corpus.items_store import ItemsStore
 from rexy.corpus.selections_store import SelectionsStore
@@ -160,6 +161,24 @@ class TestEndToEndViaStore:
         loaded_entries = selections.read(WINDOW)
         md = render_public_brief(WINDOW, loaded_entries, loaded_items)
         assert "智能体工具使用的突破" in md
+
+    def test_publish_writes_weekly_brief_beside_gist(self, tmp_path: Path):
+        corpus = tmp_path / "corpus"
+        ItemsStore(corpus / "items.jsonl").upsert_many([_item()])
+        SelectionsStore(corpus / "selections").write(WINDOW, [_entry()])
+        weekly_gist = tmp_path / "Weekly_Gist"
+        from rexy.publish.cli import cmd_publish
+
+        result = cmd_publish(SimpleNamespace(
+            corpus=corpus,
+            brief_dir=weekly_gist,
+            window=str(WINDOW),
+            end=None,
+        ))
+
+        assert result == 0
+        assert (weekly_gist / "Weekly_Brief_2026-05-10.md").is_file()
+        assert not (weekly_gist / "Public").exists()
 
 
 class TestParity:

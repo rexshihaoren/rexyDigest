@@ -14,7 +14,7 @@ from .renderer import render_public_brief
 
 def cmd_publish(args: argparse.Namespace) -> int:
     corpus_root: Path = args.corpus
-    public_dir: Path = args.public_dir
+    brief_dir: Path = args.brief_dir
 
     if args.window:
         window = Window.parse(args.window)
@@ -38,8 +38,8 @@ def cmd_publish(args: argparse.Namespace) -> int:
     items_by_id = {it.id: it for it in ItemsStore(corpus_root / "items.jsonl").read_all()}
     md = render_public_brief(window, entries, items_by_id)
 
-    public_dir.mkdir(parents=True, exist_ok=True)
-    out = public_dir / f"Weekly_Brief_Public_{window.end.isoformat()}.md"
+    brief_dir.mkdir(parents=True, exist_ok=True)
+    out = brief_dir / f"Weekly_Brief_{window.end.isoformat()}.md"
     out.write_text(md, encoding="utf-8")
     print(f"[rexy] wrote {out} ({len(entries)} items)")
     return 0

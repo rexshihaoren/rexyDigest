@@ -41,8 +41,11 @@ The internal Markdown document rendered from a **Selection** — `Weekly_Gist/We
 _Avoid_: Digest, weekly, summary, internal brief.
 
 **Brief**:
-The public bilingual Markdown document derived from a **Gist** for publication — `Weekly_Gist/Public/Weekly_Brief_Public_<end-date>.md`.
+The automatically rendered bilingual Markdown document reviewed as a weekly KnowledgeCard candidate — `Weekly_Gist/Weekly_Brief_<end-date>.md`.
 _Avoid_: Public digest, weekly post, blog brief.
+
+**Review Package**:
+The immutable, checksummed snapshot from one successful GitHub Actions run. It contains one Window's Selection, referenced Items and Payloads, Provenance, Gist, and Brief. Packages are committed under `Weekly_Gist/Review_Packages/<end>/<run-id>/`; their writable review workspaces live under `.rexy/reviews/<run-id>/` and never merge into the local Corpus.
 
 **Corpus**:
 The persistent on-disk store of **Items**, **Payloads**, past **Selections**, and run-level **Provenance**. Single source of truth for everything the generator and publisher consume.
