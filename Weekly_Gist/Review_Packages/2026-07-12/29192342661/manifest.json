@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "run_id": "29192342661",
+  "source_sha": "d06418e66d9602e99d81a3bcd327089e16813bd6",
+  "window": "2026-07-05/2026-07-12",
+  "artifacts": {
+    "gist": "Weekly_Gist/Weekly_Gist_2026-07-12.md",
+    "brief": "Weekly_Gist/Weekly_Brief_2026-07-12.md"
+  },
+  "generator_config": "config/generator.toml",
+  "files": {
+    "Weekly_Gist/Weekly_Brief_2026-07-12.md": "4f96aec7a2740344c7c69a36f8b6f3224227b62db0094a33fffe1a83af18791c",
+    "Weekly_Gist/Weekly_Gist_2026-07-12.md": "555bca5ec57872b4f3101321344b3ebf772e69569e3d8864939a109825b4eab6",
+    "config/generator.toml": "49b194f37480503ffc57f63378bd2ef3f3013334094c4013a4bc348a2019e2c7",
+    "corpus/items.jsonl": "d3d3b93c4e431e1307910508fe0b2a82ab1b81d77a52c092f684f611a4b12874",
+    "corpus/payloads/arxiv_2607.08010.txt": "353d4284ecc552317d6a2fe81e19d61630de9c9191a936ed854e05228fa12895",
+    "corpus/payloads/arxiv_2607.08147.txt": "4dbe8cc2c9dd80347f3a9b88ebf4f85adfb5965b30173cc4f505102102e24814",
+    "corpus/payloads/arxiv_2607.08180.txt": "57da9eedf7085a879385ae393557eb79aa50629ea311b12d45cc36b84bc8624d",
+    "corpus/payloads/url-sha1_ba232fcde123b625.txt": "1889872b46f0facfdf72a01496468b3706d37f4974f16aac068b33b6aeafafc5",
+    "corpus/payloads/youtube_MxgUMBGeF14.txt": "10aaa129933504bf82eff2d9aefa2fd407432ceb36c88592accccd5d84671690",
+    "corpus/payloads/youtube_Yy3JH6dDugc.txt": "d9855363753c0a3e346dfb17ada31665f3940e554a682ac4620a1ee192d79f9e",
+    "corpus/payloads/youtube_jLOM_ahG78c.txt": "63c4a0f6f05aad84009e56ae3f42acd4ecd31dd1b7225a64c4bd15621ea5c903",
+    "corpus/payloads/youtube_sBg90v2qfas.txt": "315d7a8f7301e4e4d4c88d95ec7ddcf5d20897593fe1b5bd749dc44319dab042",
+    "corpus/runs/Run_20260712T121705Z.json": "a24b7cae91c8e4dced71e6e7f45593a28fcf467c0f4bb34a9001ddabc7be3124",
+    "corpus/runs/Run_20260712T121728Z.json": "7364222a5026d5aadd283bdd676b2542a4ec3588c5e0356444108a48c20bba6f",
+    "corpus/selections/Selection_2026-07-12.jsonl": "55aedc84b275c3e3f82fd7f23639defd7f6efd08197551309cbcfcfc8674795f"
+  }
+}

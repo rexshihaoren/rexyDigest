@@ -1,0 +1,22 @@
+In this video, Alex Olson from the LangChain team sets up dcode (LangChain's open source, model agnostic coding agent) with Nemotron 3 Ultra served through Baseten, then put it to work on a real coding task. Along the way we cover installation, model selection, authenticating LangSmith for full tracing, and the new /goal feature, before closing with a look at how NVIDIA's NemoClaw Deep Agents Blueprint takes this same setup into a secure, governed environment for enterprise use.
+
+Chapters:
+0:00 A new era for open models in agent engineering
+0:11 Meet Nemotron 3 Ultra
+0:47 Why the harness matters as much as the model
+1:07 Introducing dcode, a provider agnostic coding agent
+1:39 Installing dcode
+2:08 Selecting Nemotron 3 Ultra as your model
+2:38 Connecting your Baseten API key
+3:04 Kicking off a long running coding task
+3:39 Authenticating LangSmith with /auth
+4:07 Exploring threads, offload, and MCP
+4:27 Trying the new /goal feature
+5:15 Checking in on the finished chat app
+5:25 Inside LangSmith, tracing your agent
+6:42 Taking dcode to production with NemoClaw
+
+Resources:
+→ Deep Agents Code (dcode): https://www.langchain.com/deep-agents
+→ LangSmith: https://www.langchain.com/langsmith
+→ LangChain Academy: https://academy.langchain.com
