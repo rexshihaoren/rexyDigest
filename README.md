@@ -104,10 +104,32 @@ PYTHONPATH=python ./.venv/bin/python -m rexy deep-notes pick --end 2026-05-11
 
 The picker requires the public brief for that date, shows Top 3 overview
 AI×Simulation candidates one by one, writes a generated local audit file under
-`corpus/deep_picks/`, then writes one Markdown file per confirmed item under
-`KnowledgeCard_Inbox/` (both gitignored by default). Deep notes use Gemini for
-the scarce editorial-quality pass and must follow the strict KnowledgeCard
-contract in [`docs/templates/deep_note.md`](docs/templates/deep_note.md).
+`corpus/deep_picks/`, and stages each confirmed note under `corpus/deep_notes/`.
+It then opens a local review page. The staged Markdown remains readable and
+editable; only **Finish review** writes the reviewed note to
+`KnowledgeCard_Inbox/`. Deep notes use Gemini for the scarce editorial-quality
+pass and must follow the strict KnowledgeCard contract in
+[`docs/templates/deep_note.md`](docs/templates/deep_note.md).
+
+For a YouTube Item, the same picker preserves the original YouTube URL, aligns
+timestamped transcript evidence to each DeepNote section, and generates pending
+keyframe candidates under `assets/visuals/`. Internal candidate state—including
+source URL, timestamp URL, reason, and approval status—lives under
+`corpus/visuals/`. This optional enrichment requires `yt-dlp` and `ffmpeg` on
+`PATH`; missing tools or unavailable video leave text generation usable and
+report visual enrichment as incomplete.
+
+Resume an interrupted review without regenerating the note:
+
+```bash
+PYTHONPATH=python ./.venv/bin/python -m rexy deep-notes review \
+  --end 2026-05-11 --item-id '<item-id>'
+```
+
+The review page autosaves visual choices. Edited Markdown is evaluated only
+after **Save changes**; affected visual decisions become stale and are judged
+again. **No visual** is a valid reviewed outcome. If visual enrichment failed,
+an explicit text-only waiver permits publishing. **Close** never publishes.
 
 ### Status
 

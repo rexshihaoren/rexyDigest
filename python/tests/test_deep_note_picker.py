@@ -177,7 +177,13 @@ def test_existing_note_uses_yes_no_copy_prompt(tmp_path: Path) -> None:
     )
 
     assert existing.read_text(encoding="utf-8") == "keep me\n"
-    assert run.written == [inbox_dir / "deep_arxiv_1_2026-05-17_2.md"]
+    assert run.written == [
+        tmp_path / "corpus" / "deep_notes" / "arxiv_1" / "2026-05-17" / "draft.md"
+    ]
+    review = (
+        tmp_path / "corpus" / "visuals" / "arxiv_1" / "2026-05-17" / "candidates.json"
+    ).read_text(encoding="utf-8")
+    assert "deep_arxiv_1_2026-05-17_2.md" in review
     assert "Overwrite existing deep note? [y/n]: " in prompts
     assert "Create a suffixed copy instead? [y/n]: " in prompts
 

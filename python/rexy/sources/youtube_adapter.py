@@ -53,14 +53,21 @@ def _default_fetch_transcript(video_id: str) -> str | None:
     try:
         api = YouTubeTranscriptApi()
         transcript = api.fetch(video_id)
-        # Concatenate snippet text — order is the order the API returns.
+        # Preserve source timing so downstream DeepNote visuals can use bounded
+        # evidence windows. Plain-text consumers still receive readable lines.
         chunks: list[str] = []
         for s in transcript:
             text = getattr(s, "text", None)
+            start = getattr(s, "start", None)
             if text is None and isinstance(s, dict):
                 text = s.get("text")
+                start = s.get("start")
             if text:
-                chunks.append(str(text).strip())
+                clean = str(text).strip()
+                if isinstance(start, (int, float)):
+                    chunks.append(f"[{_format_timestamp(float(start))}] {clean}")
+                else:
+                    chunks.append(clean)
         joined = "\n".join(c for c in chunks if c)
         return joined or None
     except Exception:  # pragma: no cover - per-video network/auth failures
@@ -68,6 +75,13 @@ def _default_fetch_transcript(video_id: str) -> str | None:
 
 
 fetch_transcript: TranscriptFetcher = _default_fetch_transcript
+
+
+def _format_timestamp(seconds: float) -> str:
+    total = max(0, int(seconds))
+    hours, remainder = divmod(total, 3600)
+    minutes, secs = divmod(remainder, 60)
+    return f"{hours:02d}:{minutes:02d}:{secs:02d}"
 
 
 class YoutubeAdapter:

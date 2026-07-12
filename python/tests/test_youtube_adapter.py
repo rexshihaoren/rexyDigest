@@ -19,6 +19,11 @@ from rexy.domain import PayloadKind, SourceType, Window
 from rexy.sources import AdapterError
 from rexy.sources import youtube_adapter as yt_mod
 from rexy.sources.youtube_adapter import YoutubeAdapter
+from rexy.sources.youtube_adapter import _format_timestamp
+
+
+def test_formats_transcript_timestamps_for_visual_alignment() -> None:
+    assert _format_timestamp(993.8) == "00:16:33"
 
 
 WINDOW = Window.parse("2026-05-03/2026-05-10")
