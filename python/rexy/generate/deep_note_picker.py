@@ -22,6 +22,14 @@ from .config import GeneratorConfig
 from .deep_note_format import prepare_deep_note_markdown
 from .deep_picks import picks_path
 from .llm.deep_note import DeepNoteWriter, safe_filename_part
+from .visual_review import GeminiVisualJudge, judge_candidates
+from .video_visuals import (
+    VisualEnrichmentResult,
+    fetch_source_page,
+    generate_section_keyframes,
+    resolve_youtube_url,
+    write_candidate_sidecar,
+)
 
 MAX_DEEP_NOTE_PICKS = 2
 PICKS_SOURCE = "public_top3_overview_ai_sim"
@@ -310,15 +318,19 @@ def _generate_selected_notes(
 
     for candidate in selected:
         item = candidate.item
-        out = inbox_dir / f"deep_{safe_filename_part(item.id)}_{window.end.isoformat()}.md"
-        if out.exists():
-            action = _ask_existing_note_action(out, input_fn, output_fn)
+        item_part = safe_filename_part(item.id)
+        final_out = inbox_dir / f"deep_{item_part}_{window.end.isoformat()}.md"
+        if final_out.exists():
+            action = _ask_existing_note_action(final_out, input_fn, output_fn)
             if action == "s":
-                skipped_existing.append(out)
-                output_fn(f"Skipped existing note: {out}")
+                skipped_existing.append(final_out)
+                output_fn(f"Skipped existing note: {final_out}")
                 continue
             if action == "c":
-                out = _copy_path(out)
+                final_out = _copy_path(final_out)
+
+        draft = corpus_root / "deep_notes" / item_part / window.end.isoformat() / "draft.md"
+        draft.parent.mkdir(parents=True, exist_ok=True)
 
         payload_text = ""
         if item.payload_ref and payloads.exists(item.payload_ref):
@@ -333,10 +345,92 @@ def _generate_selected_notes(
             payload=payload_text,
         )
         md = prepare_deep_note_markdown(md)
-        out.write_text(md.rstrip() + "\n", encoding="utf-8")
-        written.append(out)
-        output_fn(f"Wrote deep note: {out}")
+        draft.write_text(md.rstrip() + "\n", encoding="utf-8")
+        written.append(draft)
+        output_fn(f"Wrote DeepNote draft: {draft}")
+        _generate_visual_candidates(
+            item, md, payload_text, window, corpus_root, draft, final_out, output_fn,
+        )
     return written, skipped_existing
+
+
+def _generate_visual_candidates(
+    item: Item,
+    markdown: str,
+    payload: str,
+    window: Window,
+    corpus_root: Path,
+    draft_path: Path,
+    final_path: Path,
+    output_fn: OutputFn,
+) -> None:
+    source_type = str(
+        item.source_type.value if hasattr(item.source_type, "value") else item.source_type
+    )
+    has_video_marker = "full video" in payload.lower()
+    item_part = safe_filename_part(item.id)
+    visual_root = corpus_root / "visuals" / item_part / window.end.isoformat()
+    sidecar = visual_root / "candidates.json"
+    has_video_source = source_type == "youtube" or "youtube.com/" in payload or "youtu.be/" in payload or has_video_marker
+    if not has_video_source:
+        result = VisualEnrichmentResult(True, item.canonical_url, [])
+        write_candidate_sidecar(result, sidecar)
+        _annotate_review_sidecar(sidecar, item.id, draft_path, final_path)
+        output_fn(f"No video enrichment required; review sidecar: {sidecar}")
+        return
+
+    source_url = resolve_youtube_url(item.canonical_url, payload, fetch_source_page)
+    if source_url is None:
+        result = VisualEnrichmentResult(False, item.canonical_url, [], "original YouTube URL not found")
+        write_candidate_sidecar(result, sidecar)
+        _annotate_review_sidecar(sidecar, item.id, draft_path, final_path)
+        output_fn(f"Visual enrichment incomplete: original YouTube URL not found; sidecar: {sidecar}")
+        return
+
+    asset_root = corpus_root.parent / "assets" / "visuals" / item_part / window.end.isoformat()
+    result = generate_section_keyframes(
+        note_markdown=markdown,
+        payload=payload,
+        youtube_url=source_url,
+        output_dir=asset_root,
+    )
+    write_candidate_sidecar(result, sidecar)
+    _annotate_review_sidecar(sidecar, item.id, draft_path, final_path)
+    if result.complete:
+        if result.candidates:
+            try:
+                judge_candidates(draft_path, sidecar, GeminiVisualJudge())
+            except RuntimeError as exc:
+                _mark_visual_incomplete(sidecar, str(exc))
+                output_fn(f"Visual judgment incomplete: {exc}; sidecar: {sidecar}")
+                return
+        output_fn(f"Visual candidates: {len(result.candidates)}; review sidecar: {sidecar}")
+    else:
+        output_fn(f"Visual enrichment incomplete: {result.error}; sidecar: {sidecar}")
+
+
+def _annotate_review_sidecar(
+    sidecar: Path,
+    item_id: str,
+    draft_path: Path,
+    final_path: Path,
+) -> None:
+    import json
+
+    data = json.loads(sidecar.read_text(encoding="utf-8"))
+    data["item_id"] = item_id
+    data["draft_path"] = str(draft_path)
+    data["final_path"] = str(final_path)
+    sidecar.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+
+def _mark_visual_incomplete(sidecar: Path, error: str) -> None:
+    import json
+
+    data = json.loads(sidecar.read_text(encoding="utf-8"))
+    data["complete"] = False
+    data["error"] = error
+    sidecar.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
 
 def _ask_existing_note_action(path: Path, input_fn: InputFn, output_fn: OutputFn) -> str:

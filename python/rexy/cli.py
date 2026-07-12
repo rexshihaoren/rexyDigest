@@ -138,6 +138,22 @@ def main(argv: list[str] | None = None) -> int:
         "--generator-config", type=Path, default=DEFAULT_GENERATOR_CONFIG,
         help=f"generator config TOML (default: {DEFAULT_GENERATOR_CONFIG})",
     )
+    deep_pick.add_argument(
+        "--no-open", action="store_true",
+        help="do not open the local review UI automatically",
+    )
+    deep_review = deep_sub.add_parser(
+        "review",
+        help="Resume visual and Markdown review in a local browser UI.",
+    )
+    deep_review.add_argument("--end", required=True, help="DeepNote end date YYYY-MM-DD")
+    deep_review.add_argument("--item-id", default=None, help="Item id when several notes share the date")
+    deep_review.add_argument(
+        "--inbox-dir", type=Path, default=DEFAULT_KC_INBOX,
+        help=f"final KnowledgeCard inbox (default: {DEFAULT_KC_INBOX})",
+    )
+    deep_review.add_argument("--port", type=int, default=0, help="localhost port; 0 chooses an available port")
+    deep_review.add_argument("--no-open", action="store_true", help="print URL without opening browser")
 
     args = parser.parse_args(argv)
 
@@ -154,6 +170,8 @@ def main(argv: list[str] | None = None) -> int:
     if args.cmd == "deep-notes":
         if args.deep_cmd == "pick":
             return _cmd_deep_notes_pick(args)
+        if args.deep_cmd == "review":
+            return _cmd_deep_notes_review(args)
         parser.error(f"unknown deep-notes command {args.deep_cmd}")
     parser.error(f"unknown command {args.cmd}")
     return 2
@@ -337,6 +355,32 @@ def _cmd_deep_notes_pick(args: argparse.Namespace) -> int:
         print(f"[rexy] wrote {path}")
     for path in run.skipped_existing:
         print(f"[rexy] skipped existing {path}")
+    if run.written:
+        from .generate.review_ui import find_review_session, serve_review
+
+        for item_id in run.item_ids:
+            try:
+                session = find_review_session(
+                    corpus_root,
+                    args.inbox_dir,
+                    window.end.isoformat(),
+                    item_id,
+                )
+            except FileNotFoundError:
+                continue
+            serve_review(session, open_browser=not args.no_open)
+    return 0
+
+
+def _cmd_deep_notes_review(args: argparse.Namespace) -> int:
+    from .generate.review_ui import find_review_session, serve_review
+
+    try:
+        session = find_review_session(args.corpus, args.inbox_dir, args.end, args.item_id)
+        serve_review(session, port=args.port, open_browser=not args.no_open)
+    except (FileNotFoundError, ValueError, OSError) as exc:
+        print(f"[rexy] {exc}", file=sys.stderr)
+        return 1
     return 0
 
 
