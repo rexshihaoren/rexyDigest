@@ -6,33 +6,33 @@
 覆盖范围 Coverage window：**2026年07月05日 至 2026年07月12日** ｜ 入选 Items: **5**
 
 ### 核心看点 Overview（双语）
-- 🏅 在 LangSmith 中追踪每个 Claude Code 会话，仅需几分钟 ｜ Trace Every Claude Code Session in LangSmith in Minutes
+- 🏅 黄仁勋：为什么企业需要开放智能体系统 ｜ Jensen Huang: Why companies need open agent systems
 - 🏅 如何降低LLM延迟 ｜ How to Reduce LLM Latency
-- 🏅 UniClawBench：面向真实世界任务的主动式智能体通用基准测试 ｜ UniClawBench: A Universal Benchmark for Proactive Agents on Real-World Tasks
+- 🏅 [AI新闻] SpaceXAI推出Grok 4.5，首款后Cursor收购时代的Opus级模型 ｜ [AINews] SpaceXAI launches Grok 4.5, first Opus-class model post Cursor acquisition
 
 ---
 
 
 **标题｜Title**
-📺 **LangChain** — 在 LangSmith 中追踪每个 Claude Code 会话，仅需几分钟（视频，2026-07-09） ｜ 📺 **LangChain** — Trace Every Claude Code Session in LangSmith in Minutes (Video, 2026-07-09)
+📺 **LangChain** — 黄仁勋：为什么企业需要开放智能体系统（视频，2026-07-08） ｜ 📺 **LangChain** — Jensen Huang: Why companies need open agent systems (Video, 2026-07-08)
 
-**来源｜Source**：https://www.youtube.com/watch?v=jLOM_ahG78c
+**来源｜Source**：https://www.youtube.com/watch?v=Yy3JH6dDugc
 
 **摘要｜TL;DR**
-配置 Claude Code，将会话完整追踪发送到 LangSmith，深度可见每条消息、工具调用和子代理运行，消除调试盲区。 ｜ Configure Claude Code to send full session traces to LangSmith for deep visibility into every message, tool call, and sub-agent run, eliminating debugging black boxes.
+黄仁勋与Harrison Chase讨论了企业如何利用开放、安全且成本高效的智能体系统来构建和部署专业AI智能体，并宣布了NVIDIA与LangChain合作的新蓝图。 ｜ Jensen Huang and Harrison Chase discuss how enterprises can build and deploy specialized AI agents using open, secure, and cost-efficient systems, announcing a new NVIDIA-LangChain blueprint for deep agents.
 
 **要点｜Takeaways**
-• Claude Code 代理会话常是黑箱；追踪能捕获每次交互，解决此问题。 ｜ Claude Code agent sessions are often black boxes; tracing solves this by capturing every interaction.
-• 设置需要 LangSmith 账户、通过 pip 安装插件以及一个简单的 JSON 配置文件。 ｜ Setup requires a LangSmith account, installing a plugin via pip, and a simple JSON settings file.
-• 一个配置文件即可将插件指向您的 LangSmith 项目，实现自动上传追踪。 ｜ One settings file points the plugin to your LangSmith project, enabling automatic trace upload.
-• 追踪包含完整消息历史、工具调用和子代理操作，便于彻底调试。 ｜ Traces include full message history, tool invocations, and sub-agent operations for complete debugging.
-• LangSmith 的 Threads 标签页可重构多轮会话，便于高层次流程检查。 ｜ The Threads tab in LangSmith reconstructs multi-turn sessions for high-level workflow inspection.
+• 未来的企业建立在“驾驭系统”之上，而非传统的业务流程。 ｜ Companies of the future will be built on harnesses, not traditional business processes.
+• 根植于企业数据的专业子智能体提供更好的性能和效率。 ｜ Specialized sub-agents grounded in enterprise data provide better performance and efficiency.
+• 开放智能体系统赋予企业安全、访问控制和成本优势。 ｜ Open agent systems empower enterprises with security, access control, and cost advantages.
+• 更便宜、更快的智能能进行更多探索并找到更好的答案。 ｜ Cheaper, faster intelligence enables more exploration and better answers.
+• AI越多，工作机会越多，因为它增强了人类能力。 ｜ More AI means more jobs as it augments human capabilities.
 
 **启示｜Implication**
-观察代理内部过程使自主行为可审计，是这些系统代我们行动时获得信任和可靠操控的前提。 ｜ Observing agent internals makes autonomous behavior auditable, a prerequisite for trust and reliable steering as these systems increasingly act on our behalf.
+黄仁勋将公司视为专业智能体驾驭系统的愿景意味着，未来的企业是一个可编程、自我改进的系统，模糊了商业与模拟的界限。 ｜ Jensen Huang's vision of companies as harnesses of specialized agents implies that the future enterprise is a programmable, self-improving system, blurring the line between business and simulation.
 
 **综合评分｜CompositeScore**
-4.8
+4.9
 
 **主题｜Topics**
 智能体 ｜ Agent
@@ -45,17 +45,17 @@
 **来源｜Source**：https://www.youtube.com/watch?v=CKamabikBNs
 
 **摘要｜TL;DR**
-该视频构建了LLM推理延迟的心理模型，揭示为何解码阶段占主导地位，以及代理模式如何成倍增加时间和成本。 ｜ Builds a mental model for LLM inference latency, showing why decode dominates and how agentic patterns multiplicatively increase time and cost.
+解释了LLM推理物理学——特别是解码延迟和KV缓存重用——如何显著影响智能体的成本和速度，并提供优化规则。 ｜ Explains how LLM inference physics—especially decode latency and KV cache reuse—drastically affects agent cost and speed, with rules to optimize.
 
 **要点｜Takeaways**
-• 相同模型、GPU 和代码，仅因推理“形状”（批量大小、提示长度、输出长度、并行度）的不同，延迟可相差 12 倍。 ｜ Identical model, GPU, and code can exhibit 12x latency differences solely due to inference 'shape' (batch size, prompt length, output length, parallelism).
-• 解码期间写入一个 token 的成本约是预填充期间读取成本的 300 倍，使得解码成为压倒性的瓶颈。 ｜ Writing a single token during decode costs ~300x more than reading during prefill, making decode the overwhelming bottleneck.
-• 小请求浪费 GPU 资源；批处理和连续批处理对吞吐量至关重要。 ｜ Small requests starve the GPU; batching and continuous batching are essential for throughput.
-• 代理每一步重新读取完整对话历史，导致解码成本叠加，使 5 步代理的成本因子高达 12 倍。 ｜ Agents that re-read the full conversation history every step compound decode costs, turning a 5‑step agent into a 12x cost multiplier.
-• KV 缓存出奇地小，但管理不当会迫使进行昂贵的重新计算，尤其是在代理循环中。 ｜ KV cache size is surprisingly small but mis‑management forces costly re‑computation, especially in agent loops.
+• 相同的模型/代码/GPU可因推理形状导致12倍延迟差异。 ｜ Same model/code/GPU can have 12x latency differences due to inference shape.
+• 解码而非预填充主导延迟；写入一个token的成本约是读取的300倍。 ｜ Decode, not prefill, dominates latency; writing a token costs ~300x more than reading.
+• 智能体每步重读历史，导致多步智能体成本不成比例。 ｜ Agents re-read history each step, causing multi-step agents to cost disproportionately.
+• KV缓存比预期小，重用它是对付智能体延迟的关键。 ｜ KV cache is smaller than expected and reusing it is key to taming agent latency.
+• 五条具体规则：最小化解码步骤、重用KV缓存、批处理小请求、避免重复预填充、理解工作负载模式。 ｜ Five concrete rules: minimize decode steps, reuse KV cache, batch small requests, avoid repetitive prefill, and understand workload pattern.
 
 **启示｜Implication**
-掌握推理的物理原理，让从业者‑哲学家设计的自主代理不仅更智能，而且速度和成本可优化几个数量级，从而更精准地操控现实代码。 ｜ Mastering inference physics lets practitioner‑philosophers design autonomous agents that are not just smarter but orders of magnitude faster and cheaper—effectively wielding reality‑code with greater precision.
+构建自主智能体的实践哲学家必须内化推理物理学，以使计算现实与设计对齐，因为智能体循环会放大隐藏的低效。 ｜ Practitioner-philosophers building autonomous agents must internalize inference physics to align computational reality with their designs, as agentic loops amplify hidden inefficiencies.
 
 **综合评分｜CompositeScore**
 4.8
@@ -66,21 +66,22 @@
 
 
 **标题｜Title**
-📄 **Zhekai Chen, Chengqi Duan, Kaiyue Sun, Bohao Li, Yuqing Wang, Manyuan Zhang, Xihui Liu** — UniClawBench：面向真实世界任务的主动式智能体通用基准测试（论文，2026-07-09） ｜ 📄 **Zhekai Chen, Chengqi Duan, Kaiyue Sun, Bohao Li, Yuqing Wang, Manyuan Zhang, Xihui Liu** — UniClawBench: A Universal Benchmark for Proactive Agents on Real-World Tasks (Paper, 2026-07-09)
+📝 **Latent Space** — [AI新闻] SpaceXAI推出Grok 4.5，首款后Cursor收购时代的Opus级模型（博客，2026-07-09） ｜ 📝 **Latent Space** — [AINews] SpaceXAI launches Grok 4.5, first Opus-class model post Cursor acquisition (Blog, 2026-07-09)
 
-**来源｜Source**：https://arxiv.org/abs/2607.08768
+**来源｜Source**：https://www.latent.space/p/ainews-spacexai-launches-grok-45
 
 **摘要｜TL;DR**
-UniClawBench引入了一个能力驱动的基准测试，包含400个双语真实世界任务，在实时Docker容器中采用多智能体闭环评估，以评估并解构基础模型和框架设计在主动智能体中的贡献。 ｜ UniClawBench introduces a capability-driven benchmark with 400 bilingual real-world tasks in live Docker containers, using multi-agent closed-loop evaluation to assess and disentangle model and framework contributions in proactive agents.
+Grok 4.5是xAI/Cursor推出的新前沿模型，专注于编程和智能体，以更低的成本和更高的速度提供接近顶尖的性能。 ｜ Grok 4.5 is a new frontier model from xAI/Cursor focused on coding and agents, offering near-top performance at lower cost and higher speed.
 
 **要点｜Takeaways**
-• 用具有逐步检查点的动态环境代替沙盒式单轮评估。 ｜ Replaces sandboxed single-turn evals with live environments and step-by-step checkpoints.
-• 定义了五种基础能力：技能使用、探索、长上下文推理、多模态理解和跨平台协调。 ｜ Defines five foundational capabilities: skill usage, exploration, long-context reasoning, multimodal understanding, and cross-platform coordination.
-• 闭环评估策略通过执行智能体、隐藏监督智能体和用户智能体模拟真实的多轮反馈。 ｜ Closed-loop evaluation with executor, hidden supervisor, and user agents provides realistic multi-turn feedback.
-• 将基础模型能力与框架设计分离，揭示它们对真实世界性能的共同影响。 ｜ Disentangling base model capabilities from framework design reveals their joint impact on real-world performance.
+• Grok 4.5是一款明确为编程和智能体训练的Opus级模型，基准测试表现强劲（AI智能指数排名第4）。 ｜ Grok 4.5 is an Opus-class model explicitly trained for coding and agents, with strong benchmarks (#4 on AI Intelligence Index).
+• 在定价上大幅低于竞争对手：每百万输入/输出token 2/6美元，而GPT-5.6为5/30美元。 ｜ It undercuts competitors on pricing: $2/$6 per 1M input/output tokens vs. $5/$30 for GPT-5.6.
+• 效率提升显著：在智能体任务中，输出token比Opus 4.8少60%，总token消耗也低得多。 ｜ It achieves efficiency gains: 60% fewer output tokens and much lower total tokens than Opus 4.8 in agentic tasks.
+• 立即获得生态系统支持，包括Hermes Agent、OpenRouter，并在Cursor中首周使用量翻倍。 ｜ Immediate ecosystem support includes Hermes Agent, OpenRouter, and double usage in Cursor for the first week.
+• 这个1.5万亿参数的模型规模大幅跃升，瞄准编程智能体工作流市场。 ｜ The 1.5T parameter model represents a significant jump in scale, targeting the coding-agent workflow market.
 
 **启示｜Implication**
-该基准推动了自主智能体的系统化调试与改进，直接助力开发通过工具使用操控现实的AI。 ｜ This benchmark advances the systematic debugging and improvement of autonomous agents, directly aiding the development of AI that manipulates reality through tool use.
+该模型重塑了部署自主编程智能体的成本/性能计算，可能加速智能体智能的商品化进程。 ｜ This model reshapes the cost/performance calculus for deploying autonomous coding agents, potentially accelerating the commoditization of agentic intelligence.
 
 **综合评分｜CompositeScore**
 4.8
@@ -91,24 +92,25 @@ UniClawBench引入了一个能力驱动的基准测试，包含400个双语真�
 
 
 **标题｜Title**
-📄 **Yifan Wu, Lizhu Zhang, Yuhang Zhou, Mingyi Wang, Bo Peng, Serena Li, Xiangjun Fan, Zhuokai Zhao** — 及时记忆：面向长程智能体的主动记忆代理（论文，2026-07-09） ｜ 📄 **Yifan Wu, Lizhu Zhang, Yuhang Zhou, Mingyi Wang, Bo Peng, Serena Li, Xiangjun Fan, Zhuokai Zhao** — Remember When It Matters: Proactive Memory Agent for Long-Horizon Agents (Paper, 2026-07-09)
+📄 **Yifan Wu, Lizhu Zhang, Yuhang Zhou, Mingyi Wang, Bo Peng, Serena Li, Xiangjun Fan, Zhuokai Zhao** — 适时记忆：长程智能体的主动记忆代理（论文，2026-07-09） ｜ 📄 **Yifan Wu, Lizhu Zhang, Yuhang Zhou, Mingyi Wang, Bo Peng, Serena Li, Xiangjun Fan, Zhuokai Zhao** — Remember When It Matters: Proactive Memory Agent for Long-Horizon Agents (Paper, 2026-07-09)
 
 **来源｜Source**：https://arxiv.org/abs/2607.08716
 
 **摘要｜TL;DR**
-一种主动记忆代理通过选择性注入提醒来提升长程任务性能，并可与现有代理即插即用。 ｜ A proactive memory agent selectively intervenes with reminders, boosting long-horizon agent performance via plug-and-play integration.
+一个主动记忆代理通过选择性注入提醒来应对行为状态衰减，在长程任务中提升智能体性能，在Terminal-Bench和τ²-Bench上取得显著增益。 ｜ A proactive memory agent that selectively injects reminders into long-horizon tasks improves agent performance by combating behavioral state decay, with gains on Terminal-Bench and τ²-Bench.
 
 **要点｜Takeaways**
-• 主动记忆注入显著优于被动上下文暴露、始终注入及顾问指导。 ｜ Proactive memory injection significantly outperforms passive context exposure, always-on injection, and advisor guidance.
-• 记忆代理作为独立模块运行，兼容未修改的行动代理和框架。 ｜ The memory agent operates as a separate module, compatible with unmodified action agents and harnesses.
-• 训练的开源记忆策略（Qwen3.5-27B）在未见基准上展现出部分迁移能力。 ｜ Trained open-weight memory policies (Qwen3.5-27B) show partial transfer to unseen benchmarks.
-• 有选择的静默/提醒决策防止了轨迹扩展中的行为状态衰减。 ｜ Selective silence/reminder decisions prevent behavioral state decay in expanding trajectories.
+• 主动记忆干预优于被动检索、持续注入和仅顾问指导。 ｜ Proactive memory intervention outperforms passive retrieval, always-on injection, and advisor-only guidance.
+• 独立的记忆代理监控轨迹并决定何时注入结构化提醒。 ｜ A separate memory agent monitors trajectory and decides when to inject structured reminders.
+• 即插即用的模块为弱和强动作代理均提升了pass@1指标。 ｜ Plug-and-play module boosts pass@1 for both weak and strong action agents.
+• 基于SFT和GRPO训练的开放权重记忆策略展现了向未见过基准的迁移能力。 ｜ Open-weight memory policies trained with SFT and GRPO show transfer to unseen benchmarks.
+• 记忆作为主动机制减少了长程任务中的行为状态衰减。 ｜ Memory as active mechanism reduces behavioral state decay in long-horizon tasks.
 
 **启示｜Implication**
-构建稳健代理可能需要元认知架构来主动管理记忆，正如生物系统有选择地关注过去显著经验以指导长期推理。 ｜ Building robust agents may require meta-cognitive architectures that actively manage memory, mirroring how biological systems attend to salient past experiences to guide extended reasoning.
+随着智能体处理日益漫长的任务，记忆管理对于保持连贯行为至关重要；这项工作提供了一个实用的开放权重解决方案，将记忆重新思考为主动、选择性的干预。 ｜ As agents tackle indefinitely long tasks, memory management becomes critical for maintaining coherent behavior; this work provides a practical, open-weight solution that rethinks memory as an active, selective intervention.
 
 **综合评分｜CompositeScore**
-4.7
+4.8
 
 **主题｜Topics**
 智能体 ｜ Agent
@@ -116,22 +118,21 @@ UniClawBench引入了一个能力驱动的基准测试，包含400个双语真�
 
 
 **标题｜Title**
-📝 **Latent.Space** — [AINews] OpenAI 推出 GPT 5.6 Sol/Terra/Luna，Codex 成为 ChatGPT 超级应用（博客，2026-07-10） ｜ 📝 **Latent.Space** — [AINews] OpenAI launches GPT 5.6 Sol/Terra/Luna, Codex becomes ChatGPT superapp (Blog, 2026-07-10)
+📺 **LangChain** — 深度智能体入门 / LangChain学院新课程（视频，2026-07-07） ｜ 📺 **LangChain** — Introduction to Deep Agents / LangChain Academy New Course (Video, 2026-07-07)
 
-**来源｜Source**：https://www.latent.space/p/ainews-openai-launches-gpt-56-solterraluna
+**来源｜Source**：https://www.youtube.com/watch?v=z30BJFWe89c
 
 **摘要｜TL;DR**
-OpenAI 发布 GPT-5.6 系列（Sol/Terra/Luna），引入多智能体编排与成本优化，重塑自主智能体开发。 ｜ OpenAI releases GPT-5.6 with Sol/Terra/Luna tiers, multi-agent orchestration, and cost improvements, reshaping autonomous agent development.
+一门介绍如何使用LangChain的Deep Agents构建长期运行、可操控的自主智能体的入门课程。 ｜ An introductory course on using LangChain's Deep Agents harness to build long-running, steerable autonomous agents.
 
 **要点｜Takeaways**
-• GPT-5.6 Sol 在智能体编码、成本效益和多智能体协调方面领先。 ｜ GPT-5.6 Sol leads on agentic coding, cost efficiency, and multi-agent coordination.
-• 新的多智能体测试版和 Responses API 中的程序化工具调用支持复杂智能体工作流。 ｜ New multi-agent beta and Programmatic Tool Calling in Responses API enable complex agent workflows.
-• 改进的计算机使用支持批处理、并行操作和监督。 ｜ Improved Computer Use supports batching, parallelism, and supervision.
-• 多项基准测试中性能超过 Claude Fable/Opus，且成本更低。 ｜ Performance exceeds Claude Fable/Opus at lower cost on many benchmarks.
-• 在图表/布局解析方面仍有困难，部分任务幻觉率较高。 ｜ Still struggles with chart/layout parsing and has higher hallucination rate on some tasks.
+• Deep Agents是一个用于复杂工作流的开源智能体框架。 ｜ Deep Agents is an open-source agent harness for complex workflows.
+• 它模型中立且可配置。 ｜ It is model-neutral and configurable.
+• 它提供执行环境、上下文管理、委派和人在回路的操控。 ｜ It provides execution environments, context management, delegation, and human-in-the-loop steering.
+• 本课程将教授如何构建具备这些能力的智能体。 ｜ The course teaches how to build agents with these capabilities.
 
 **启示｜Implication**
-GPT-5.6 的发布标志着向生产级自主智能体迈进一步，其多智能体编排和高效推理能力推动了复杂 LLM 驱动系统的构建与调试前沿。 ｜ The GPT-5.6 launch signals a step toward production-grade autonomous agents with multi-agent orchestration and efficient inference, pushing the frontier for building and debugging complex LLM-driven systems.
+对于实践哲学家来说，掌握这样的智能体框架对于理解自主AI系统如何被编排以与数字（进而物理）现实互动并可能操控它至关重要。 ｜ For a practitioner-philosopher, mastering such agent harnesses is crucial to understanding how autonomous AI systems can be orchestrated to interact with and potentially manipulate digital (and thus physical) reality.
 
 **综合评分｜CompositeScore**
 4.7
