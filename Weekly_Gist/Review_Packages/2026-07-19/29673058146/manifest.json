@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "run_id": "29673058146",
+  "source_sha": "67656ce26960033d5a7f5a11987546a424983be0",
+  "window": "2026-07-12/2026-07-19",
+  "artifacts": {
+    "gist": "Weekly_Gist/Weekly_Gist_2026-07-19.md",
+    "brief": "Weekly_Gist/Weekly_Brief_2026-07-19.md"
+  },
+  "generator_config": "config/generator.toml",
+  "files": {
+    "Weekly_Gist/Weekly_Brief_2026-07-19.md": "f4ef9093b6efed8c98c6114e38ef4ba67d85b53b934b01293dc3e37602dd83a8",
+    "Weekly_Gist/Weekly_Gist_2026-07-19.md": "f28c38b4afb6dde9aed23abedef4ac837987aa6beb79f76a9a435e26c7914473",
+    "config/generator.toml": "49b194f37480503ffc57f63378bd2ef3f3013334094c4013a4bc348a2019e2c7",
+    "corpus/items.jsonl": "8a43410b0b4ff064f5d9a28300e64a1b9431c5e0c845d93f6c21be62aaa79278",
+    "corpus/payloads/arxiv_2607.14485.txt": "84a7f9488b491bcbc26c8ef9eafc7beec8ee5c7304283e549841284ac897e38f",
+    "corpus/payloads/arxiv_2607.15065.txt": "ecbe8fd825066a1670e92ccf90a5fe3a7937d946298f7bc0f182f4ac9a85a74a",
+    "corpus/payloads/arxiv_2607.15142.txt": "6bbdec48ee71bf3a8f5b5f69adfa2e1e09c46abea98b4e4802e31cebb7501f4e",
+    "corpus/payloads/arxiv_2607.15257.txt": "ee93bdd7bc27ac1e33dd15cf6bdd2519971929839f36d96f8436e756e8def27d",
+    "corpus/payloads/url-sha1_248a72503d3eee9f.txt": "44da2789051a6c9b2dce79f0433db7eadef3d9100db1de68d684081413482f24",
+    "corpus/payloads/url-sha1_6d98c368c9e8110d.txt": "6f5dc3734dc278ab25ba630b084cd414774c4f685421650d237415b8bca86fb7",
+    "corpus/payloads/youtube_HbUznYhKFOc.txt": "26a33a2ab4399d84876bd5fa149112511192a79535e81f19b0f4a305427b7bd3",
+    "corpus/payloads/youtube_Z4DoEXhrPC8.txt": "014ed10b0751a91f06eaf5a4234f5bd6a91f7e22b54634e8e3fc7f107dddb376",
+    "corpus/runs/Run_20260719T041618Z.json": "7203839c1de12d07fe4074a02af546e826db8ce12b82e70eac70219a89c91a3c",
+    "corpus/runs/Run_20260719T041644Z.json": "864b4ee5903bd1ad0564870969cb11f583ee975a7fbf80a1f0fca3f6c46c972a",
+    "corpus/selections/Selection_2026-07-19.jsonl": "e4bf17a14aa6842b82f88804fc5cafd856c9874de87ed779d57917b88e449201"
+  }
+}

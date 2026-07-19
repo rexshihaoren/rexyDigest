@@ -1,0 +1,18 @@
+Jeson Patel, CTO at 11X, explains how a bug triaging process that once ran on one PM's personal machine turned into a Slack-native AI agent used across the company. He walks through why he chose LangSmith Fleet to build without writing infrastructure code, how the agent expanded to cover Datadog alert triage and general Q&amp;A, and why he now wants every team member building their own agents.
+
+Chapters:
+0:00 Meet the CTO bringing AI to go-to-market
+0:09 The bug triage problem hiding on one PM's laptop
+0:22 What he needed: agents without the infrastructure headache
+0:35 Finding Fleet and thinking it was too good to be true
+0:42 How people actually find and use the agent in Slack
+0:52 From bug triage to a general-purpose agent
+1:06 Folding every use case into one agent
+1:24 Salespeople pulling it up mid-call
+1:35 The next step: letting the whole org build agents
+1:44 Why Fleet's ease of use changes who gets to build
+
+Resources:
+→ LangSmith Fleet: https://www.langchain.com/langsmith/fleet
+→ LangSmith: https://www.langchain.com/langsmith
+→ 11X: https://www.11x.ai
