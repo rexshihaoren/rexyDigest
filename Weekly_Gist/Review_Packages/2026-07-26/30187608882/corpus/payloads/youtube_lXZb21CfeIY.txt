@@ -1,0 +1,33 @@
+Brendan McManus, Michael Ran, and Santi Weight from Bridgewater Associates' applied AI team walk through PAT, the Pocket Analyst Tool — an internal AI analyst deployed to hundreds of investors that performs hours of deep exploratory research in minutes. Brendan explains how 50 years of written-down investment logic gave Bridgewater a unique advantage entering the AI era. Michael demos PAT live — covering time series search with human-like inspection (jumping from 50% to 90% accuracy), per-user security harnesses, and a Teach button that autonomously generates benchmarks and PRs to fix its own mistakes. Santi then goes deep on the architecture: treating agentic code generation as a compiler problem, parallel LLM code gen from a structured plan, DAG-based validation agents, and a static analysis caching layer that makes iterative re-runs nearly instantaneous.
+
+Chapters:
+0:00 Introduction: 50 years of written-down investment logic as an AI advantage
+1:52 Bridgewater's approach to AI: as investors and as practitioners
+3:11 The research circle and the artificial investor roadmap
+4:30 PAT: what it is and what it's not
+5:01 What PAT had to do: data, tools, diagnosable analyses, context, and learning
+6:24 How a 50-year-old hedge fund actually builds this
+7:09 Multi-archetype teams: investors, technologists, and scientists side by side
+8:32 Demo: PAT live — oil supply shocks and the Middle East conflict
+9:33 The per-user security problem: every investor gets their own PAT
+10:24 Time series search with human-like inspection: 50% to 90% accuracy
+11:14 The plan is the analysis: clarifying questions and high-quality research plans
+12:49 Parallel code generation: 3-task and 20-task plans take the same time
+14:27 Self-correction: PAT checks its own work before returning results
+15:24 The Teach button: autonomous benchmark creation and PR generation
+18:08 Santi Weight: treating coding agents as a compiler problem
+19:44 Chat agent architecture in LangGraph and why coding is a pure implementation detail
+21:13 The natural language Python project: deterministic tasks and parallel LLM gen
+22:37 Validation agents in parallel: enforcing correctness in the architecture
+24:00 Execution layer: static analysis, caching annotations, and near-instant re-runs
+25:29 Three takeaways: specialize agents, benchmark narrow workflows, think compiler
+
+Resources:
+→ LangGraph: https://www.langchain.com/langgraph
+→ LangSmith: https://www.langchain.com/langsmith
+→ LangChain Academy: https://academy.langchain.com
+
+Bridgewater Disclaimer:
+The AI tools and capabilities discussed herein are for informational purposes only.  There is no guarantee that any discussed capabilities or anticipated benefits will be achieved.
+See Important Disclosures and Other Information: https://www.bridgewater.com/important-disclosures-and-other-information
+Risks Associated with the Use of AI Tools: https://www.bridgewater.com/risks-associated-with-use-of-ai-tools

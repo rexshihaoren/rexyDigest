@@ -1,0 +1,19 @@
+LangChain Co-Founder and CEO Harrison Chase sits down with Traversal co-founders Anish Agarwal and Raj Agrawal to talk about building an AI SRE. 
+
+They cover the jump from causal machine learning research at MIT to troubleshooting petabyte-scale production incidents, how Traversal's agent harness handles search, memory, and the production world model, and where DIY agent building tends to break down. The talk closes with an audience Q&amp;A on swarms, sub agents, and evals.
+
+Chapters:
+0:00 Welcome and introducing Anish and Raj
+0:26 From MIT PhDs to the AI SRE problem
+2:20 Why SRE agents are uniquely hard
+5:27 Learning system knowledge with a production world model
+6:58 Online versus offline search
+9:40 One core agent, many sub agents, and the file system harness
+12:35 Human in the loop and proactive agents
+14:45 How long these agents actually run
+16:02 Memory, the knowledge bank, and updating the world model
+18:50 Evaluating five million token agent trajectories
+21:16 Choosing models as the frontier keeps shifting
+25:10 Where DIY agent building breaks down
+29:58 Audience Q&amp;A: swarms, skills, and sub agents
+37:58 What's next beyond AI SREs

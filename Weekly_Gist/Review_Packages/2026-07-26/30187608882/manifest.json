@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "run_id": "30187608882",
+  "source_sha": "9c19d4d3c2192c447000602e420b2e6963aa1a86",
+  "window": "2026-07-19/2026-07-26",
+  "artifacts": {
+    "gist": "Weekly_Gist/Weekly_Gist_2026-07-26.md",
+    "brief": "Weekly_Gist/Weekly_Brief_2026-07-26.md"
+  },
+  "generator_config": "config/generator.toml",
+  "files": {
+    "Weekly_Gist/Weekly_Brief_2026-07-26.md": "46e6eb9407d0b5a8309eec08c893219c621e733a60bf5b4c4cf3eb25defe0bf2",
+    "Weekly_Gist/Weekly_Gist_2026-07-26.md": "d1dc2f055d8bb1353340a80f07a7fc76b90de190eb2392a24835c977bb872d0b",
+    "config/generator.toml": "49b194f37480503ffc57f63378bd2ef3f3013334094c4013a4bc348a2019e2c7",
+    "corpus/items.jsonl": "b92f9061c1d48fc7d1e92c1e37dc8ec4e264dd29e1dc731285134daf9b180ef0",
+    "corpus/payloads/arxiv_2607.20988.txt": "694bda3bcf3077862ff5266b29d3ff91be79f7e255c831e282c8f061058e3f32",
+    "corpus/payloads/arxiv_2607.21210.txt": "bdd23f1b9e9ee226ab90d294592b51624318a2b3cce52d79e66418f9b32aa3b4",
+    "corpus/payloads/arxiv_2607.21522.txt": "634ca02f1823aebaf1d56952caf3fddb6d197a947d6ffc84adc2a96a9c5df5d2",
+    "corpus/payloads/arxiv_2607.21557.txt": "965fe5aabfb44b4c82290fc347a463eb58fb2be7a3761496efd38167d0f7d5b6",
+    "corpus/payloads/youtube_-s6rYWX8VaY.txt": "9e1005696048099e718ae7b44b11515da82b1692536fa4768974a91470369c7f",
+    "corpus/payloads/youtube_U5PkKt_uJys.txt": "19457caacb7bd519e78b7c0363c1e8a460184c9b2bb8035f77dcd24d0a9a1ee7",
+    "corpus/payloads/youtube_ZUjijNrg5sQ.txt": "7436c696d0eb2e9f2c2006820172905e28995cdad29dd2bc4acb83aa6b968205",
+    "corpus/payloads/youtube_lXZb21CfeIY.txt": "dc9c7f5269035da0b74646edf5b82f81a08c23db2e2af53b6049b5b502be5b95",
+    "corpus/runs/Run_20260726T042141Z.json": "e08f2cb356577f2039f57cab9781f7e9fa56f4e44f23b289f41fa87076036cdb",
+    "corpus/runs/Run_20260726T042204Z.json": "bc98790d34356e5a70a50fc07e90ef18c8507ae4b8dffb41b7f19583385f33d9",
+    "corpus/selections/Selection_2026-07-26.jsonl": "22391cd3f447647a0982dd746db6fb6274c6984aea0f41216462e5f6fa285e4c"
+  }
+}
