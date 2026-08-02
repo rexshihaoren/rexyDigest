@@ -1,0 +1,22 @@
+Robert Xu from the LangChain team breaks down what Deep Agents actually are, how the "harness" concept fits into the model plus harness equation, and how Deep Agents relate to LangChain and LangGraph. 
+
+The second half covers what changes when you move a deep agent into production, including durable execution, short and long term memory, authentication, and human in the loop design. Recorded at a LangChain meetup.
+
+Chapters:
+0:00 Kicking off: deep agents and going to production
+0:27 What is a deep agent, and what's a harness
+1:07 The Claude Code example: 500,000 lines of harness
+1:40 The core primitives: prompts, memory, tools, MCP
+2:25 Hooks and middleware, the extra lever
+2:48 Why deep agents ships fully open source
+3:26 The file system as your agent's scratch pad
+4:18 Where deep agents sits in the LangChain stack
+5:43 One line change: turning any agent into a deep agent
+6:31 Composing deep agents inside LangGraph workflows
+7:16 The reliability vs agency tradeoff curve
+8:16 Moving deep agents into production
+9:48 Durable execution and recovering from failures
+11:00 From checkpoints to short and long term memory
+12:15 Authentication, RBAC, and the new auth problem
+13:48 Human in the loop: interrupts, approvals, streaming
+15:06 The LangSmith deployments pitch

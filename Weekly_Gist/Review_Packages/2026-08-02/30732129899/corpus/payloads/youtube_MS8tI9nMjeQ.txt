@@ -1,0 +1,20 @@
+Learn how to autonomously improve your agents with Engine, LangChain's new agent designed to automate the agent development lifecycle. You'll see how Engine investigates your traces, proposes fixes, runs experiments to verify them, and monitors your production deployment for regressions.
+
+Enroll today: https://academy.langchain.com/courses/langsmith-engine
+
+Autonomous Agent Improvement with LangSmith Engine | LangChain Academy
+0:00 What is autonomous agent improvement?
+0:06 The agent development lifecycle
+0:16 Build, test, deploy, monitor
+0:28 Manual trace review and evals
+0:36 What is LangSmith Engine?
+0:44 Automating the agent lifecycle
+0:53 Agent development fundamentals
+0:57 Automated trace investigation
+1:03 Agent experiments and evals
+1:09 Live regression monitoring
+1:14 Production-ready AI agents
+1:23 What you'll build in this course
+Extra Resources:
+→ LangChain Academy: https://academy.langchain.com
+→ LangSmith: https://www.langchain.com/langsmith

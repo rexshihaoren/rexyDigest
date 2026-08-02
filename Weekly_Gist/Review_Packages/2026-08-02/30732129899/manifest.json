@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "run_id": "30732129899",
+  "source_sha": "c32253f160fcbca17f14ac485cd1e8aba1404cfa",
+  "window": "2026-07-26/2026-08-02",
+  "artifacts": {
+    "gist": "Weekly_Gist/Weekly_Gist_2026-08-02.md",
+    "brief": "Weekly_Gist/Weekly_Brief_2026-08-02.md"
+  },
+  "generator_config": "config/generator.toml",
+  "files": {
+    "Weekly_Gist/Weekly_Brief_2026-08-02.md": "f766fbc8b8a422903908e5355059334eb85579b9dd078e984e063c422b485a86",
+    "Weekly_Gist/Weekly_Gist_2026-08-02.md": "102642a04d9f3f3f69e60358a4c3ca9db8a164183b3c9e684dd153992ffe98c2",
+    "config/generator.toml": "49b194f37480503ffc57f63378bd2ef3f3013334094c4013a4bc348a2019e2c7",
+    "corpus/items.jsonl": "416cf9dfd46ae340c28f0c675cade99d7a1c73740a76d833564057b6507680fc",
+    "corpus/payloads/arxiv_2607.27967.txt": "c2fedb0938ef331462528fd3d618b9f10d8c634a6e97e47ec4831d13c0a69c2b",
+    "corpus/payloads/arxiv_2607.27994.txt": "7811d979e05c56b44219f91bc15eb6e872a6738607f883852979e7f190ab1575",
+    "corpus/payloads/arxiv_2607.28226.txt": "9b7675bf4f92c604ea9e70b54444124f79be6cbf90a4bdb9e04b72f2ccdbb684",
+    "corpus/payloads/url-sha1_13d64ee8a893e856.txt": "dea16791cdc0c6561b75640387f68a6e078bd13e8d825aad6a6db4abee42df1b",
+    "corpus/payloads/url-sha1_3ecd81bf402a2e79.txt": "6b69b70c594c7dd3a360f680e5be56734bc69649f5b65fca230243a95877c074",
+    "corpus/payloads/url-sha1_9209ffe6998f4d88.txt": "c77ffc7938dd8aa27dc3035fc2b092eca4b485aa6662209a600eb7025fa9ca28",
+    "corpus/payloads/youtube_IZabCqyBJLg.txt": "df5059097596a053b3c929d01ceec4989360e38b5d1b950b242c8d1af107479b",
+    "corpus/payloads/youtube_MS8tI9nMjeQ.txt": "1d0f96b760e8eac6b70fbc888837c89b1e500fe711ee6612bae5a1c6e0dadfd6",
+    "corpus/runs/Run_20260802T041812Z.json": "18ae46104828da10d4a26819c5c071aabe4acd348a3acbfe33a73a5673b7914b",
+    "corpus/runs/Run_20260802T041844Z.json": "3e03e3f8355bf2a749c484026d3a36a8f0d839a1ed8ca8abfbe49de6e8eb45ae",
+    "corpus/selections/Selection_2026-08-02.jsonl": "057dcf202479a59a38510b8d38a04c42c177a2d891dff8ec314d3656a12033f3"
+  }
+}
