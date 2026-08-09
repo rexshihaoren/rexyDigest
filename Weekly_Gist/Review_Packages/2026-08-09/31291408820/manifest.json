@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "run_id": "31291408820",
+  "source_sha": "10fd2c7969597c2acedadb3fbd518a0b3e83e0ae",
+  "window": "2026-08-02/2026-08-09",
+  "artifacts": {
+    "gist": "Weekly_Gist/Weekly_Gist_2026-08-09.md",
+    "brief": "Weekly_Gist/Weekly_Brief_2026-08-09.md"
+  },
+  "generator_config": "config/generator.toml",
+  "files": {
+    "Weekly_Gist/Weekly_Brief_2026-08-09.md": "dda9ee312d2aeb61a8db8ef00bb0164829dc3007f3016ea3cbf2579272785441",
+    "Weekly_Gist/Weekly_Gist_2026-08-09.md": "56e26aefb3b0bf57c97d2a3968f991fd1324075dbf9168064a0cef68d08c3df5",
+    "config/generator.toml": "49b194f37480503ffc57f63378bd2ef3f3013334094c4013a4bc348a2019e2c7",
+    "corpus/items.jsonl": "2506bd373942d8006c2759d2fb16bc94e0f113014288d186a4442f29373cc0f1",
+    "corpus/payloads/arxiv_2608.05695.txt": "6c16dc09a3e684c7d3083abae891ff193d27d38916c5ec18f829465246cfb7ef",
+    "corpus/payloads/arxiv_2608.05891.txt": "ce37dd8217afbaa07ddea25c0daf78cdbfb449851ca6ab17b7f3ecacd451eb2f",
+    "corpus/payloads/arxiv_2608.05948.txt": "d08afa1116660ab3502bd8566cf0f04cdb48b16101236fefc5fb221f1480e4b7",
+    "corpus/payloads/arxiv_2608.06020.txt": "fc7703c79d5dd2d8ed323119a66cc415f3265f228809aba23a8baf6245fcf959",
+    "corpus/payloads/arxiv_2608.06197.txt": "25de51ab4bb5e2878049f21f27431705e88f64138c4e3e6348158f0eaac2ed29",
+    "corpus/payloads/url-sha1_3f6535797a1a4791.txt": "a0a0f8dbf253b19cfc30048ea41b2fdec2918a323aee282d372b1b3444d0355c",
+    "corpus/payloads/url-sha1_e504b50d9663f7ed.txt": "05556091b1fda2f72046cb492a5bcbfb2c4dc14a706099d75d5aa6b71f6509df",
+    "corpus/payloads/youtube_Pg-IW5puuv0.txt": "0e14389839c5e9bbb75a4639aaedab3e0c7ac51a2dceb117697317d81aa975b5",
+    "corpus/runs/Run_20260809T025711Z.json": "af4444671eec95688186a9858f8c22bbbcdd0ce42334b302ace6d261343fb0b7",
+    "corpus/runs/Run_20260809T025743Z.json": "af13dc86fce680303c8e7b222c33f56d867c5aca58932764740856f87de1b4e4",
+    "corpus/selections/Selection_2026-08-09.jsonl": "440f5bc03d8842a4cbcc4d573774d5d69daea050af527cf5da51c6b68433864d"
+  }
+}
