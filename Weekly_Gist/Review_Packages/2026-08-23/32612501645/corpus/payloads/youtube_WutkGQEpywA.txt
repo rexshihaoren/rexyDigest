@@ -1,0 +1,31 @@
+Join the AI Evals September 2026 cohort: https://maven.com/parlance-labs/evals?promoCode=yt-2026
+
+AI agent to research something and it fires off a dozen very specific questions. Most search systems answer all twelve with the same handful of documents. That is not a bug in anyone's implementation, and there is a proof you cannot scale your way out of it.
+
+Marek is the CEO and co-founder of TopK, before that he led the data plane at Pinecone for three years. In this talk he makes the case for late interaction, which keeps a representation for every token instead of squashing a document into one summary vector. Marek walks through the algorithm his team built to make that affordable, and what it looks like at billion document scale.
+
+Timestamps:
+00:00 Why late interaction is underrated
+00:26 How single vector search actually works
+03:15 Why agents break single vector retrieval
+06:15 Keeping one embedding per token instead of pooling
+07:40 The catch: 100x the storage, 1000x the compute
+09:20 Pruning a billion documents down to a few hundred
+11:15 Refining candidates with exact scoring
+12:40 Separating storage from reads and writes
+15:50 A 100M multi vector model outperforming an 8B dense model
+17:15 42% accuracy at a thirteenth of the cost
+18:30 Q&amp;A: why not just add more dimensions?
+19:34 Which parameters are actually worth tuning
+21:57 What teams do to make retrieval work for their own data
+
+Connect with Hamel:
+Website ► https://hamel.dev
+LinkedIn ► https://www.linkedin.com/in/hamelhusain/
+Twitter/X ► https://x.com/hamelhusain
+Instagram ► https://www.instagram.com/hamelsmu/
+Tik Tok ► https://www.tiktok.com/@hamel_husain
+
+Connect with Marek:
+Website ► https://marekgalovic.com
+LinkedIn ► https://www.linkedin.com/in/marek-galovic/

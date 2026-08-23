@@ -1,0 +1,18 @@
+Kordel France, Director of AI Engineering at Toyota North America, explains how Enterprise AI builds its manufacturing agents on LangChain, including GearPal, which lets any technician ask a broken machine what's wrong and how to fix it. He compares LangSmith's observability dashboard to Toyota's Andon board, the visual system that flags problems on the production line, and shares that these agents are already delivering six figure savings per line per year, with seven to eight figures in sight.
+
+Chapters: 
+0:00 The manufacturing line: Toyota's greatest asset 
+0:22 GearPal lets any technician ask a machine why it's broken 
+0:39 What a minute of downtime actually costs Toyota 
+0:50 Why Toyota stopped building its own agent infrastructure 
+1:07 What LangChain frees Toyota's team to focus on instead 
+1:18 LangSmith as Toyota's Andon board for AI agents 
+1:45 Monitoring agents the way Toyota monitors the line 
+2:09 The ROI bar at Toyota Motors North America 
+2:31 Six figures in savings per line, and just getting started 
+2:56 Why LangChain will show up on Enterprise AI's balance sheet
+
+Resources: 
+→ LangSmith: https://www.langchain.com/langsmith 
+→ LangSmith Observability: https://www.langchain.com/langsmith-platform 
+→ LangGraph: https://www.langchain.com/langgraph
