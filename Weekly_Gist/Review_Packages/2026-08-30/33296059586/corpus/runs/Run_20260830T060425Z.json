@@ -1,0 +1,40 @@
+{
+  "kind": "ingestion",
+  "run_id": "20260830T060425Z",
+  "window": "2026-08-23/2026-08-30",
+  "started_at": "2026-08-30T06:04:25.306630Z",
+  "finished_at": "2026-08-30T06:05:00.261567Z",
+  "adapters": [
+    {
+      "name": "arxiv",
+      "config_sha": "45e014a7d8f5cdc2",
+      "items_yielded": 0,
+      "items_new": 0,
+      "items_updated": 0,
+      "duration_s": 25.482,
+      "errors": [
+        "HTTPError: Page request resulted in HTTP 406 (https://export.arxiv.org/api/query?search_query=cat%3Acs.AI+OR+cat%3Acs.LG+OR+cat%3Acs.CL+OR+cat%3Acs.MA&id_list=&sortBy=submittedDate&sortOrder=descending&start=0&max_results=100)"
+      ]
+    },
+    {
+      "name": "rss",
+      "config_sha": "5414a38e0b1d33f7",
+      "items_yielded": 17,
+      "items_new": 17,
+      "items_updated": 0,
+      "duration_s": 1.083,
+      "errors": []
+    },
+    {
+      "name": "youtube",
+      "config_sha": "87e347ff79ad3497",
+      "items_yielded": 9,
+      "items_new": 9,
+      "items_updated": 0,
+      "duration_s": 8.388,
+      "errors": [
+        "AdapterError: youtube: skipped 1 channel feed(s): youtube: failed to parse channel feed 'https://www.youtube.com/feeds/videos.xml?channel_id=UCJekgf6k62CQHdENWf2NgAQ': SAXParseException('not well-formed (invalid token)')"
+      ]
+    }
+  ]
+}

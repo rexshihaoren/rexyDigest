@@ -1,0 +1,29 @@
+Join the AI Evals September 2026 cohort: https://maven.com/parlance-labs/evals?promoCode=yt-2026
+
+You get a coding agent working on your laptop, then you want ten of them running at once. The thing that breaks is never the agent, It is the machine you handed it, and most teams spend months rebuilding that machine badly before they realize the environment was the actual product.
+
+Adam Azzam works at Modal and was previously a maintainer of Prefect and FastMCP. He has watched dozens of companies build their own background agents, and they are all landing on the same system architecture. In this talk he explains why a bare sandbox is not enough, why treating agent environments like CI is what gives you three minute cold starts, how Ramp runs close to a million sandboxes with sub second boots, and where the agent itself should actually live. The last section is code, building this on Modal.
+
+Timestamps:
+00:00 Why sandboxes matter if you are building agents
+01:26 Don't build agents, build environments instead
+04:18 A short history of background agents
+06:22 A sandbox is not a dev box
+09:02 Jobs versus sessions
+12:22 Agents and secrets are a different threat model
+13:36 Why hosted agent platforms have such bad cold starts
+15:18 What Ramp and Stripe actually do
+19:01 The old agent design and why it fails
+22:00 Control plane versus data plane
+23:43 What a Modal sandbox looks like in code
+26:41 Q&amp;A: observing a system of agents, not one agent
+
+Connect with Hamel:
+Website ► https://hamel.dev
+LinkedIn ► https://www.linkedin.com/in/hamelhusain/
+Twitter/X ► https://x.com/hamelhusain
+Instagram ► https://www.instagram.com/hamelsmu/
+Tik Tok ► https://www.tiktok.com/@hamel_husain
+
+Connect with Adam:
+LinkedIn ► https://www.linkedin.com/in/adam-azzam/
