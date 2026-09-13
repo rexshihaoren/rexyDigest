@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "run_id": "34740413533",
+  "source_sha": "42b8c8b9c45beab374ffedd268dcdbffe2479014",
+  "window": "2026-09-06/2026-09-13",
+  "artifacts": {
+    "gist": "Weekly_Gist/Weekly_Gist_2026-09-13.md",
+    "brief": "Weekly_Gist/Weekly_Brief_2026-09-13.md"
+  },
+  "generator_config": "config/generator.toml",
+  "files": {
+    "Weekly_Gist/Weekly_Brief_2026-09-13.md": "b34056432bd5b010bda06e4afa1f2f93eed4b08ecb43e96122782e3d779181a8",
+    "Weekly_Gist/Weekly_Gist_2026-09-13.md": "08db719fc71d75e8f1f33c2816137a35ce3a1440b076316b88091f60d3e05195",
+    "config/generator.toml": "49b194f37480503ffc57f63378bd2ef3f3013334094c4013a4bc348a2019e2c7",
+    "corpus/items.jsonl": "72bf0bc3056e5140e5077e993baa95aa20151c5aed3c492a131ad5647d244562",
+    "corpus/payloads/url-sha1_2ed54a20b866655e.txt": "ac4a519bde70a32086a7a6aa661ab9198ec2c66ae11d9de890a7e99bb40b8d32",
+    "corpus/payloads/url-sha1_3369a7745ac2cadd.txt": "4eac148dedc25de62855ed077c943d0d3daf992cd42fc3275a8864b758a3314b",
+    "corpus/payloads/url-sha1_4211d81ade554bc9.txt": "e42dbf906bf84e51fef40b67d0cc5eb0a471c75b7560e704dc5314c614d678f3",
+    "corpus/payloads/url-sha1_4f8847a860050aac.txt": "d1779374659f17f0d2d2a03636e4d2d835bc8ecc47036a6729a64f42fb5687d0",
+    "corpus/payloads/url-sha1_5a4baff754f833e1.txt": "3c37b89d534bc23076cbf6e05d23c64b3101caffafe3006739f47b10b5dae991",
+    "corpus/payloads/url-sha1_5eebfa2383a586e2.txt": "c5c1447ec0a111ebd5e691f6d56d1f44e6b8e27b74c4e8f0ba5a354cc56968b9",
+    "corpus/payloads/url-sha1_aaf28a158755731d.txt": "75dfc0c456fae70764717bf2ce88bf903d937cc1e5d0158fa4c954d46bd3ea26",
+    "corpus/payloads/url-sha1_b392e0204486327f.txt": "137009d7d4651b8f91d47260f1c06a91d0c65fe93632a94914028ff6c2715c92",
+    "corpus/runs/Run_20260913T052930Z.json": "88c0ea8943238de779d13144bf6d9581d4471651190b9ae6324e7f4ce0235ec4",
+    "corpus/runs/Run_20260913T053116Z.json": "bb0cfc2c4731f5b3de16dc81fa6e05f790897f7086e249be09b9ccab871b548f",
+    "corpus/selections/Selection_2026-09-13.jsonl": "973d5af68bc625457efccbf758f7c6e752f27e1c56507a174cdb2ab9ff817348"
+  }
+}
