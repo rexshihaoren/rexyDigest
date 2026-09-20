@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "run_id": "35491909589",
+  "source_sha": "78de2c046fd3c52c63e850051ab8b1ef72aac23c",
+  "window": "2026-09-13/2026-09-20",
+  "artifacts": {
+    "gist": "Weekly_Gist/Weekly_Gist_2026-09-20.md",
+    "brief": "Weekly_Gist/Weekly_Brief_2026-09-20.md"
+  },
+  "generator_config": "config/generator.toml",
+  "files": {
+    "Weekly_Gist/Weekly_Brief_2026-09-20.md": "078c80f7cecc9587206b769db851c1fab1c5da745e0772b110ee4981937023c6",
+    "Weekly_Gist/Weekly_Gist_2026-09-20.md": "ed15518fa27ab361f7dabe17830849ce96bf5ef5fcbe18b82324cc780fa6656e",
+    "config/generator.toml": "49b194f37480503ffc57f63378bd2ef3f3013334094c4013a4bc348a2019e2c7",
+    "corpus/items.jsonl": "5a4c3de1abd7da58267b95d304cb7aa21a7fd3c73cce4a4f1ef0921d8e3aa0bb",
+    "corpus/payloads/arxiv_2609.19892.txt": "e66529e7d7e2d9fa949e11dae05efb0800a1236b1155572b6f88d8bec792d855",
+    "corpus/payloads/arxiv_2609.20050.txt": "81b63a1e583b152bdc930903a648440ab5e24f09a8a5d250f4cd88ff3bcdb20a",
+    "corpus/payloads/arxiv_2609.20543.txt": "51b18d9a3c972dc330df9ec14ac6a5d37300cf6bf7a18b7420cf929514c874f6",
+    "corpus/payloads/arxiv_2609.20715.txt": "cf01168050ee25b9987c1de28f8af762f8b01772926c64fa9380d378d9f9019d",
+    "corpus/payloads/arxiv_2609.20800.txt": "da73a5f6988c5d2ce6847ebc16377ef3b9f1116781fbf762363b43256aa6c199",
+    "corpus/payloads/arxiv_2609.20812.txt": "52a36eeeb569bc1018b9da09dc30666760d0b214446429baa9c831d2bff5c96a",
+    "corpus/payloads/url-sha1_565121fdb8ce2420.txt": "718e06067245b4cca4f0111c0541d0b2b2fb72ea1581b5f0aa29a8d3e533c65b",
+    "corpus/payloads/url-sha1_eb9a9ca239b7fc11.txt": "6e088c78aa1e324ddacb1546ac65fd1597232e531d6e77accc1e485a6cc9d9c1",
+    "corpus/runs/Run_20260920T053203Z.json": "5a19275832b5103bbb779f6a70c1c8bd1c4969157bf9bb9cfc4b3ea46b4a142a",
+    "corpus/runs/Run_20260920T053231Z.json": "68532ce4b48a69f8c22beaffe44e9d939737df0179633fd239da0be0fcc4f41d",
+    "corpus/selections/Selection_2026-09-20.jsonl": "26d0fefc05455cff62ee1a246921fd993ba35ef5381e93be34187042cade4e21"
+  }
+}
