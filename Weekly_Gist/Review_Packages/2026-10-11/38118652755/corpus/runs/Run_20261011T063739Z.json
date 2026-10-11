@@ -1,0 +1,13 @@
+{
+  "kind": "generation",
+  "run_id": "20261011T063739Z",
+  "window": "2026-10-04/2026-10-11",
+  "started_at": "2026-10-11T06:37:39.148686Z",
+  "finished_at": "2026-10-11T06:46:06.375654Z",
+  "items_in_corpus": 81,
+  "items_after_prefilter": 80,
+  "items_after_prerank": 30,
+  "items_in_selection": 8,
+  "selection_path": "corpus/selections/Selection_2026-10-11.jsonl",
+  "gist_path": "Weekly_Gist/Weekly_Gist_2026-10-11.md"
+}
