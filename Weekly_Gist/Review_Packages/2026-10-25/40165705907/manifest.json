@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "run_id": "40165705907",
+  "source_sha": "5e8981ab7b666d24229c1e11d5fb2d4c8003af92",
+  "window": "2026-10-18/2026-10-25",
+  "artifacts": {
+    "gist": "Weekly_Gist/Weekly_Gist_2026-10-25.md",
+    "brief": "Weekly_Gist/Weekly_Brief_2026-10-25.md"
+  },
+  "generator_config": "config/generator.toml",
+  "files": {
+    "Weekly_Gist/Weekly_Brief_2026-10-25.md": "56a6e86da9d9452cd95417a6d33d2ab950bf5aa830e6daabbad96846c474bccc",
+    "Weekly_Gist/Weekly_Gist_2026-10-25.md": "bc627bf569633332b2a51cbb4afe1679f1681cab9da9566e5df0c92b98741a37",
+    "config/generator.toml": "49b194f37480503ffc57f63378bd2ef3f3013334094c4013a4bc348a2019e2c7",
+    "corpus/items.jsonl": "61b9d45f37f20aa9c4e3b422923904c378d7e5a2bb5f76814d5c4c194f418662",
+    "corpus/payloads/arxiv_2610.31066.txt": "9ee9829c9c49edad46242d6cbbb301a73cfa5119fc5a273f45f73aeece65f989",
+    "corpus/payloads/arxiv_2610.31130.txt": "87431b6f6f39f7412efd249c963d88d59864123f22fd765efd5ba5dee8de752d",
+    "corpus/payloads/arxiv_2610.31194.txt": "7bfbbec425cf352071c883659d3fdb195aae3e8b7071142edaec2397a7e0e8ec",
+    "corpus/payloads/arxiv_2610.31366.txt": "102d1cabe8fb3076359ba6baaf8107687604b98a52435fb0cbb3b53b4b8cbf71",
+    "corpus/payloads/arxiv_2610.31372.txt": "83a5c8962ae27f474148e1bac77be1d10d5bc2093f2c41021c1d09e020ec89a0",
+    "corpus/payloads/arxiv_2610.31650.txt": "66a2870d62cc95ce2c11dd561f7fac7bb139747b6a57de462b8010a38a7f0396",
+    "corpus/payloads/url-sha1_12d4585120eb3bcb.txt": "42609f8424250057429e2a0d22ffafcfb55a835f623f55b793b61c42812cc132",
+    "corpus/payloads/url-sha1_2e71264ea893e482.txt": "ae95acd730f2dc62b1affd58b63bd2e32ac5ed32e327fa163dfae400ba6d7513",
+    "corpus/runs/Run_20261025T052930Z.json": "f5e133599205135205c0cd52fcb4195a91e5b99165164853e969aed7f1b16acc",
+    "corpus/runs/Run_20261025T052950Z.json": "6e086543629adcb4cc556d769745e967ae99df2d1e4d0ba78df3eea8d0b63b55",
+    "corpus/selections/Selection_2026-10-25.jsonl": "016f01d5051cdc2eaa6bfad556e0ac10ed26da35cc59c0e550b4281cee0097f9"
+  }
+}

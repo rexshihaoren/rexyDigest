@@ -1,0 +1,4 @@
+llm_provider = "deepseek"
+deepseek_model = "deepseek-v4-pro"
+deepseek_base_url = "https://api.deepseek.com"
+deepseek_thinking = "enabled"
