@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "run_id": "41282947188",
+  "source_sha": "61763e426fc7ac9d5fe7b7bec92dd0578fc94470",
+  "window": "2026-10-25/2026-11-01",
+  "artifacts": {
+    "gist": "Weekly_Gist/Weekly_Gist_2026-11-01.md",
+    "brief": "Weekly_Gist/Weekly_Brief_2026-11-01.md"
+  },
+  "generator_config": "config/generator.toml",
+  "files": {
+    "Weekly_Gist/Weekly_Brief_2026-11-01.md": "d1b4c5fbbeebab1809f3e31af9fc47ac9738e50dd9cae8385449a07d3b45c888",
+    "Weekly_Gist/Weekly_Gist_2026-11-01.md": "998e2a6d459c6f4181e4931364d7dace64def60c4379fbb7fafb1a9c5de3f400",
+    "config/generator.toml": "49b194f37480503ffc57f63378bd2ef3f3013334094c4013a4bc348a2019e2c7",
+    "corpus/items.jsonl": "5ff3036d95ad0a3f15fdcdbd5976c20a22a7e583e86951d23670fd4384e1dcf6",
+    "corpus/payloads/arxiv_2610.39812.txt": "2dc2e066ce1b58f189c24cebe29bbe62f47c4f72927de3c6751fc6fc2b306ae2",
+    "corpus/payloads/arxiv_2610.40246.txt": "ddb475262deb8b5b1ed30f058f62493f19b1e0791c926b72408bd6c743037135",
+    "corpus/payloads/arxiv_2610.40401.txt": "7faae4361f5d4319901f540386cddfb471e4cfeb6520e693e387b7ba30defc02",
+    "corpus/payloads/arxiv_2610.40444.txt": "953a349d66205ec51e849117dfda1396dc847dc6153728333c2b84e425104ad6",
+    "corpus/payloads/arxiv_2610.40637.txt": "298c158b1bed787b10e643eea1e2745cace04271e17c51a5a2bc6151e53e4856",
+    "corpus/payloads/rss_urn_latent-space_post_post_5b764e38-11dc-428b-b25b-2b9b740ebb8b.txt": "99ac45c262bd83e13b8992b7444373db6c792fa98ffb57659723aaf69a4fd32d",
+    "corpus/payloads/rss_urn_latent-space_post_post_5b8f3496-af90-414a-aed2-a87d44870a49.txt": "ae822f8058827febebc091b08f8d5c0a994da17ba22d7a38e45e129e8b0c1461",
+    "corpus/payloads/url-sha1_672400a4a73efc0d.txt": "7b1247ebe44e5c8dfa8e31b5902ba15972509d70df0b407abbd49d1e6376cbe7",
+    "corpus/runs/Run_20261101T065916Z.json": "603e186695d23dc1299cecef1a7fe8b449f51a4ffbc1b494e1967752dcc68aa5",
+    "corpus/runs/Run_20261101T065927Z.json": "2df626bc78ab1b9a12e489e61eeaf5c523675848e24ad6a02dace8f59f3520b7",
+    "corpus/selections/Selection_2026-11-01.jsonl": "bb7f9e97631ea3661ff5fa1924872601abbc23a751b873bed66caba48d41a812"
+  }
+}
