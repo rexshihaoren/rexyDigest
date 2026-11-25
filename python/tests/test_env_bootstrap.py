@@ -1,4 +1,4 @@
-"""Repo-root dotenv loading (parity with Node generate_gist.mjs)."""
+"""Repo-root dotenv loading."""
 
 from __future__ import annotations
 

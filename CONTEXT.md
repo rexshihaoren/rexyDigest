@@ -64,7 +64,7 @@ _Avoid_: Author, channel, creator (those have other meanings here).
 - A **Source Adapter** reads a **Source** and yields **Items** (plus optional **Payload**) into the **Corpus**.
 - An **Item** has exactly one **Payload Kind**; if `extract` or `full_text`, it has one **Payload**.
 - A **Selection** references many **Items** by `id` and lives in one **Window**.
-- A **Selection** is rendered into one **Gist**; a **Gist** is published into one **Brief**.
+- A **Selection** is rendered into one **Gist** and one **Brief**.
 - Every artifact (**Item**, **Selection**, **Run**) carries **Provenance**.
 - A **KOL** maps informally to one or more **Sources** — never referenced from code.
 

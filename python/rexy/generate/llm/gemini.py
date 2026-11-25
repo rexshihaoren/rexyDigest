@@ -43,7 +43,7 @@ class GeminiAnalyser:
         if not key:
             raise RuntimeError(
                 "GeminiAnalyser needs GEMINI_API_KEY (or GOOGLE_API_KEY) in env or constructor "
-                "(export or put in repo-root .env.local / .env, same as Node generate_gist)"
+                "(export or put in repo-root .env.local / .env)"
             )
         self._client = genai.Client(api_key=key)
         self._genai_types = genai_types

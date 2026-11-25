@@ -1,13 +1,4 @@
-"""Markdown gist renderer.
-
-Per ADR-0002 the Phase-2 generator emits two artefacts in lockstep:
-  - `corpus/selections/Selection_<end>.jsonl`  (truth)
-  - `Weekly_Gist/Weekly_Gist_<end>.md`         (render the Node publisher consumes)
-
-Per ADR-0008 there is no normaliser pass — this renderer IS the strict
-format. The shape matches what `scripts/publize_brief.mjs:parseItemsFromBrief`
-expects (see `scripts/lib/parser.mjs` for the exact regex contracts).
-"""
+"""Render the internal Markdown Gist from Selection entries."""
 
 from __future__ import annotations
 

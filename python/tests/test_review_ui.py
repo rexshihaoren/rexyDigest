@@ -3,9 +3,6 @@
 from __future__ import annotations
 
 import json
-import re
-import shutil
-import subprocess
 import threading
 import time
 import urllib.request
@@ -243,34 +240,6 @@ def test_review_ui_offers_visual_retry(tmp_path: Path) -> None:
         page = urllib.request.urlopen(url, timeout=2).read().decode()
         assert "Retry visual judging" in page
         assert "/api/retry-visuals" in page
-    finally:
-        server.shutdown()
-        server.server_close()
-        thread.join(timeout=2)
-
-
-def test_local_http_ui_serves_executable_javascript(tmp_path: Path) -> None:
-    node = shutil.which("node")
-    if node is None:
-        pytest.skip("node is required to syntax-check the browser script")
-    draft, sidecar, final = _workspace(tmp_path)
-    server, url = start_review_server(ReviewSession(draft, sidecar, final))
-    thread = __import__("threading").Thread(target=server.serve_forever, daemon=True)
-    thread.start()
-    try:
-        page = urllib.request.urlopen(url, timeout=2).read().decode()
-        script = re.search(r"<script>(.*?)</script>", page, re.DOTALL)
-        assert script is not None
-
-        result = subprocess.run(
-            [node, "--check"],
-            input=script.group(1),
-            text=True,
-            capture_output=True,
-            check=False,
-        )
-
-        assert result.returncode == 0, result.stderr
     finally:
         server.shutdown()
         server.server_close()

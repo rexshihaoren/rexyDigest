@@ -104,13 +104,6 @@ def main(argv: list[str] | None = None) -> int:
         help=f"where to write Weekly_Brief_<end>.md (default: {DEFAULT_BRIEF_DIR})",
     )
 
-    par = sub.add_parser(
-        "parity",
-        help="Compare a Node-published brief and a Python-published brief for structural parity.",
-    )
-    par.add_argument("--node", type=Path, required=True, help="Node-published brief markdown")
-    par.add_argument("--python", type=Path, required=True, help="Python-published brief markdown")
-
     deep = sub.add_parser(
         "deep-notes",
         help="Interactive second-pass Gemini deep-note picker.",
@@ -198,8 +191,6 @@ def main(argv: list[str] | None = None) -> int:
         return _cmd_generate(args)
     if args.cmd == "publish":
         return cmd_publish(args)
-    if args.cmd == "parity":
-        return _cmd_parity(args)
     if args.cmd == "deep-notes":
         if args.deep_cmd == "pick":
             return _cmd_deep_notes_pick(args)
@@ -273,20 +264,6 @@ def _cmd_review_build(args: argparse.Namespace) -> int:
         return 1
     print(f"[rexy] review_package={package.resolve()}")
     return 0
-
-
-def _cmd_parity(args: argparse.Namespace) -> int:
-    from .publish.parity import compare
-    node_md = args.node.read_text(encoding="utf-8")
-    py_md = args.python.read_text(encoding="utf-8")
-    result = compare(node_md, py_md)
-    if result.ok:
-        print(f"[rexy] PARITY OK: {args.node.name} ~ {args.python.name}")
-        return 0
-    print(f"[rexy] PARITY FAILED: {len(result.differences)} difference(s)")
-    for d in result.differences:
-        print(f"  - {d}")
-    return 1
 
 
 def _resolve_window(args: argparse.Namespace) -> Window:

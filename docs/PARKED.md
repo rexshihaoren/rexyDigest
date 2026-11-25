@@ -10,7 +10,6 @@ Implementation is done; **merge and branch deletion** are process steps on your 
 2. **Run** `PYTHONPATH=python .venv/bin/python -m pytest python/tests/ -q` (also **`.github/workflows/python-tests.yml`** on push when `python/**` changes) and a smoke **`rexy ingest`** / **`rexy generate --llm memory`** if you want CI parity locally.
 3. **Open PR** → `main`, get review, merge. *(Editorial gaps below — e.g. per-item blog notes, publicized Public brief — may defer merge even when CI and commit/push are fine.)*
 4. **After merge**: delete branch `python-migration` (local + remote). Optional tag e.g. `python-pipeline-v0.1`.
-5. **Node removal** stays separate: only when you manually trust output ([ADR-0002](adr/0002-node-publisher-stays-through-phase-2.md)); then one PR deleting `scripts/`, `package.json`, and Node `tests/`.
 
 ## Architecture / ingestion (from ADRs and design)
 
@@ -33,13 +32,11 @@ Implementation is done; **merge and branch deletion** are process steps on your 
 | **Public brief 每周雷达 polish** | **Shipped**: bilingual 本周亮点 lead block in `python/rexy/publish/renderer.py`. The KOL roster footer was removed because it added little reader value. Further narrative polish (e.g. cross-item synthesis paragraphs) parked. |
 | **Simple UI for manual quality review** | Rex needs a lightweight way to skim Selection + rendered Brief/Gist before ship. Not started. |
 | **Judge LLM for quality gates** | Later automation to score faithfulness / hallucination risk vs sources; not started. |
-| **Structural parity vs Node (`rexy parity`)** | Optional diff tool when comparing legacy Node output to Python output. **Not** a merge gate: legacy digests hallucinate; parity to them is not a quality bar ([ADR-0002](adr/0002-node-publisher-stays-through-phase-2.md)). |
 
 ## Ops
 
 | Item | Notes |
 |------|--------|
-| **Remove Node `scripts/` + Node tests** | After manual sign-off on Python pipeline quality ([ADR-0002](adr/0002-node-publisher-stays-through-phase-2.md)); no fixed week count. |
 | **arXiv 429 / rate limits** | `arxiv` client may return HTTP 429 on cold runs; tune delays, retries, or smaller `max_results` in `config/sources/arxiv.toml` ([ADR-0003](adr/0003-source-adapter-port.md) defers concurrency policy). |
 
 ## Rex — queued decisions (parked 2026-05-14)
@@ -49,7 +46,7 @@ Agent pass (~30m): consolidated YouTube bootstrap into `python/rexy/sources/yout
 | # | Topic | Options / notes |
 |---|--------|-------------------|
 | 1 | **CI Python version** | Workflow uses **3.12**; local `.venv` may be **3.14**. Align versions or keep matrix later. |
-| 2 | **Weekly Gist GitHub Action** | **Shipped**: `.github/workflows/weekly-gist.yml` now runs Python `ingest -> generate --llm gemini -> publish` and commits the generated internal gist + public brief. Node source removal stays separate. |
+| 2 | **Weekly Gist GitHub Action** | **Shipped**: `.github/workflows/weekly-gist.yml` now runs Python ingestion, generation, publishing, and review package creation. It commits the Gist, Brief, and review package. |
 | 3 | **KOL ↔ org YouTube rows** | `harrison chase` → LangChain, `jerry liu` → LlamaIndex, `shane legg` → Google DeepMind: keep **org channel + personal `kol` slug**, or split slugs / drop org rows. |
 | 4 | **Six missing `YOUTUBE_SEED` slugs** | Add verified `channel_id`s for `lilian weng`, `tegmark`, `sean carroll`, `scott aaronson`, `nick bostrom`, `anil seth`, or explicitly **RSS-only** and remove from YouTube expectations. |
 | 5 | **`youtube.toml` source of truth** | Prefer always **`scripts/bootstrap_youtube_from_kols.py`** after editing `YOUTUBE_SEED`, or allow **hand-only** edits and drop script drift risk. |

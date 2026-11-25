@@ -13,4 +13,4 @@ Translation moves from the publisher (today) to the generator. The Phase 2 LLM c
 
 - Phase 3 publisher has no Gemini dependency, no `MODEL_FALLBACKS` config to maintain, and no failure mode that requires re-running the LLM. Smaller, faster, more deterministic.
 - Parity testing in Stage 4 reduces to JSONL-equivalence + deterministic-render-equivalence, with no LLM noise.
-- The translation legacy in [`scripts/publize_brief.mjs:208-229`](../../scripts/publize_brief.mjs) (`translate`) and [`scripts/publize_brief.mjs:662-684`](../../scripts/publize_brief.mjs) (`translateStructured`) is not ported.
+- The legacy Node publisher's translation code was retired. The Python publisher reads the translated fields from the Selection.

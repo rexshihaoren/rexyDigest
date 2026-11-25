@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate weekly gist markdown via Gemini (Python port of generate_gist.mjs)."""
+"""Generate weekly gist markdown via Gemini."""
 
 from __future__ import annotations
 

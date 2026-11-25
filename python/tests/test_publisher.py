@@ -179,31 +179,3 @@ class TestEndToEndViaStore:
         assert result == 0
         assert (weekly_gist / "Weekly_Brief_2026-05-10.md").is_file()
         assert not (weekly_gist / "Public").exists()
-
-
-class TestParity:
-    def test_parity_ok_for_identical_briefs(self):
-        from rexy.publish.parity import compare
-        md = render_public_brief(WINDOW, [_entry()], {"arxiv:1": _item()})
-        result = compare(md, md)
-        assert result.ok, result.differences
-
-    def test_parity_detects_missing_item(self):
-        from rexy.publish.parity import compare
-        md_full = render_public_brief(WINDOW, [_entry()], {"arxiv:1": _item()})
-        md_empty = render_public_brief(WINDOW, [], {})
-        result = compare(md_full, md_empty)
-        assert not result.ok
-        assert any("only in Node output" in d for d in result.differences)
-
-    def test_parity_detects_score_drift(self):
-        from rexy.publish.parity import compare
-        item = _item()
-        e1 = _entry()
-        e2 = _entry()
-        e2.scores = Scores(relevance=4.5, novelty=4.0, actionability=3.5, composite=2.0)
-        md_a = render_public_brief(WINDOW, [e1], {"arxiv:1": item})
-        md_b = render_public_brief(WINDOW, [e2], {"arxiv:1": item})
-        result = compare(md_a, md_b)
-        assert not result.ok
-        assert any("composite" in d for d in result.differences)

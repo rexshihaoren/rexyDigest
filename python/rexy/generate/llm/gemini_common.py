@@ -6,7 +6,7 @@ import os
 
 
 def resolve_gemini_api_key(api_key: str | None = None) -> str:
-    """Env or explicit key, stripped (parity with Node `GEMINI_API_KEY_TRIMMED`)."""
+    """Env or explicit key, stripped."""
     raw = api_key or os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY") or ""
     return raw.strip() if isinstance(raw, str) else ""
 

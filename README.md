@@ -158,38 +158,11 @@ PYTHONPATH=python ./.venv/bin/python -m rexy status
 
 Prints corpus item counts by source type and the latest ingestion window.
 
-### Parity check (optional diff vs Node)
-
-```bash
-PYTHONPATH=python ./.venv/bin/python -m rexy parity \
-  --node    Weekly_Gist/<node-output>.md \
-  --python  Weekly_Gist/<python-output>.md
-```
-
-Compares **structural** fields (item set, composite scores, English blurbs)
-between a legacy Node brief and a Python brief. Useful when diffing a
-specific week; **not** a quality gate — legacy output can hallucinate. See
-[`docs/PARKED.md`](docs/PARKED.md) for manual review UI and judge-LLM plans.
-
 ## Tests
 
 ```bash
 PYTHONPATH=python .venv/bin/pytest python/tests/
 ```
-
-## Legacy Node pipeline (deprecated)
-
-The original Node-based generator and publisher live under `scripts/`:
-
-- `scripts/generate_gist.mjs` — calls one LLM prompt to write the gist
-- `scripts/publize_brief.mjs` — parses the gist back out with regex,
-  re-translates with Gemini
-
-These are **superseded** by the Python pipeline above. They remain until
-you **manually** trust the Python pipeline for production (per
-[ADR-0002](docs/adr/0002-node-publisher-stays-through-phase-2.md)) — not
-after parity with legacy output. Then `scripts/`, `package.json`, and
-`tests/` (Node) can be removed. Deferred UX: [`docs/PARKED.md`](docs/PARKED.md).
 
 ## Configuration
 
@@ -214,5 +187,5 @@ python/tests/                 # pytest suite (60+ tests)
 config/sources/               # adapter configs
 docs/adr/                     # load-bearing architectural decisions
 CONTEXT.md                    # the shared vocabulary
-scripts/                      # legacy Node pipeline (slated for removal)
+scripts/                      # standalone Python and shell helpers
 ```

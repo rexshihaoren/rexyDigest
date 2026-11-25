@@ -1,6 +1,6 @@
 # Strict format is the default and only render; no normaliser
 
-The Phase 3 Python publisher renders **Selection** JSONL directly into the strict-format **Brief**. The separate normalisation pipeline ([`scripts/lib/transform_strict.mjs`](../../scripts/lib/transform_strict.mjs) + [`scripts/batch_transform.mjs`](../../scripts/batch_transform.mjs) + parts of [`scripts/lib/markdown_utils.mjs`](../../scripts/lib/markdown_utils.mjs)) is **not ported**. Existing `*_strict.md` files in the repo remain as legacy artefacts but no new ones are produced after Phase 3 cutover.
+The Python publisher renders **Selection** JSONL directly into the strict-format **Brief**. The separate Node normalisation pipeline was retired. Existing `*_strict.md` files in the repo are historical artefacts.
 
 Human-readable render contracts live in [`docs/templates/`](../templates/):
 

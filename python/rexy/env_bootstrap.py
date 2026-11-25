@@ -1,4 +1,4 @@
-"""Load repo-root env files before CLI / Gemini (parity with Node `generate_gist.mjs`)."""
+"""Load repo-root env files before CLI / Gemini."""
 
 from __future__ import annotations
 
@@ -6,7 +6,7 @@ from pathlib import Path
 
 
 def load_dotenv_repo(cwd: Path | None = None) -> None:
-    """`.env.local` then `.env`, cwd-relative (same order as `scripts/generate_gist.mjs`).
+    """`.env.local` then `.env`, cwd-relative.
 
     Uses python-dotenv default ``override=False``: existing OS env wins; second file
     does not clobber vars already set by the first.
