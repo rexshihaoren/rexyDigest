@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "run_id": "34013614830",
+  "source_sha": "eb3e617c93ec0fe9539ff74a0d4fc506e399fc5b",
+  "window": "2026-08-30/2026-09-06",
+  "artifacts": {
+    "gist": "Weekly_Gist/Weekly_Gist_2026-09-06.md",
+    "brief": "Weekly_Gist/Weekly_Brief_2026-09-06.md"
+  },
+  "generator_config": "config/generator.toml",
+  "files": {
+    "Weekly_Gist/Weekly_Brief_2026-09-06.md": "aadcb262c249018da6640086f031e112e5cb0ff419dad92436f04a6e2feb31b6",
+    "Weekly_Gist/Weekly_Gist_2026-09-06.md": "089dcedaeedc42099003ab28368783b963e5496a7b36e2adbe92c3761bed8ea6",
+    "config/generator.toml": "49b194f37480503ffc57f63378bd2ef3f3013334094c4013a4bc348a2019e2c7",
+    "corpus/items.jsonl": "271f1c65c878cc43f8dc1a531e6ed3f92b70d80a6167c9a83117b446bc1f0dc3",
+    "corpus/payloads/arxiv_2609.03565.txt": "dfa62fbc82b80e4c76215151929326323914934fb4d0904c7d8448340d556f51",
+    "corpus/payloads/arxiv_2609.03718.txt": "50802315aae55d9ff9cacbc36ed374750ddc944398163bec2d6d6a04eb5efed6",
+    "corpus/payloads/arxiv_2609.03774.txt": "b1dc81dea31a1e9b0650ed2c0ea205206f702c6cdee3edf7f87675a927c36949",
+    "corpus/payloads/arxiv_2609.03834.txt": "ad1ea5532d64d1963da309869718c4e7bc9820baacb886624ca8598b89da453b",
+    "corpus/payloads/arxiv_2609.04141.txt": "7df07b7d84e39a60363fd29b71702b8bb0687a3bc15f143a329f7ebae701e484",
+    "corpus/payloads/url-sha1_19280ad9d1a03420.txt": "5b717db1abc5940f49f60b9462287acde6005ea75331df7a074a8c1e4393e713",
+    "corpus/payloads/url-sha1_ad408c639885d3f9.txt": "56ef256871d2d885a4670236852b89ed527544ec7de0fc6d3f8ec8c0e6635022",
+    "corpus/payloads/url-sha1_f8c2c13ce5649009.txt": "6cff02a490af0d2dcfaca3e261747de83f5c007debb402b2050192a6e0d9f89c",
+    "corpus/runs/Run_20260906T051742Z.json": "21a7f76ade42009a5bb4330c12b5f02fdd8fc47c1fd49f558a294e1f65c2c604",
+    "corpus/runs/Run_20260906T051754Z.json": "140649fecf3c01907a3879095069f2f8861b0f9049b2c1a1f61af02e539ab38a",
+    "corpus/selections/Selection_2026-09-06.jsonl": "7ce958732ae0045bd2d5649f83e953afc7f023933c97f488e9e5a72903d7d625"
+  }
+}

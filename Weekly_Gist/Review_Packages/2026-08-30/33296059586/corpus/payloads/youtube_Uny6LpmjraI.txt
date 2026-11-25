@@ -1,0 +1,23 @@
+Jeff Barg (Head of AI), Vyshu Khota (ML Engineer), and Soroush Khadem (Software Engineer) at Clay break down how they built and scaled Claygent and Sculptor, Clay's go to market research and engineering agents. They cover the eval philosophy that keeps agentic changes safe to ship, why they moved to a data lake architecture to give agents first class access to Clay's data, and how a large context breakthrough from Fable changed what their agents can do with production data.
+
+Chapters: 
+0:00 Clay's agent stack: Claygent and Sculptor 
+0:13 Meet Sculptor, Clay's go to market engineering agent 
+0:45 Inside Claygent: web research, first party data, and scale 
+1:25 Sculptor today: a hundred thousand messages a week 
+1:52 Sculptor for Search and the road to production quality 
+2:03 Why evals became non negotiable 
+2:47 Clay's eval priorities, from local dev to CI 
+4:19 The four quadrants of Clay's eval philosophy 
+6:00 A/B metrics and where LangSmith fits in 
+6:58 Closing the loop between production and offline evals 
+8:27 What's next: Clay as an agent interface 
+9:00 Why external agents create an internal flywheel 
+10:15 Scaling the data foundation with a data lake 
+11:33 Why now: Fable's large context breakthrough 
+12:36 The self-iterating loop Clay is building toward
+
+Resources: 
+→ LangSmith: https://www.langchain.com/langsmith 
+→ LangChain: https://www.langchain.com 
+→ LangChain Academy: https://academy.langchain.com

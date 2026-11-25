@@ -1,0 +1,73 @@
+Eno Reyes is the co-founder and CTO at Factory, a $1.5 billion company turning signal into deployed code inside some of the world's biggest engineering orgs. Before founding Factory in 2023, he was an engineer at Microsoft and then Hugging Face. In this conversation, Eno unpacks why the harness matters more than the model running underneath it, how to build your own 24/7 software factory, and why he's "bullish on humans in the loop for a very long time.”
+
+We also discuss:
+• Why product management isn't going away
+• The engineer who lint-checks Factory's own agents
+• Why coding agents might become the best general agents
+• The platonic representation hypothesis
+• Why Factory might hide when "memory" is happening
+• Building Factory's universal meta harness
+• Tokenomics, and how routing cuts the bill
+
+Timestamps:
+00:00 Introduction
+01:19 What a 24/7 autonomous software factory actually means
+03:16 Why product management isn't going away
+06:56 Alvin, the engineer who lint-checks Factory's own agents
+10:16 "It makes me very bullish on humans in the loop for a very long time"
+11:37 The Disney Epcot analogy for rolling out AI
+16:47 Why coding agents might become the best general agents
+20:54 The case against a model-independent harness, and Eno's counter
+25:44 The platonic representation hypothesis explained
+32:42 Why model quirks are like being left or right-handed
+39:28 Why you could technically decompile Factory's entire harness
+44:20 Why memory might be AI's most overused word
+46:47 Inside AutoWiki and its Lore feature
+55:32 Agent readiness: the deterministic feedback agents need
+57:12 Missions: Factory's universal meta harness
+1:01:12 "It's kind of turtles all the way down": validating the validators
+1:04:37 Tokenomics: what missions cost, and how routing cuts the bill
+1:11:08 Why Eno is bullish on open models
+1:14:30 BenchBench, and why code review benchmarks might be broken
+
+References:
+• Aider: https://aider.chat/
+• Alvin Sng: https://www.linkedin.com/in/alvinsng/
+• Amp: https://ampcode.com/
+• Andrej Karpathy: https://x.com/karpathy
+• Anthropic: https://www.anthropic.com/
+• Anthropic–Emotion concepts and their function in a large language model: https://www.anthropic.com/research/emotion-concepts-function
+• Cursor: https://cursor.com/
+• Deep Agents: https://docs.langchain.com/oss/python/deepagents/overview
+• DeepWiki: https://deepwiki.com/
+• Epcot: https://en.wikipedia.org/wiki/Epcot
+• Factory: https://factory.ai/
+• GLM: https://chat.z.ai/
+• Harbor: https://www.harborframework.com/
+• Hugging Face: https://huggingface.co/
+• HuggingGPT: https://arxiv.org/abs/2303.17580
+• Kimi: https://www.kimi.com/
+• LangGraph: https://www.langchain.com/langgraph
+• LangSmith: https://smith.langchain.com/
+• MiniMax: https://www.minimax.io/
+• Open Knowledge Format (OKF): https://cloud.google.com/blog/products/data-analytics/how-the-open-knowledge-format-can-improve-data-sharing/
+• OpenAI: https://openai.com/
+• OpenRouter Model Fusion: https://openrouter.ai/fusion
+• Ramp: https://ramp.com/
+• Sakana Fugu: https://sakana.ai/fugu/
+• SWE-bench: https://www.swebench.com/
+• Terminal-Bench: https://www.tbench.ai/
+ 
+Where to find Eno:
+• LinkedIn: https://www.linkedin.com/in/enoreyes
+• Twitter/X: https://x.com/EnoReyes
+ 
+Where to find Harrison:
+• LinkedIn: https://www.linkedin.com/in/harrison-chase-961287118/
+• Twitter/X: https://x.com/hwchase17
+ 
+Where to find LangChain:
+• Website: https://www.langchain.com/
+• Docs: https://docs.langchain.com/
+ 
+Send feedback or questions to maxagency@langchain.dev

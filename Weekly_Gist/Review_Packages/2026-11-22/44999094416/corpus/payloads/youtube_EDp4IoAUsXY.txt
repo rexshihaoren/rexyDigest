@@ -1,0 +1,22 @@
+Step inside your imagination with Project Genie, now powered by Google DeepMind’s most realistic and interactive world model yet, Genie 4.
+
+Project Genie brings our most advanced world and multimodal models together with Gemini so you can turn ideas into explorable, shareable worlds right in your browser:
+
+• Shape worlds in real time with Genie 4: Trigger dynamic events using natural language—like shifting the weather, introducing new characters, or changing the action mid-session—complete with simulated physics, natural lighting, and native scene-matched audio and character dialogue.
+
+• Build with the Project Genie agent: Describe the story or simulation you want to create, and the new agent generates starting visuals and custom background music, while Gemini observes in-session to suggest or trigger live events.
+
+• Explore & remix the community gallery: Jump into curated and community-built worlds, remix their environments, rules, and audio, or experiment with upgraded Genie 3 capabilities in the model picker (including up to 3-minute sessions and 360-degree panorama grounding).
+
+The new Project Genie experience is rolling out to eligible Google AI Ultra subscribers (18+), and Google AI Pro members can join the waitlist. 
+
+Try Project Genie & join the waitlist: https://labs.google/projectgenie
+Learn more about Genie 4: https://deepmind.google/genie
+Read the announcement: https://blog.google/innovation-and-ai/models-and-research/google-deepmind/genie-4-now-available-project-genie/
+
+___
+
+Subscribe to our channel https://www.youtube.com/@googledeepmind
+Find us on X https://twitter.com/GoogleDeepMind
+Follow us on Instagram https://instagram.com/googledeepmind
+Add us on Linkedin https://www.linkedin.com/company/deepmind/

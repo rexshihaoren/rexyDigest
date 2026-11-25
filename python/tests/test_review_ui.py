@@ -6,6 +6,8 @@ import json
 import re
 import shutil
 import subprocess
+import threading
+import time
 import urllib.request
 from pathlib import Path
 
@@ -91,14 +93,56 @@ def test_text_edit_invalidates_only_changed_section_and_can_close(tmp_path: Path
     assert final.exists() is False
 
 
-def test_no_visual_is_terminal_and_invalid_markdown_cannot_save(tmp_path: Path) -> None:
+def test_no_visual_is_terminal_and_empty_markdown_cannot_save(tmp_path: Path) -> None:
     draft, sidecar, final = _workspace(tmp_path)
     session = ReviewSession(draft, sidecar, final)
     session.choose_no_visual("### 03｜反方")
     assert session.state()["publish_ready"] is True
 
     with pytest.raises(ValueError, match="invalid deep note Markdown"):
-        session.save_markdown("# broken")
+        session.save_markdown("\n")
+
+
+def test_review_ui_allows_structural_edits(tmp_path: Path) -> None:
+    draft, sidecar, final = _workspace(tmp_path)
+    session = ReviewSession(draft, sidecar, final)
+    alternate = """# 新结构
+
+这篇内容需要用自己的叙述方式表达。
+
+## 核心判断
+
+- 结构应服务内容，而不是相反。
+"""
+
+    session.save_markdown(alternate)
+
+    assert session.state()["markdown"] == alternate
+
+
+@pytest.mark.parametrize("replacement", ["### 新标题", ""])
+def test_review_can_finish_after_visual_heading_is_renamed_or_removed(
+    tmp_path: Path, replacement: str,
+) -> None:
+    draft, sidecar, final = _workspace(tmp_path)
+    session = ReviewSession(draft, sidecar, final)
+    session.approve("c1")
+    heading = "### 03｜反方"
+    next_heading = "### 05｜沉淀"
+    before, section = draft.read_text(encoding="utf-8").split(heading, 1)
+    body, after = section.split(next_heading, 1)
+    edited = before + (replacement + body if replacement else "") + next_heading + after
+
+    session.save_markdown(edited)
+
+    state = session.state()
+    assert state["candidates"] == []
+    assert state["publish_ready"] is True
+    assert state["preview_markdown"] == edited
+    assert session.publish().read_text(encoding="utf-8") == edited
+    session.save_markdown(edited + "\n" + heading + "\n\nRestored section.\n")
+    assert session.state()["candidates"][0]["approval"]["status"] == "stale"
+    assert session.state()["publish_ready"] is False
 
 
 def test_local_http_ui_serves_review_and_persists_approval(tmp_path: Path) -> None:
@@ -121,6 +165,84 @@ def test_local_http_ui_serves_review_and_persists_approval(tmp_path: Path) -> No
         )
         state = json.loads(urllib.request.urlopen(request, timeout=2).read())
         assert state["publish_ready"] is True
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=2)
+
+
+def test_save_response_does_not_wait_for_visual_reevaluation(tmp_path: Path) -> None:
+    draft, sidecar, final = _workspace(tmp_path)
+    reevaluation_started = threading.Event()
+    release_reevaluation = threading.Event()
+
+    def slow_reevaluation(_draft: Path, _sidecar: Path, _headings: list[str]) -> None:
+        reevaluation_started.set()
+        release_reevaluation.wait(timeout=2)
+
+    session = ReviewSession(draft, sidecar, final, reevaluate=slow_reevaluation)
+    server, url = start_review_server(session)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    token = url.split("token=", 1)[1]
+    changed = draft.read_text(encoding="utf-8").replace(
+        "- 最强反解释：失败可能来自交互界面。固定任务和提示词，替换界面后重测。",
+        "- 最强反解释：失败可能来自物理库存的延迟更新。同步库存后重测。",
+    )
+    request = urllib.request.Request(
+        f"http://127.0.0.1:{server.server_port}/api/save?token={token}",
+        data=json.dumps({"markdown": changed}).encode(),
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
+    try:
+        response = json.loads(urllib.request.urlopen(request, timeout=0.5).read())
+
+        assert reevaluation_started.wait(timeout=0.2)
+        assert response["reevaluation_pending"] is True
+    finally:
+        release_reevaluation.set()
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=2)
+
+
+def test_retry_visuals_clears_stale_failure_after_success(tmp_path: Path) -> None:
+    draft, sidecar, final = _workspace(tmp_path)
+    data = json.loads(sidecar.read_text(encoding="utf-8"))
+    data["complete"] = False
+    data["error"] = "transient Gemini failure"
+    sidecar.write_text(json.dumps(data), encoding="utf-8")
+    reevaluated = threading.Event()
+
+    def successful_reevaluation(_draft: Path, _sidecar: Path, headings: list[str]) -> None:
+        assert headings == ["### 03｜反方"]
+        reevaluated.set()
+
+    session = ReviewSession(draft, sidecar, final, reevaluate=successful_reevaluation)
+
+    result = session.retry_visuals()
+
+    assert result == {"reevaluation_started": True}
+    assert reevaluated.wait(timeout=0.5)
+    deadline = time.monotonic() + 0.5
+    while session.state()["reevaluation_pending"] and time.monotonic() < deadline:
+        time.sleep(0.01)
+    state = session.state()
+    assert state["reevaluation_pending"] is False
+    assert state["complete"] is True
+    assert state["error"] == ""
+
+
+def test_review_ui_offers_visual_retry(tmp_path: Path) -> None:
+    draft, sidecar, final = _workspace(tmp_path)
+    server, url = start_review_server(ReviewSession(draft, sidecar, final))
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    try:
+        page = urllib.request.urlopen(url, timeout=2).read().decode()
+        assert "Retry visual judging" in page
+        assert "/api/retry-visuals" in page
     finally:
         server.shutdown()
         server.server_close()

@@ -1,0 +1,38 @@
+{
+  "kind": "ingestion",
+  "run_id": "20260906T051742Z",
+  "window": "2026-08-30/2026-09-06",
+  "started_at": "2026-09-06T05:17:42.617266Z",
+  "finished_at": "2026-09-06T05:17:54.276136Z",
+  "adapters": [
+    {
+      "name": "arxiv",
+      "config_sha": "45e014a7d8f5cdc2",
+      "items_yielded": 50,
+      "items_new": 50,
+      "items_updated": 0,
+      "duration_s": 8.904,
+      "errors": []
+    },
+    {
+      "name": "rss",
+      "config_sha": "5414a38e0b1d33f7",
+      "items_yielded": 25,
+      "items_new": 25,
+      "items_updated": 0,
+      "duration_s": 1.543,
+      "errors": []
+    },
+    {
+      "name": "youtube",
+      "config_sha": "87e347ff79ad3497",
+      "items_yielded": 0,
+      "items_new": 0,
+      "items_updated": 0,
+      "duration_s": 1.208,
+      "errors": [
+        "AdapterError: youtube: skipped 9 channel feed(s): youtube: failed to parse channel feed 'https://www.youtube.com/feeds/videos.xml?channel_id=UCYqc84mh-05GwxmHmtA4zcQ': SAXParseException('not well-formed (invalid token)'); youtube: failed to parse channel feed 'https://www.youtube.com/feeds/videos.xml?channel_id=UCcO7fE1uD3UDtmyIJUw1VMA': SAXParseException('not well-formed (invalid token)'); youtube: failed to parse channel feed 'https://www.youtube.com/feeds/videos.xml?channel_id=UC__dUuqF5w4OnbW221JxmKg': SAXParseException('not well-formed (invalid token)'); youtube: failed to parse channel feed 'https://www.youtube.com/feeds/videos.xml?channel_id=UC4vr9HaKGCYLmmiCXnzac7A': SAXParseException('not well-formed (invalid token)'); youtube: failed to parse channel feed 'https://www.youtube.com/feeds/videos.xml?channel_id=UCZHmQk67mSJgfCCTn7xBfew': SAXParseException('not well-formed (invalid token)'); youtube: failed to parse channel feed 'https://www.youtube.com/feeds/videos.xml?channel_id=UCP7jMXSY2xbc3KCAE0MHQ-A': SAXParseException('not well-formed (invalid token)'); youtube: failed to parse channel feed 'https://www.youtube.com/feeds/videos.xml?channel_id=UCC-lyoTfSrcJzA1ab3APAgw': SAXParseException('not well-formed (invalid token)'); youtube: failed to parse channel feed 'https://www.youtube.com/feeds/videos.xml?channel_id=UCeRjipR4_SsCddq9VZ2AeKg': SAXParseException('not well-formed (invalid token)'); youtube: failed to parse channel feed 'https://www.youtube.com/feeds/videos.xml?channel_id=UCJekgf6k62CQHdENWf2NgAQ': SAXParseException('not well-formed (invalid token)')"
+      ]
+    }
+  ]
+}

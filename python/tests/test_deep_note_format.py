@@ -10,6 +10,7 @@ from rexy.generate.deep_note_format import (
     normalize_deep_note_markdown,
     prepare_deep_note_markdown,
     validate_deep_note_markdown,
+    validate_review_markdown,
 )
 from rexy.generate.llm.deep_note import MemoryDeepNoteWriter
 
@@ -182,6 +183,31 @@ def test_prepare_rejects_invalid_or_unsafe_notes(broken: str, message: str) -> N
 def test_legacy_validator_rejects_notes_missing_locked_structure(broken: str, message: str) -> None:
     with pytest.raises(ValueError, match=message):
         _prepare_legacy(broken)
+
+
+def test_review_validation_allows_an_alternate_note_structure() -> None:
+    alternate = """# 从 world model 到可行动的判断
+
+这篇不是在证明模型已经理解世界，而是在提供一种更严苛的试错方式。
+
+## 值得带走的东西
+
+1. 评测要看过程一致性。
+2. simulation 是行动前的低成本试错场。
+
+## 仍然未知
+
+- 简化环境能否迁移到现实。
+"""
+
+    assert validate_review_markdown(alternate) == []
+
+
+def test_review_validation_rejects_empty_or_unsafe_markdown() -> None:
+    assert validate_review_markdown("\n \n") == ["Markdown must not be empty"]
+    assert validate_review_markdown("[generator error: failed]") == [
+        "contains generator error fallback text"
+    ]
 
 
 def test_prepare_requires_exactly_one_personal_view_in_02_or_03() -> None:

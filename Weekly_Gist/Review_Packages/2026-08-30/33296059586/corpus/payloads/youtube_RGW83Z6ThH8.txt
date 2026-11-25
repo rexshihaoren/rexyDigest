@@ -1,0 +1,3 @@
+Sydney Runkle, Software Engineer at LangChain, walks through the most common Deep Agents use cases: coding agents like Claude Code, and deep research workflows that need to pull from many data sources over a long time horizon. Both are long-running, context-heavy tasks — the exact workloads Deep Agents is built for.
+
+#AIAgents #codingagents #deepresearch

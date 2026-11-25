@@ -17,7 +17,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any, Callable
 
-from .deep_note_format import validate_deep_note_markdown
+from .deep_note_format import validate_review_markdown
 from .deep_note_visuals import VisualReview, render_approved_visuals
 
 
@@ -34,27 +34,31 @@ class ReviewSession:
         self.final_path = final_path
         self.reevaluate = reevaluate
         self._lock = threading.Lock()
+        self._reevaluation_lock = threading.Lock()
+        self._reevaluation_jobs = 0
 
     def state(self) -> dict[str, Any]:
         with self._lock:
             markdown = self.draft_path.read_text(encoding="utf-8")
             data = self._read_sidecar()
-            candidates = data.get("candidates", [])
+            candidates = _active_candidates(markdown, data)
             section_reviews = _effective_section_reviews(data)
+            reevaluation_pending = self._reevaluation_jobs > 0
             return {
                 "markdown": markdown,
                 "preview_markdown": _render_current_selection(markdown, data),
-                "validation_errors": validate_deep_note_markdown(markdown),
+                "validation_errors": validate_review_markdown(markdown),
                 "candidates": candidates,
                 "section_reviews": section_reviews,
                 "complete": bool(data.get("complete", True)),
                 "error": str(data.get("error", "")),
-                "publish_ready": self._publish_ready(markdown, data),
+                "reevaluation_pending": reevaluation_pending,
+                "publish_ready": not reevaluation_pending and self._publish_ready(markdown, data),
                 "final_path": str(self.final_path),
             }
 
     def save_markdown(self, markdown: str) -> dict[str, Any]:
-        errors = validate_deep_note_markdown(markdown)
+        errors = validate_review_markdown(markdown)
         if errors:
             raise ValueError("invalid deep note Markdown: " + "; ".join(errors))
         with self._lock:
@@ -67,7 +71,8 @@ class ReviewSession:
             ]
             data = self._read_sidecar()
             section_reviews = data.setdefault("section_reviews", {})
-            for heading in changed:
+            invalidated = set(changed) | (old_sections.keys() - new_sections.keys())
+            for heading in invalidated:
                 section_reviews.pop(heading, None)
                 for candidate in data.get("candidates", []):
                     if candidate.get("section_heading") != heading:
@@ -78,16 +83,61 @@ class ReviewSession:
                         approval["reviewed_at"] = None
             self.draft_path.write_text(markdown.rstrip() + "\n", encoding="utf-8")
             self._write_sidecar(data)
-        if changed and self.reevaluate is not None:
-            try:
-                self.reevaluate(self.draft_path, self.sidecar_path, changed)
-            except RuntimeError as exc:
-                with self._lock:
-                    data = self._read_sidecar()
-                    data["complete"] = False
-                    data["error"] = str(exc)
-                    self._write_sidecar(data)
+            candidate_headings = {
+                candidate["section_heading"] for candidate in _active_candidates(markdown, data)
+            }
+            judge_headings = [heading for heading in changed if heading in candidate_headings]
+        if judge_headings and self.reevaluate is not None:
+            self._start_reevaluation(judge_headings)
         return {"changed_sections": changed}
+
+    def retry_visuals(self) -> dict[str, bool]:
+        if self.reevaluate is None:
+            raise ValueError("visual reevaluation is not available")
+        with self._lock:
+            if self._reevaluation_jobs > 0:
+                return {"reevaluation_started": False}
+            data = self._read_sidecar()
+            markdown = self.draft_path.read_text(encoding="utf-8")
+            headings = list(dict.fromkeys(
+                candidate["section_heading"]
+                for candidate in _active_candidates(markdown, data)
+            ))
+        if not headings:
+            raise ValueError("no visual candidates available to retry")
+        self._start_reevaluation(headings)
+        return {"reevaluation_started": True}
+
+    def _start_reevaluation(self, headings: list[str]) -> None:
+        with self._lock:
+            self._reevaluation_jobs += 1
+        threading.Thread(
+            target=self._reevaluate_in_background,
+            args=(headings,),
+            daemon=True,
+        ).start()
+
+    def _reevaluate_in_background(self, headings: list[str]) -> None:
+        try:
+            with self._reevaluation_lock:
+                if self.reevaluate is not None:
+                    self.reevaluate(self.draft_path, self.sidecar_path, headings)
+            with self._lock:
+                data = self._read_sidecar()
+                data["complete"] = True
+                data.pop("error", None)
+                data.pop("waived_incomplete", None)
+                data.pop("waived_at", None)
+                self._write_sidecar(data)
+        except Exception as exc:  # Provider failures must not strand the review UI.
+            with self._lock:
+                data = self._read_sidecar()
+                data["complete"] = False
+                data["error"] = str(exc)
+                self._write_sidecar(data)
+        finally:
+            with self._lock:
+                self._reevaluation_jobs -= 1
 
     def approve(self, candidate_id: str) -> None:
         with self._lock:
@@ -149,10 +199,10 @@ class ReviewSession:
         with self._lock:
             markdown = self.draft_path.read_text(encoding="utf-8")
             data = self._read_sidecar()
-            if not self._publish_ready(markdown, data):
+            if self._reevaluation_jobs or not self._publish_ready(markdown, data):
                 raise ValueError("visual review incomplete")
             rendered = _render_current_selection(markdown, data)
-            errors = validate_deep_note_markdown(rendered)
+            errors = validate_review_markdown(rendered)
             if errors:
                 raise ValueError("invalid final Markdown: " + "; ".join(errors))
             self.final_path.parent.mkdir(parents=True, exist_ok=True)
@@ -174,11 +224,11 @@ class ReviewSession:
         return path if path.is_absolute() else Path.cwd() / path
 
     def _publish_ready(self, markdown: str, data: dict[str, Any]) -> bool:
-        if validate_deep_note_markdown(markdown):
+        if validate_review_markdown(markdown):
             return False
         if not data.get("complete", True) and not data.get("waived_incomplete", False):
             return False
-        candidates = data.get("candidates", [])
+        candidates = _active_candidates(markdown, data)
         headings = {str(candidate.get("section_heading", "")) for candidate in candidates}
         reviews = _effective_section_reviews(data)
         return all(reviews.get(heading, {}).get("status") in {"approved", "no_visual"} for heading in headings)
@@ -226,6 +276,14 @@ def _effective_section_reviews(data: dict[str, Any]) -> dict[str, Any]:
     return reviews
 
 
+def _active_candidates(markdown: str, data: dict[str, Any]) -> list[dict[str, Any]]:
+    headings = _sections(markdown)
+    return [
+        candidate for candidate in data.get("candidates", [])
+        if candidate.get("section_heading") in headings
+    ]
+
+
 def _render_current_selection(markdown: str, data: dict[str, Any]) -> str:
     """Render only the current reviewed choices, including legacy reviewed drafts."""
     base = _strip_managed_visuals(markdown, data)
@@ -236,7 +294,7 @@ def _render_current_selection(markdown: str, data: dict[str, Any]) -> str:
             alt=str(candidate.get("alt") or "来源视觉证据"),
             status="approved",
         )
-        for candidate in data.get("candidates", [])
+        for candidate in _active_candidates(base, data)
         if candidate.get("approval", {}).get("status") == "approved"
     ]
     return render_approved_visuals(base, reviews)
@@ -305,6 +363,9 @@ class _ReviewHandler(BaseHTTPRequestHandler):
             payload = self._body()
             if parsed.path == "/api/save":
                 result = self.server.session.save_markdown(str(payload.get("markdown", "")))
+                self._json({**self.server.session.state(), **result})
+            elif parsed.path == "/api/retry-visuals":
+                result = self.server.session.retry_visuals()
                 self._json({**self.server.session.state(), **result})
             elif parsed.path == "/api/approve":
                 self.server.session.approve(str(payload.get("candidate_id", "")))
@@ -514,7 +575,8 @@ _PAGE = r"""<!doctype html>
       state=s; if(markdown.value!==s.markdown && !markdown.matches(':focus')) markdown.value=s.markdown; original=s.markdown;
       renderPreview(s);
       const grouped=group(s.candidates), reviews=s.section_reviews||{};
-      const incomplete=!s.complete?`<article class="section"><div class="candidate-body" style="border:1px solid #d8b7b2;border-radius:8px;background:#fff8f7"><strong>Visual enrichment incomplete</strong><p class="reason">${esc(s.error||'A visual provider failed.')}</p><button id="waive">Continue text-only</button></div></article>`:'';
+      const retry=s.candidates.length?'<button id="retry-visuals">Retry visual judging</button>':'';
+      const incomplete=!s.complete?`<article class="section"><div class="candidate-body" style="border:1px solid #d8b7b2;border-radius:8px;background:#fff8f7"><strong>Visual enrichment incomplete</strong><p class="reason">${esc(s.error||'A visual provider failed.')}</p><div class="actions">${retry}<button id="waive">Continue text-only</button></div></div></article>`:'';
       document.querySelector('#reviews').innerHTML=incomplete+Object.entries(grouped).map(([heading,items])=>{
         const review=reviews[heading]||{};
         const noVisual=review.status==='no_visual';
@@ -532,11 +594,12 @@ _PAGE = r"""<!doctype html>
     document.querySelector('#edit-tab').onclick=()=>showMode('edit');
     document.querySelector('#preview-tab').onclick=()=>showMode('preview');
     markdown.addEventListener('input',()=>{ const dirty=markdown.value!==original; save.style.display=dirty?'inline-block':'none'; status.textContent=dirty?'Unsaved changes':'Saved'; });
-    save.onclick=async()=>{ save.disabled=true; status.textContent='Saving…'; try { render(await call('/api/save',{markdown:markdown.value})); status.textContent='Saved'; save.style.display='none'; } catch(e) { document.querySelector('#errors').textContent=e.message; status.textContent='Not saved'; } finally { save.disabled=false; } };
-    document.querySelector('#reviews').onclick=async e=>{ const a=e.target.dataset.approve,n=e.target.dataset.none,w=e.target.id==='waive'; if(!a&&!n&&!w)return; try { render(await call(w?'/api/waive-incomplete':a?'/api/approve':'/api/no-visual',a?{candidate_id:a}:n?{section_heading:n}:{})); notice.textContent=w?'Visual failure waived; text-only publishing enabled.':a?'Visual selected and saved.':'This section will publish without a visual.'; } catch(err) { alert(err.message); } };
+    async function pollReevaluation() { try { const r=await fetch(api('/api/state')), s=await r.json(); render(s); if(s.reevaluation_pending) { status.textContent='Saved; updating visuals…'; setTimeout(pollReevaluation,750); } else if(markdown.value===original) { status.textContent='Saved'; } } catch(e) { document.querySelector('#errors').textContent=e.message; } }
+    save.onclick=async()=>{ save.disabled=true; status.textContent='Saving…'; try { const s=await call('/api/save',{markdown:markdown.value}); render(s); status.textContent=s.reevaluation_pending?'Saved; updating visuals…':'Saved'; save.style.display='none'; if(s.reevaluation_pending) setTimeout(pollReevaluation,250); } catch(e) { document.querySelector('#errors').textContent=e.message; status.textContent='Not saved'; } finally { save.disabled=false; } };
+    document.querySelector('#reviews').onclick=async e=>{ const a=e.target.dataset.approve,n=e.target.dataset.none,w=e.target.id==='waive',r=e.target.id==='retry-visuals'; if(!a&&!n&&!w&&!r)return; try { const s=await call(r?'/api/retry-visuals':w?'/api/waive-incomplete':a?'/api/approve':'/api/no-visual',a?{candidate_id:a}:n?{section_heading:n}:{}); render(s); notice.textContent=r?'Visual judging restarted.':w?'Visual failure waived; text-only publishing enabled.':a?'Visual selected and saved.':'This section will publish without a visual.'; if(s.reevaluation_pending) { status.textContent='Saved; updating visuals…'; setTimeout(pollReevaluation,250); } } catch(err) { alert(err.message); } };
     document.querySelector('#publish').onclick=async()=>{ try { const r=await call('/api/publish'); document.body.innerHTML=`<main style="display:block;max-width:640px;margin:12vh auto;padding:30px"><h1>Review complete</h1><p>Published to <a href="${esc(r.final_url)}" target="_blank" rel="noopener">${esc(r.final_path)}</a></p><p style="color:#6d6d66">The review stays available until you close it.</p><button id="done-close">Close review</button></main>`; document.querySelector('#done-close').onclick=async()=>{ await call('/api/close'); document.body.innerHTML='<main style="display:block;padding:40px"><p>Review closed.</p></main>'; }; } catch(e) { alert(e.message); } };
     document.querySelector('#close').onclick=async()=>{ if(markdown.value!==original&&!confirm('Discard unsaved text changes and close?'))return; await call('/api/close'); window.close(); document.body.innerHTML='<main style="display:block;padding:40px"><p>Review closed. Progress is saved.</p></main>'; };
-    fetch(api('/api/state')).then(r=>r.json()).then(s=>{ markdown.value=s.markdown; render(s); });
+    fetch(api('/api/state')).then(r=>r.json()).then(s=>{ markdown.value=s.markdown; render(s); if(s.reevaluation_pending) setTimeout(pollReevaluation,250); });
   </script>
 </body>
 </html>"""

@@ -1,0 +1,14 @@
+Go behind the scenes of our recent Genie 4 film as we explore our most realistic and interactive world model yet. 
+
+Instead of generating static video, Genie 4 simulates dynamic worlds in real time. Watch how our team used Genie 4 and Project Genie to turn text prompts into explorable environments in seconds, navigate scenes with keyboard controls, and direct action on the fly with live prompts. Using the built-in agent in Project Genie, the team also built custom apps mapped to keyboard hotkeys—triggering character movement, dialogue, and events in real time—and used prompts as repeatable seeds for everything from creative prototyping to robotics training environments.
+
+Genie 4 is now available in Project Genie, starting with eligible Google AI Ultra subscribers.
+
+Team: Google DeepMind, SpecialGuestX
+
+Learn more about Genie 4: https://deepmind.google/genie
+___
+Subscribe to our channel https://www.youtube.com/@googledeepmind
+Find us on X https://twitter.com/GoogleDeepMind
+Follow us on Instagram https://instagram.com/googledeepmind
+Add us on Linkedin https://www.linkedin.com/company/deepmind/

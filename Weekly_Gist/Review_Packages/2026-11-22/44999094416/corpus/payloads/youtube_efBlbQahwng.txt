@@ -1,0 +1,73 @@
+Jeff Barg is Head of AI at Clay, the go-to-market platform for list building, data enrichment and orchestration, with a dataset of 900 million contacts and 40 million companies. Clay recently launched a new global agent, built around a coding agent that runs on the same CLI external agents use. In this conversation, Jeff explains why Clay got more out of harness engineering than post-training, how the agent asks for approval on 100+ line Bash commands, and why he’d rather charge for tokens than outcomes.
+
+We also discuss:
+• Where a first-party agent beats a plugin on latency and cost
+• Making a SQL-like query language for Clay’s search platform
+• The case for picking an off-the-shelf harness
+• Why Codex is “really bad” at debugging long traces
+• Why memory came before the agent 
+
+Timestamps:
+00:00 Introduction
+01:11 From Sculptor to the global agent: tasks vs outcomes
+07:32 Making Clay agent-friendly, and the CLI RevOps teams love
+11:50 How Clay’s evals moved from capabilities to user journeys
+15:54 First-party agent vs plugin: when to build your own
+20:05 Why Clay built around a coding agent
+21:53 What post-training taught Clay, and a SQL-like search language
+26:49 The case for an off-the-shelf harness
+30:14 Do lab-built harnesses really work best?
+33:10 Running the agent outside the sandbox
+37:51 Why Codex is bad at debugging long traces
+41:16 Knowledge Hub: building memory before the agent
+46:25 Multiplayer agents, and what the agent looks like in Slack
+48:24 How close the agent is to an AI head of growth
+53:44 Where the harness ends and infrastructure begins
+56:57 Why Clay would rather charge for tokens than outcomes
+59:14 Fine-tuning, and a post-trained model router for Claygent
+1:02:37 Approvals for 100-line Bash commands
+1:06:36 Eval environments and simulated users
+
+References:
+• Account Agents (Clay): https://www.clay.com/account-agents
+• BullMQ: https://bullmq.io
+• Christina Cacioppo: https://x.com/christinacaci
+• Claude Code: https://claude.com/product/claude-code
+• Claude Fable: https://www.anthropic.com/claude/fable
+• Claude Haiku: https://www.anthropic.com/claude/haiku
+• Claude Opus: https://www.anthropic.com/claude/opus
+• Claude Sonnet: https://www.anthropic.com/claude/sonnet
+• Clay: https://www.clay.com
+• Clay Agent: https://www.clay.com/agent
+• Clay CLI: https://www.clay.com/agent-plugin
+• Claygent: https://www.clay.com/claygent
+• Claygent auto-mode: https://www.clay.com/blog/automode-for-claygent
+• Claygent Builder: https://www.clay.com/blog/claygent-builder
+• Codex: https://openai.com/codex/
+• Deep Agents: https://docs.langchain.com/oss/python/deepagents/overview
+• Dots (OpenAI): https://openai.com/index/introducing-dots/
+• Harvey: https://www.harvey.ai
+• Instinct: https://instinct.com
+• Knowledge Hub (Clay): https://university.clay.com/docs/knowledge-hub
+• LangSmith: https://smith.langchain.com
+• LangSmith Chat (formerly Polly): https://docs.langchain.com/langsmith/chat
+• LangSmith Engine: https://www.langchain.com/langsmith/engine
+• Muse (Meta): https://ai.meta.com/muse/
+• OpenClaw: https://openclaw.ai
+• Parker Conrad: https://x.com/parkerconrad
+• Pi: https://pi.dev
+• QuickJS: https://bellard.org/quickjs/
+
+Where to find Jeff:
+• LinkedIn: https://www.linkedin.com/in/jeffreybarg/
+• Twitter/X: https://x.com/jeffbarg
+
+Where to find Harrison:
+• LinkedIn: https://www.linkedin.com/in/harrison-chase-961287118/
+• Twitter/X: https://x.com/hwchase17
+
+Where to find LangChain:
+• Website: https://www.langchain.com
+• Docs: https://docs.langchain.com
+
+Send feedback or questions to maxagency@langchain.dev

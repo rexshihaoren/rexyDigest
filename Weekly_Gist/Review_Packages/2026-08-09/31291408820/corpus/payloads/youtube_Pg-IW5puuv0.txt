@@ -1,0 +1,36 @@
+Join the AI Evals September 2026 cohort: https://maven.com/parlance-labs/evals?promoCode=yt-2026
+
+Most people think open models are the cheap option, what you use when you can't afford the big labs. But they've gotten so good that they can now handle about 90% of what most people do, and you can run a solid AI agent at home on a $600 graphics card.
+
+Zach Mueller is Head of Developer Relations at Lambda and has been living in open source inference for over a decade, starting at Hugging Face. In this session he breaks down how to actually think about open models: which ones matter right now, the napkin math for running them at home, the quantization and tokens/second trade offs that decide your setup, the security case for hosting yourself over routing through a third party, and how to slot small local models into Claude Code and Codex to cut your token bill.
+
+Timestamps:
+00:00:00 Introduction
+00:00:34 Intelligence per parameter has exploded
+00:01:38 Agent harnesses vs coding harnesses
+00:02:20 Why small models are good enough now
+00:03:13 The open models Zach actually uses
+00:04:44 The math to run a model at home
+00:06:48 Using liquid models to cut Claude Code tokens
+00:09:03 The security risk of OpenRouter
+00:11:50 Latency, tokens per second, and your real constraint
+00:14:44 Quantization: precision vs cost
+00:16:29 Is a GPU rig at home worth it?
+00:17:57 When to buy GPUs vs rent them
+00:20:00 vLLM vs SGLang: which to serve with
+00:23:03 Why open source is good enough for 90% of people
+00:24:12 Inside Numen code and the model stack
+00:27:37 Should you trust smart model routers?
+00:32:04 The Lambda LM index and deploying any model
+00:36:02 Why Codex won: mobile, desktop, and control
+
+Connect with Hamel:
+Website ► https://hamel.dev
+LinkedIn ► https://www.linkedin.com/in/hamelhusain/
+Twitter/X ► https://x.com/hamelhusain
+Instagram ► https://www.instagram.com/hamelsmu/
+Tik Tok ► https://www.tiktok.com/@hamel_husain
+
+Connect with Zach Mueller:
+LinkedIn ► https://www.linkedin.com/in/zachary-mueller-135257118/
+Website ► https://muellerzr.github.io/

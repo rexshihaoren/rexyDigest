@@ -87,6 +87,9 @@ Author: <source author or Unknown>
 - Make the prediction gradeable. Use YYYY-MM-DD for calendar deadlines and
   choose a date after generation. Otherwise give an explicit future test
   condition. Label personal inferences as such.
+- During visual review, Rex may freely change headings, section order, bullets,
+  and narrative structure when the note's content is better expressed another
+  way. The generated template is guidance, not a constraint on reviewed notes.
 - Do not use inline numeric citations such as `[1]` in the body.
 - `### 参考文献` is required and uses bullet references, not numbered labels.
 - Chinese is the main language. English should stay around 10% overall and be
@@ -117,7 +120,15 @@ requires editorial judgment. Existing seven-section notes remain valid for
 review and publishing. Deadline freshness is checked at generation time so a
 saved note can still be reviewed after its prediction comes due.
 
-Validation rejects:
+The pipeline does not use an LLM repair loop.
+Review UI validation allows structural edits; it only rejects empty Markdown,
+generator fallback text, and base64 image data URIs.
+Saving returns after the Markdown is persisted. Any visual reevaluation runs in
+the background, and publishing remains disabled until it finishes.
+Transient visual-judge failures can be retried from the review UI. A successful
+retry clears the persisted incomplete/error state.
+
+Generation validation rejects:
 
 - Non-Chinese H1 titles.
 - Missing metadata or URL metadata.

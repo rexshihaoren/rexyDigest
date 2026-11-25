@@ -1,0 +1,3 @@
+Amy and Sean from LangChain dig into agent evals, and why agents need a different approach than traditional software testing. Since agent inputs are natural language and outputs vary even for the same input, you define what good looks like instead of testing for exact outputs, often using an LLM as judge. Build a data set of real-world examples and edge cases, run it every time you change the agent, and treat evals as a continuous muscle, not a one time check before shipping.
+
+This is a clip from our full conversation where Amy and Sean answer the most commonly searched questions about AI agents, from the basics like what is an agent, what is RAG, and what is MCP, to harder questions like why agents hallucinate, how to evaluate them, and what LangChain actually does.

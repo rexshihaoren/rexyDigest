@@ -1,0 +1,36 @@
+{
+  "kind": "ingestion",
+  "run_id": "20261122T073755Z",
+  "window": "2026-11-15/2026-11-22",
+  "started_at": "2026-11-22T07:37:55.072783Z",
+  "finished_at": "2026-11-22T07:38:33.082278Z",
+  "adapters": [
+    {
+      "name": "arxiv",
+      "config_sha": "45e014a7d8f5cdc2",
+      "items_yielded": 57,
+      "items_new": 57,
+      "items_updated": 0,
+      "duration_s": 6.724,
+      "errors": []
+    },
+    {
+      "name": "rss",
+      "config_sha": "5414a38e0b1d33f7",
+      "items_yielded": 29,
+      "items_new": 29,
+      "items_updated": 0,
+      "duration_s": 1.396,
+      "errors": []
+    },
+    {
+      "name": "youtube",
+      "config_sha": "87e347ff79ad3497",
+      "items_yielded": 39,
+      "items_new": 39,
+      "items_updated": 0,
+      "duration_s": 29.883,
+      "errors": []
+    }
+  ]
+}

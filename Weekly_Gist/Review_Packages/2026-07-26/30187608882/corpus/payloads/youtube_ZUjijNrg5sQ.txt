@@ -1,0 +1,6 @@
+How teams build, test, deploy, and improve production agents
+Everyone wants to ship agents, but the best teams are no longer treating agents as one-off demos or isolated projects. They are building a repeatable Agent Development Lifecycle: a system for building, testing, deploying, monitoring, and continuously improving agents over time.
+
+Join Harrison Chase, CEO and co-founder for LangChain for a walkthrough of the Agent Development Lifecycle and why it matters for teams moving agents into production. We’ll cover how leading teams are shifting from “build an agent” to an ongoing improvement loop powered by traces, evals, experiments, feedback, and production monitoring. You’ll learn how teams can catch failures earlier, turn production behavior into stronger evals, and improve agents without relying on guesswork.
+
+We’ll also show how teams identify recurring failure patterns from production traces, diagnose root causes, prioritize fixes, and strengthen eval coverage over time. Finally, we’ll touch on what it takes to run long-horizon agents with durable execution, context, tools, sandboxes, and human-in-the-loop workflows.

@@ -1,0 +1,30 @@
+Preview builds give every pull request its own temporary LangSmith deployment, so teams can test agent changes before they reach production.
+
+This walkthrough shows how to:
+
+- Create a preview deployment from a GitHub pull request
+- Test a LangChain agent locally with langgraph dev
+- Validate the deployed branch in LangSmith Studio
+- Trigger a new preview revision with another commit
+- Merge the pull request and automatically tear down the preview
+
+Learn more
+- Preview builds: https://docs.langchain.com/langsmith/preview-builds
+- LangSmith Deployment: https://docs.langchain.com/langsmith/deployment
+- Deploy to LangSmith Cloud: https://docs.langchain.com/langsmith/deploy-to-cloud
+- LangSmith Studio: https://docs.langchain.com/langsmith/studio
+- Local development and testing: https://docs.langchain.com/langsmith/local-dev-testing
+- Build agents with LangChain: https://docs.langchain.com/oss/python/langchain/agents
+- LangSmith Observability: https://docs.langchain.com/langsmith/observability
+- Agent Server API reference: https://docs.langchain.com/langsmith/server-api-ref
+
+Questions or feedback?
+- Support: https://support.langchain.com/
+- Community forum: https://forum.langchain.com/
+
+Chapters:
+00:00 - 00:20: Intro
+00:20 - 03:09: Setting Up Preview Builds
+03:09 - 05:02: Creating a Pull Request
+05:02 - 07:42: Testing With Preview Deployment
+07:42 - 08:00: Outro
