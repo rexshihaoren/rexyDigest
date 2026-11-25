@@ -91,10 +91,10 @@ Author: <source author or Unknown>
 - `URL` is not allowed in metadata. Put the URL only in `### 参考文献`.
 - `ItemID` is not emitted in Markdown. Internal item ids remain in generated
   filenames and `corpus/deep_picks/<end-date>.toml`.
-- The 7 numbered sections are fixed and must keep their exact headings.
-- The bullet labels inside each section are fixed.
-- Required bullets may either carry content on the same line or introduce
-  indented nested bullets immediately below the label.
+- Generated drafts use the 7 numbered sections and bullet labels shown above.
+- During visual review, Rex may freely change headings, section order, bullets,
+  and narrative structure when the note's content is better expressed another
+  way. The generated template is guidance, not a constraint on reviewed notes.
 - `### 00｜为什么在意这篇` is the personal opening layer. The LLM may draft
   it, and Rex edits the generated Markdown afterward in an editor when needed.
 - Body sections contain exactly one `我的视角：` bullet. It must appear in
@@ -127,16 +127,22 @@ deterministic cleanup:
   `### 03｜与 AI X Simulation 的关系`, and `证据材料` -> `支撑材料`
   only inside `### 04｜关键论据`.
 
-After cleanup, validation fails hard if required structure or content is still
-missing. The pipeline does not use an LLM repair loop.
+After cleanup, generation validation fails hard if required structure or
+content is still missing. The pipeline does not use an LLM repair loop.
+Review UI validation allows structural edits; it only rejects empty Markdown,
+generator fallback text, and base64 image data URIs.
+Saving returns after the Markdown is persisted. Any visual reevaluation runs in
+the background, and publishing remains disabled until it finishes.
+Transient visual-judge failures can be retried from the review UI. A successful
+retry clears the persisted incomplete/error state.
 
 Validation rejects:
 
 - Non-Chinese H1 titles.
 - Missing metadata or URL metadata.
-- Missing fixed sections or fixed bullet labels.
-- Missing or duplicate `我的视角：`.
-- `我的视角：` outside section 02 or 03.
+- Missing fixed sections or fixed bullet labels in generated drafts.
+- Missing or duplicate `我的视角：` in generated drafts.
+- `我的视角：` outside section 02 or 03 in generated drafts.
 - Inline numeric citations in the body.
 - Missing `### 参考文献`.
 - Generator fallback text.

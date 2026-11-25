@@ -158,6 +158,23 @@ def validate_deep_note_markdown(markdown: str) -> list[str]:
     return errors
 
 
+def validate_review_markdown(markdown: str) -> list[str]:
+    """Return errors for Markdown edited in the visual review UI.
+
+    Reviewers may reshape a note when its subject does not fit the generated
+    template. Keep only safeguards that make the resulting artifact unusable.
+    """
+
+    errors: list[str] = []
+    if not markdown.strip():
+        errors.append("Markdown must not be empty")
+    if "[generator error:" in markdown.lower():
+        errors.append("contains generator error fallback text")
+    if "data:image/" in markdown.lower() and "base64" in markdown.lower():
+        errors.append("contains base64 image data URI")
+    return errors
+
+
 def _trim_before_h1(markdown: str) -> str:
     lines = markdown.splitlines()
     for index, line in enumerate(lines):
