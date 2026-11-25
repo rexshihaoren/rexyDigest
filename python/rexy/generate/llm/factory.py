@@ -21,10 +21,8 @@ def make_analyser(
     provider = provider.strip().lower()
     if provider == "gemini":
         from .gemini import GeminiAnalyser
-        from .fallback import ModelFallbackAnalyser
 
-        models = _model_fallbacks("GEMINI_MODEL_FALLBACKS", config.gemini_model)
-        return ModelFallbackAnalyser(models, lambda model: GeminiAnalyser(model=model))
+        return GeminiAnalyser(model=config.gemini_model)
     if provider == "deepseek":
         from .deepseek import DeepSeekAnalyser
         from .fallback import ModelFallbackAnalyser

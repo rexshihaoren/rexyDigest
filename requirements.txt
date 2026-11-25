@@ -1,5 +1,5 @@
 # Phase 2 generator (Gemini)
-google-genai>=1.0.0
+google-genai>=3.6.1,<4
 python-dotenv>=1.0.0
 
 # Phase 1 ingestion (Source Adapters per ADR-0003)

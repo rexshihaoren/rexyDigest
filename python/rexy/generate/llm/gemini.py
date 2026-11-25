@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import logging
 
+from ..config import DEFAULT_GEMINI_MODEL
 from . import ItemAnalysis, ItemPrompt
 from .gemini_common import resolve_gemini_api_key, user_facing_gemini_error
 from .item_analysis import parse_item_analysis_json, render_item_analysis_prompt
@@ -30,7 +31,7 @@ class GeminiAnalyser:
 
     def __init__(
         self,
-        model: str = "gemini-2.5-flash",
+        model: str = DEFAULT_GEMINI_MODEL,
         api_key: str | None = None,
     ) -> None:
         if genai is None or genai_types is None:
@@ -56,7 +57,6 @@ class GeminiAnalyser:
                 model=self.model,
                 contents=rendered,
                 config=self._genai_types.GenerateContentConfig(
-                    temperature=0.4,
                     response_mime_type="application/json",
                 ),
             )

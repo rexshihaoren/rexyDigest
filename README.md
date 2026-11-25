@@ -75,6 +75,11 @@ config, `generate` calls DeepSeek per-Item; `--llm gemini` calls Gemini
 per-Item; `--llm memory` runs the deterministic fixture for smoke tests.
 For DeepSeek, put `DEEPSEEK_API_KEY=...` in repo-root `.env.local`.
 For Gemini, put `GEMINI_API_KEY=...` in repo-root `.env.local`.
+Gemini defaults to `gemini-3.5-flash-lite` for analysis, deep notes, visual
+judging, and the standalone Python gist script. Set `gemini_model` in
+`config/generator.toml` to override all four. Deep-note pick and review also
+accept `--generator-config`. Weekly review uses the config in its package.
+Python uses one Gemini model per run.
 Writes `corpus/selections/Selection_<end>.jsonl`
 and `Weekly_Gist/Weekly_Gist_<end>.md`. The internal gist's
 `Top Items for Rex Ren` table includes an `ItemID` column so deep-note picks

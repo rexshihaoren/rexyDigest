@@ -12,6 +12,9 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 
+DEFAULT_GEMINI_MODEL = "gemini-3.5-flash-lite"
+
+
 _DEFAULT_KEYWORDS_AGENT: tuple[str, ...] = (
     "agent", "agentic", "autonomous agent", "llm agent", "toolformer",
     "tool use", "tool-use", "rag", "chain-of-thought", "prompt engineering",
@@ -72,8 +75,8 @@ class GeneratorConfig:
     weight_actionability: float = 0.3
 
     llm_provider: str = "deepseek"
-    model: str = "gemini-2.5-flash"
-    gemini_model: str = "gemini-2.5-flash"
+    model: str = DEFAULT_GEMINI_MODEL
+    gemini_model: str = DEFAULT_GEMINI_MODEL
     deepseek_model: str = "deepseek-v4-pro"
     deepseek_base_url: str = "https://api.deepseek.com"
     deepseek_thinking: str = "disabled"

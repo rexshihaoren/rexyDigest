@@ -81,6 +81,7 @@ def start_weekly_review_server(
                             session.inbox_root,
                             session.window.end.isoformat(),
                             item_id,
+                            gemini_model=config.gemini_model,
                         )
                         child, child_url = start_review_server(review)
                         child_servers.append(child)

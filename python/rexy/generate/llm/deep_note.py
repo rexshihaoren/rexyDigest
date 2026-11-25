@@ -7,6 +7,7 @@ import re
 from datetime import date
 from typing import Protocol, runtime_checkable
 
+from ..config import DEFAULT_GEMINI_MODEL
 from .gemini_common import resolve_gemini_api_key, user_facing_gemini_error
 
 logger = logging.getLogger(__name__)
@@ -148,7 +149,7 @@ class DeepNoteWriter(Protocol):
 
 
 class GeminiDeepNoteWriter:
-    def __init__(self, model: str = "gemini-2.5-flash", api_key: str | None = None) -> None:
+    def __init__(self, model: str = DEFAULT_GEMINI_MODEL, api_key: str | None = None) -> None:
         try:
             from google import genai
             from google.genai import types as genai_types
@@ -188,7 +189,7 @@ class GeminiDeepNoteWriter:
             response = self._client.models.generate_content(
                 model=self.model,
                 contents=rendered,
-                config=self._types.GenerateContentConfig(temperature=0.35),
+                config=self._types.GenerateContentConfig(),
             )
             return (response.text or "").strip()
         except Exception as exc:  # pragma: no cover

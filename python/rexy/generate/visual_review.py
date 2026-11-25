@@ -10,6 +10,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Literal, Protocol
 
+from .config import DEFAULT_GEMINI_MODEL
 from .deep_note_visuals import VisualReview, render_approved_visuals
 from .llm.gemini_common import resolve_gemini_api_key, user_facing_gemini_error
 
@@ -34,7 +35,7 @@ class VisualJudge(Protocol):
 class GeminiVisualJudge:
     """Semantic section-to-image judge. It ranks; it never approves."""
 
-    def __init__(self, model: str = "gemini-2.5-flash", api_key: str | None = None) -> None:
+    def __init__(self, model: str = DEFAULT_GEMINI_MODEL, api_key: str | None = None) -> None:
         try:
             from google import genai
             from google.genai import types as genai_types
@@ -70,7 +71,6 @@ Return JSON only:
                 model=self.model,
                 contents=[prompt, part],
                 config=self._types.GenerateContentConfig(
-                    temperature=0.0,
                     response_mime_type="application/json",
                 ),
             )
@@ -116,7 +116,6 @@ Return JSON only:
                 model=self.model,
                 contents=contents,
                 config=self._types.GenerateContentConfig(
-                    temperature=0.0,
                     response_mime_type="application/json",
                 ),
             )

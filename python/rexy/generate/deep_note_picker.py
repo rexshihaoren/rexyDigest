@@ -191,6 +191,7 @@ def run_interactive_deep_note_pick(
         writer,
         input_fn,
         output_fn,
+        gemini_model=config.gemini_model,
     )
     return DeepNotePickRun(
         window=window,
@@ -310,6 +311,8 @@ def _generate_selected_notes(
     writer: DeepNoteWriter,
     input_fn: InputFn,
     output_fn: OutputFn,
+    *,
+    gemini_model: str,
 ) -> tuple[list[Path], list[Path]]:
     payloads = PayloadsStore(corpus_root / "payloads")
     inbox_dir.mkdir(parents=True, exist_ok=True)
@@ -350,6 +353,7 @@ def _generate_selected_notes(
         output_fn(f"Wrote DeepNote draft: {draft}")
         _generate_visual_candidates(
             item, md, payload_text, window, corpus_root, draft, final_out, output_fn,
+            gemini_model=gemini_model,
         )
     return written, skipped_existing
 
@@ -363,6 +367,8 @@ def _generate_visual_candidates(
     draft_path: Path,
     final_path: Path,
     output_fn: OutputFn,
+    *,
+    gemini_model: str,
 ) -> None:
     source_type = str(
         item.source_type.value if hasattr(item.source_type, "value") else item.source_type
@@ -399,7 +405,7 @@ def _generate_visual_candidates(
     if result.complete:
         if result.candidates:
             try:
-                judge_candidates(draft_path, sidecar, GeminiVisualJudge())
+                judge_candidates(draft_path, sidecar, GeminiVisualJudge(model=gemini_model))
             except RuntimeError as exc:
                 _mark_visual_incomplete(sidecar, str(exc))
                 output_fn(f"Visual judgment incomplete: {exc}; sidecar: {sidecar}")
