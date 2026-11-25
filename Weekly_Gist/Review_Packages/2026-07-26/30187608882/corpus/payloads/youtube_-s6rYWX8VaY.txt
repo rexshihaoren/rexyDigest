@@ -1,0 +1,20 @@
+dcode, the open source, model-agnostic coding agent, ships a new /goal command for long-running, persistent tasks. In this demo we use /goal to add native browser control to dcode itself, watch the agent work against acceptance criteria over several hours, steer it mid-run, inspect the work in LangSmith tracing, then test the finished feature live in a real browser session.
+
+Chapters: 
+0:00 A full feature, one-shotted with dcode 
+0:17 What /goal is and how the goal loop works 
+1:13 Meet dcode, the open source coding agent 
+1:34 Installing dcode and firing up the CLI 
+1:52 Turning a request into acceptance criteria 2:15 Editing criteria before the agent starts 
+2:41 Why visible criteria beats one-shotting 
+3:16 Shifting the alignment work upfront 
+3:46 Checking in and steering with /goal show and /goal amend 
+4:51 Peeking under the hood with LangSmith tracing 
+5:37 Goal completed: reviewing the file edits and tests 
+6:21 Testing native browser control live 
+7:01 Why open source plus /goal is a big deal
+
+Resources: 
+→ Documentation: https://docs.langchain.com/oss/python/deepagents/code/overview
+→ LangSmith: https://www.langchain.com/langsmith 
+→ LangChain Academy: https://academy.langchain.com

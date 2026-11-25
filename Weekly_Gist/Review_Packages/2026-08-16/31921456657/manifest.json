@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "run_id": "31921456657",
+  "source_sha": "b68a8176b07106c249ba241dbca9397213d51204",
+  "window": "2026-08-09/2026-08-16",
+  "artifacts": {
+    "gist": "Weekly_Gist/Weekly_Gist_2026-08-16.md",
+    "brief": "Weekly_Gist/Weekly_Brief_2026-08-16.md"
+  },
+  "generator_config": "config/generator.toml",
+  "files": {
+    "Weekly_Gist/Weekly_Brief_2026-08-16.md": "8f2864b5ffc726378319fa8b967f3a813d5e49d9baac56688efd809c63dbb31b",
+    "Weekly_Gist/Weekly_Gist_2026-08-16.md": "cf0bf69b50ff19e5a70b447897a1c25a9ca6bd3390271a7ee0e2f838e1b0c261",
+    "config/generator.toml": "49b194f37480503ffc57f63378bd2ef3f3013334094c4013a4bc348a2019e2c7",
+    "corpus/items.jsonl": "0fef0c89625216eba9d34dc42f039ce63c7c8d4a2d5f4c89fa2676b8717eacae",
+    "corpus/payloads/arxiv_2608.12888.txt": "3502929f7267bb36913a54db395c9df04d1e75d07945f6da66f594a7c654d881",
+    "corpus/payloads/arxiv_2608.12939.txt": "4c60a2fe149c330714379fc8abcad351ad20d51aa09845e0abd7f097f5853f54",
+    "corpus/payloads/arxiv_2608.13456.txt": "a85aecea1027ed9f0eeea51c973790b2d3f57219ade807d9b9de933d86809af8",
+    "corpus/payloads/arxiv_2608.13476.txt": "bcc18efa97fa87ed20f22556be8bf44409336e7dc9ec1c50964a6d360b295447",
+    "corpus/payloads/arxiv_2608.13505.txt": "405c61126bfc274612adaa00bac37f02aed3b5b543057c138796f932e9ff3404",
+    "corpus/payloads/url-sha1_27a641e4d1b93c14.txt": "d747d4c9336f46b509f4a0eb4d95e9cf2e1c233b49dbfed885765b1d22c77b48",
+    "corpus/payloads/youtube_6898VdRtKDE.txt": "1d07af9a3b452d52adc0e4147badfcdc6d6897357f86d7582c30987f8d7a8635",
+    "corpus/payloads/youtube_XNX-1h2K-9U.txt": "16bea2ed322ffa43a59e7098a08813784847f63aec0e1eca7aa394cc08e98c9b",
+    "corpus/runs/Run_20260816T021507Z.json": "4b089f3e078efe664207c31a37f116efd96218fb6aa6e308f4a571ef75b5e688",
+    "corpus/runs/Run_20260816T021530Z.json": "41b7c4d5224e0c0a0ca52677dd79465706a7afe45468baeda5783f9b78583bf0",
+    "corpus/selections/Selection_2026-08-16.jsonl": "aff1c459807153ae20da89e0d066455808c8732eb825212ddee33bd16419043c"
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "run_id": "44999094416",
+  "source_sha": "0f958032d01a1cd59f0042aa5c9cefab6fbdac74",
+  "window": "2026-11-15/2026-11-22",
+  "artifacts": {
+    "gist": "Weekly_Gist/Weekly_Gist_2026-11-22.md",
+    "brief": "Weekly_Gist/Weekly_Brief_2026-11-22.md"
+  },
+  "generator_config": "config/generator.toml",
+  "files": {
+    "Weekly_Gist/Weekly_Brief_2026-11-22.md": "18688d9e80e1c991e82f4636728d863210da1bb6bfbf29921098161410786906",
+    "Weekly_Gist/Weekly_Gist_2026-11-22.md": "9d5b16f5a0178f5e19ab0c8eeb7afd618cc3dc46b6447f31784a41ec31bd403a",
+    "config/generator.toml": "49b194f37480503ffc57f63378bd2ef3f3013334094c4013a4bc348a2019e2c7",
+    "corpus/items.jsonl": "6618627bb6f9c86377b258c372674809ff76b27f0d5c0511e3774494387c46b4",
+    "corpus/payloads/arxiv_2611.25927.txt": "7cf61884a8ce46d8d005c81dfaabb193e67a0a317f47ea3b979f673cf99e27ec",
+    "corpus/payloads/arxiv_2611.26361.txt": "ef9c3698612d11d8b47a7f6b0209af36ff604ee6517d78e5d1ab2c49419466d3",
+    "corpus/payloads/arxiv_2611.26531.txt": "5eb820204e307d7a173672acec83ead5fe19ca9522a38fcdb8164050edb5f42f",
+    "corpus/payloads/arxiv_2611.26553.txt": "a75664e855df8235974ae537712f45d5a8c0f02bd9521da54c4f6a239ab013e3",
+    "corpus/payloads/rss_urn_latent-space_post_post_0e68157c-dcc4-4cb1-b11a-0d563d6bcc86.txt": "e938b26ff1e3f6f612c6ffbd6e0f1709ca6f0b052e2a319f7331a8d701f069b2",
+    "corpus/payloads/youtube_EDp4IoAUsXY.txt": "1658a8775510ea0287e899e615180639b1c613b0bc936cf264b336af169b7e69",
+    "corpus/payloads/youtube_efBlbQahwng.txt": "481102dd5f7b8c78a7b30ba1a6437d583a8f68a84f5d49764c67bdef0b1be52d",
+    "corpus/payloads/youtube_pVc6KkjeCfU.txt": "1f3bc5057ee81e0edee72d60103db06ca20cceeb519dbe2d1d31cc6e517de3f3",
+    "corpus/runs/Run_20261122T073755Z.json": "e78c39af26fd00e152f40749ee3e419949d9e5e3347b468e7e41d19fed661768",
+    "corpus/runs/Run_20261122T073833Z.json": "8df3d4f170d9875d4459d126d7ec69811aad620611fa0341b67e7c8d33125088",
+    "corpus/selections/Selection_2026-11-22.jsonl": "2f6b83696c22c748b71bf430b4a71c9da8fc69dc5fd0c5931f401bd9fe4917ee"
+  }
+}

@@ -1,0 +1,21 @@
+Brace Sproul, Head of Applied AI at LangChain, breaks down OpenWiki, an open source CLI that generates and maintains documentation built specifically for coding agents to consume, at a LangChain SF meetup. He walks through the three ideas behind it, how the CLI actually works under the hood, early results from DeepSWE benchmark evals, and what the team got wrong along the way.
+
+Chapters: 
+0:00 What OpenWiki is and why Brace built it 
+0:41 Harrison's question: what comes after OpenClaw? 
+1:22 Starting with code docs before expanding into general memory 1:43 The three ideas behind OpenWiki 
+3:04 Why docs built for agents look nothing like docs for humans 
+4:20 Making it trivial to set up with a CLI 
+5:14 What OpenWiki actually writes to your repo 
+7:08 OKF: Google's Open Knowledge Format and why it matters for retrieval 
+9:00 Does it actually work? Early DeepSWE results 
+10:11 What we got wrong: humans want to read these docs too 
+11:35 How the OpenWiki CLI works under the hood 
+14:59 Open source, MIT licensed, and where to find it 
+15:48 What's next: better prompting and dedicated retrieval tools
+
+Resources: 
+→ OpenWiki on GitHub: https://github.com/langchain-ai/openwiki 
+→ LangGraph: https://www.langchain.com/langgraph 
+→ LangSmith: https://www.langchain.com/langsmith 
+→ LangChain Academy: https://academy.langchain.com

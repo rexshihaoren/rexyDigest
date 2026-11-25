@@ -1,0 +1,67 @@
+Connor Heggie spent his early career on a fifteen-person self-driving startup run like a research lab, then moved to Scale AI's mapping team, before becoming the co-founder and CTO at Unify. Unify builds agents for go-to-market teams, and for the last two years, one of AI's big mainstream narratives has been automating away the sales rep entirely. Connor and his team built the opposite: an agent that gives every sales rep "an engineer in their back pocket." He walks through how Unify's harness evolved from million-agent batch jobs to a chat product, and unpacks the engineering that makes it cost-effective to run at scale.
+
+We also discuss:
+• How Unify cut 90-95% of costs two weeks before launch
+• The 15-requests-per-second ceiling inside OpenAI's prompt cache
+• Why your LLM judge must be a different model family
+• The Speed Audit: why one at a time beats a table of 1,000
+• Why Unify's subagents are just a function call
+• What working on self-driving taught Connor about running evals
+
+Timestamps:
+00:00 Introduction
+01:30 "Go-to-market is a search problem"
+06:10 The old workflow: drag-and-drop nodes over a million-row table
+09:40 Why the harness is similar to a coding agent's
+10:50 Running durable agents in the cloud without a full VM
+13:15 Giving models pandas-like superpowers over a live table
+15:50 Why Unify's subagents are just a function call
+18:25 The 15-requests-per-second limit hiding inside OpenAI's cache
+24:20 Optimizing for prompt caching hit rates
+28:20 Fork versus child subagents
+32:35 The Speed Audit: why one at a time beats a table of 1,000
+37:50 Locking memory to keys instead of letting the agent freestyle
+44:15 Why AI isn't taking over sales
+49:00 What working on self-driving taught Connor about running evals
+52:46 Why your LLM judge must be a different model family
+54:45 Ditching full VMs for Monty, a Python REPL that suspends
+58:55 Semantic merge sort: why Connor is obsessed with RLMs
+59:53 How Unify cut 90-95% of costs two weeks before launch
+1:01:15 The case for "semantic linters" over skill files
+1:04:55 Why Unify runs mostly on OpenAI, their first investor
+1:06:12 Why 10x cheaper tokens still lose on tool efficiency
+1:07:24 Why open-source models don't make economic sense (yet)
+
+Referenced:
+• Anthropic: https://www.anthropic.com/
+• ChatGPT: https://chatgpt.com/
+• Claude: https://claude.ai/
+• Claude Fable 5: https://www.anthropic.com/claude/fable
+• Claude Sonnet 5: https://www.anthropic.com/news/claude-sonnet-5
+• Context Hub: https://www.langchain.com/blog/introducing-context-hub
+• Deep Agents: https://www.langchain.com/deep-agents
+• GLM-5.2: https://huggingface.co/zai-org/GLM-5.2
+• GPT-5.4: https://openai.com/index/introducing-gpt-5-4/
+• Helm.ai: http://helm.ai/
+• LangSmith: https://smith.langchain.com/
+• OpenAI: https://openai.com/
+• QuickJS: https://bellard.org/quickjs/
+• Recursive Language Models (RLM): https://arxiv.org/abs/2512.24601
+• Salesforce: https://www.salesforce.com/
+• Scale AI: https://scale.com/
+• Scaling Managed Agents: https://www.anthropic.com/engineering/managed-agents
+• Unify: https://www.unifygtm.com/
+
+Where to find Connor:
+• Twitter/X: https://x.com/HeggieConnor
+• LinkedIn: https://www.linkedin.com/in/connor-heggie/
+
+Where to find Harrison:
+• Twitter/X: https://x.com/hwchase17
+• LinkedIn: https://www.linkedin.com/in/harrison-chase-961287118/
+
+Where to find LangChain:
+• Twitter/X: https://x.com/LangChain
+• LinkedIn: https://www.linkedin.com/company/langchain
+
+Send feedback or questions to maxagency@langchain.dev
