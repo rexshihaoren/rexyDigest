@@ -152,12 +152,14 @@ def test_picks_path_matches_end_date() -> None:
 def test_gemini_deep_note_failure_raises_without_fallback_markdown() -> None:
     writer = GeminiDeepNoteWriter.__new__(GeminiDeepNoteWriter)
     writer.model = "gemini-test"
-    writer._types = SimpleNamespace(GenerateContentConfig=lambda **_kwargs: object())
 
-    def boom(**_kwargs):
+    def boom(*, model, input, store):
+        assert model == "gemini-test"
+        assert input
+        assert store is False
         raise RuntimeError("raw provider failure")
 
-    writer._client = SimpleNamespace(models=SimpleNamespace(generate_content=boom))
+    writer._client = SimpleNamespace(interactions=SimpleNamespace(create=boom))
 
     with pytest.raises(RuntimeError, match="Gemini deep note failed for rss:test1"):
         writer.write(
@@ -169,3 +171,25 @@ def test_gemini_deep_note_failure_raises_without_fallback_markdown() -> None:
             url="https://example.com",
             payload="payload",
         )
+
+
+def test_gemini_deep_note_returns_interaction_output() -> None:
+    writer = GeminiDeepNoteWriter.__new__(GeminiDeepNoteWriter)
+    writer.model = "gemini-test"
+
+    def create(*, model, input, store):
+        assert model == "gemini-test"
+        assert "Fixture payload" in input
+        assert store is False
+        return SimpleNamespace(output_text="  # 测试笔记  ")
+
+    writer._client = SimpleNamespace(interactions=SimpleNamespace(create=create))
+    assert writer.write(
+        item_id="rss:test1",
+        item_type="article",
+        source="Test Source",
+        title="Test title",
+        author="Test Author",
+        url="https://example.com/note",
+        payload="Fixture payload",
+    ) == "# 测试笔记"
