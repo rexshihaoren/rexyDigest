@@ -147,6 +147,10 @@ def main(argv: list[str] | None = None) -> int:
         "--inbox-dir", type=Path, default=DEFAULT_KC_INBOX,
         help=f"final KnowledgeCard inbox (default: {DEFAULT_KC_INBOX})",
     )
+    deep_review.add_argument(
+        "--generator-config", type=Path, default=DEFAULT_GENERATOR_CONFIG,
+        help=f"generator config TOML (default: {DEFAULT_GENERATOR_CONFIG})",
+    )
     deep_review.add_argument("--port", type=int, default=0, help="localhost port; 0 chooses an available port")
     deep_review.add_argument("--no-open", action="store_true", help="print URL without opening browser")
 
@@ -440,6 +444,7 @@ def _cmd_deep_notes_pick(args: argparse.Namespace) -> int:
                     args.inbox_dir,
                     window.end.isoformat(),
                     item_id,
+                    gemini_model=cfg.gemini_model,
                 )
             except FileNotFoundError:
                 continue
@@ -451,7 +456,11 @@ def _cmd_deep_notes_review(args: argparse.Namespace) -> int:
     from .generate.review_ui import find_review_session, serve_review
 
     try:
-        session = find_review_session(args.corpus, args.inbox_dir, args.end, args.item_id)
+        config = GeneratorConfig.load(args.generator_config)
+        session = find_review_session(
+            args.corpus, args.inbox_dir, args.end, args.item_id,
+            gemini_model=config.gemini_model,
+        )
         serve_review(session, port=args.port, open_browser=not args.no_open)
     except (FileNotFoundError, ValueError, OSError) as exc:
         print(f"[rexy] {exc}", file=sys.stderr)

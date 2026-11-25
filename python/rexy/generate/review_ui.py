@@ -17,6 +17,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any, Callable
 
+from .config import DEFAULT_GEMINI_MODEL
 from .deep_note_format import validate_review_markdown
 from .deep_note_visuals import VisualReview, render_approved_visuals
 
@@ -445,6 +446,8 @@ def find_review_session(
     inbox_dir: Path,
     end_date: str,
     item_id: str | None = None,
+    *,
+    gemini_model: str = DEFAULT_GEMINI_MODEL,
 ) -> ReviewSession:
     item_part = _safe_item_part(item_id) if item_id else None
     matches = sorted((corpus_root / "visuals").glob(f"*/{end_date}/candidates.json"))
@@ -474,7 +477,7 @@ def find_review_session(
     def reevaluate(draft_path: Path, sidecar_path: Path, headings: list[str]) -> None:
         from .visual_review import GeminiVisualJudge, judge_candidates
 
-        judge_candidates(draft_path, sidecar_path, GeminiVisualJudge(), headings)
+        judge_candidates(draft_path, sidecar_path, GeminiVisualJudge(model=gemini_model), headings)
 
     return ReviewSession(draft, sidecar, final, reevaluate=reevaluate)
 

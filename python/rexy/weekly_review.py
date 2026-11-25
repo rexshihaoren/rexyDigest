@@ -137,6 +137,7 @@ class WeeklyReviewSession:
             self.review_corpus_root,
             self.inbox_root,
             writer,
+            gemini_model=config.gemini_model,
             input_fn=lambda _prompt: "s",
             output_fn=lambda _message: None,
         )

@@ -7,6 +7,7 @@ import re
 from datetime import date
 from typing import Protocol, runtime_checkable
 
+from ..config import DEFAULT_GEMINI_MODEL
 from .gemini_common import resolve_gemini_api_key, user_facing_gemini_error
 
 logger = logging.getLogger(__name__)
@@ -148,10 +149,9 @@ class DeepNoteWriter(Protocol):
 
 
 class GeminiDeepNoteWriter:
-    def __init__(self, model: str = "gemini-2.5-flash", api_key: str | None = None) -> None:
+    def __init__(self, model: str = DEFAULT_GEMINI_MODEL, api_key: str | None = None) -> None:
         try:
             from google import genai
-            from google.genai import types as genai_types
         except ImportError as exc:  # pragma: no cover
             raise RuntimeError("google-genai not installed") from exc
 
@@ -159,7 +159,6 @@ class GeminiDeepNoteWriter:
         if not key:
             raise RuntimeError("GEMINI_API_KEY or GOOGLE_API_KEY required for deep notes")
         self._client = genai.Client(api_key=key)
-        self._types = genai_types
         self.model = model
 
     def write(
@@ -185,12 +184,12 @@ class GeminiDeepNoteWriter:
             payload=text or "(empty)",
         )
         try:
-            response = self._client.models.generate_content(
+            response = self._client.interactions.create(
                 model=self.model,
-                contents=rendered,
-                config=self._types.GenerateContentConfig(temperature=0.35),
+                input=rendered,
+                store=False,
             )
-            return (response.text or "").strip()
+            return (response.output_text or "").strip()
         except Exception as exc:  # pragma: no cover
             logger.warning("Gemini deep note failed for %s (%s)", item_id, type(exc).__name__)
             err = user_facing_gemini_error(exc)

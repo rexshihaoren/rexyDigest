@@ -27,10 +27,11 @@ def main() -> None:
 
     try:
         from google import genai
-        from google.genai import types
     except ImportError:
         print("google-genai required: pip install google-genai", file=sys.stderr)
         sys.exit(1)
+
+    from rexy.generate.config import GeneratorConfig
 
     client = genai.Client(api_key=api_key)
 
@@ -50,9 +51,8 @@ def main() -> None:
 
     try:
         res = client.models.generate_content(
-            model="gemini-2.5-flash",
+            model=GeneratorConfig.load(root / "config" / "generator.toml").gemini_model,
             contents=augmented,
-            config=types.GenerateContentConfig(temperature=0.4),
         )
         md = (res.text or "").strip()
     except Exception as e:  # noqa: BLE001 — surface generic failure text only
