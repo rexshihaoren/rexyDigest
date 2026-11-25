@@ -2,9 +2,16 @@
 
 from __future__ import annotations
 
+from datetime import date, timedelta
+
 import pytest
 
-from rexy.generate.deep_note_format import prepare_deep_note_markdown, validate_deep_note_markdown
+from rexy.generate.deep_note_format import (
+    normalize_deep_note_markdown,
+    prepare_deep_note_markdown,
+    validate_deep_note_markdown,
+)
+from rexy.generate.llm.deep_note import MemoryDeepNoteWriter
 
 
 STRICT_NOTE = """# 世界模型正在变成 AI 的实验室
@@ -81,9 +88,18 @@ Author: A
 """
 
 
-def test_prepare_accepts_strict_rex_native_note() -> None:
-    assert prepare_deep_note_markdown(STRICT_NOTE) == STRICT_NOTE
+def _prepare_legacy(markdown: str) -> str:
+    normalized = normalize_deep_note_markdown(markdown)
+    errors = validate_deep_note_markdown(normalized)
+    if errors:
+        raise ValueError("; ".join(errors))
+    return normalized
+
+
+def test_legacy_note_can_be_reviewed_but_not_generated() -> None:
     assert validate_deep_note_markdown(STRICT_NOTE) == []
+    with pytest.raises(ValueError, match="missing section: ### 00｜钩子与变化"):
+        prepare_deep_note_markdown(STRICT_NOTE)
 
 
 def test_prepare_repairs_safe_formatting_variants() -> None:
@@ -95,7 +111,7 @@ def test_prepare_repairs_safe_formatting_variants() -> None:
     rough = rough.replace("──────────────────────────────", "")
     rough = rough.replace("---", "———", 1)
 
-    prepared = prepare_deep_note_markdown(rough)
+    prepared = _prepare_legacy(rough)
 
     assert prepared.startswith("# 世界模型正在变成 AI 的实验室\n")
     assert "> 整理者：Rex Ren" in prepared
@@ -114,7 +130,7 @@ def test_prepare_repairs_known_bullet_label_aliases() -> None:
     assert "missing bullet 重要性 in ### 03｜与 AI X Simulation 的关系" in raw_errors
     assert "missing bullet 支撑材料 in ### 04｜关键论据" in raw_errors
 
-    prepared = prepare_deep_note_markdown(rough)
+    prepared = _prepare_legacy(rough)
 
     assert "- 为什么成立：评测不只看回答对错，也看模型能否维持环境一致性。" in prepared
     assert "- 为什么这个判断成立：" not in prepared
@@ -130,7 +146,7 @@ def test_prepare_accepts_required_bullet_with_nested_content() -> None:
         "- 支撑材料：\n    * **Vending Bench**：模拟自动售货机运营。\n    * **Project Vend**：真实办公室部署。",
     )
 
-    assert prepare_deep_note_markdown(rough) == rough
+    assert _prepare_legacy(rough) == rough
 
 
 @pytest.mark.parametrize(
@@ -163,22 +179,22 @@ def test_prepare_rejects_invalid_or_unsafe_notes(broken: str, message: str) -> N
         (STRICT_NOTE.replace("- 一个判断：", "- 一句话："), "missing bullet"),
     ],
 )
-def test_prepare_rejects_notes_missing_locked_structure(broken: str, message: str) -> None:
+def test_legacy_validator_rejects_notes_missing_locked_structure(broken: str, message: str) -> None:
     with pytest.raises(ValueError, match=message):
-        prepare_deep_note_markdown(broken)
+        _prepare_legacy(broken)
 
 
 def test_prepare_requires_exactly_one_personal_view_in_02_or_03() -> None:
     missing = STRICT_NOTE.replace("- 我的视角：我更在意的是它把“理解世界”变成了工程闭环。\n", "")
     with pytest.raises(ValueError, match="exactly one 我的视角"):
-        prepare_deep_note_markdown(missing)
+        _prepare_legacy(missing)
 
     duplicated = STRICT_NOTE.replace(
         "- 还差一步：还需要证明这种评测能迁移到开放现实任务。",
         "- 还差一步：还需要证明这种评测能迁移到开放现实任务。\n- 我的视角：这里也有一个判断。",
     )
     with pytest.raises(ValueError, match="exactly one 我的视角"):
-        prepare_deep_note_markdown(duplicated)
+        _prepare_legacy(duplicated)
 
     wrong_section = STRICT_NOTE.replace(
         "- 我的视角：我更在意的是它把“理解世界”变成了工程闭环。\n",
@@ -188,7 +204,7 @@ def test_prepare_requires_exactly_one_personal_view_in_02_or_03() -> None:
         "- 最可信的点：评测关注过程一致性，而不是只看最终答案。\n- 我的视角：这个判断放错了位置。",
     )
     with pytest.raises(ValueError, match="only allowed in 02 or 03"):
-        prepare_deep_note_markdown(wrong_section)
+        _prepare_legacy(wrong_section)
 
 
 def test_prepare_rejects_inline_numeric_citations_in_body() -> None:
@@ -233,3 +249,107 @@ This is a grounded English summary. [1]
 
     with pytest.raises(ValueError, match="Chinese judgment"):
         prepare_deep_note_markdown(broken)
+
+
+@pytest.fixture
+def draft() -> str:
+    return MemoryDeepNoteWriter().write(
+        item_id="arxiv:example",
+        item_type="paper",
+        source="arXiv",
+        title="World Model Eval",
+        author="A",
+        url="https://example.com/world-model",
+        payload="",
+    )
+
+
+def test_prepare_accepts_numbered_claims_with_separate_evidence(draft: str) -> None:
+    note = draft.replace("- 主张：", "- 主张1：").replace(
+        "- 边界：", "- 主张2：美元指标在重复评测中不会饱和。\n- 边界："
+    ).replace(
+        "- [未验证] 测试写入器没有核验来源中的对比结果。",
+        "- 主张1：项目负责人在访谈中描述了一个失败案例。 [二手] [单源] [仅轶事]\n"
+        "- 主张2：[未验证] 访谈未提供分数趋势。",
+    )
+    assert prepare_deep_note_markdown(note) == note
+    nested_scopes = note.replace(
+        "- 边界：限于状态随行动变化的多步任务。",
+        "- 边界：\n    - 主张1限于多步任务。\n    - 主张2限于重复评测。",
+    )
+    assert prepare_deep_note_markdown(nested_scopes) == nested_scopes
+
+    missing_support = note.replace("- 主张2：[未验证] 访谈未提供分数趋势。\n", "")
+    with pytest.raises(ValueError, match="missing evidence.*主张2"):
+        prepare_deep_note_markdown(missing_support)
+
+    conflicting_tags = note.replace("[二手]", "[一手] [二手]")
+    with pytest.raises(ValueError, match="evidence bullet 1 needs one of"):
+        prepare_deep_note_markdown(conflicting_tags)
+
+
+def test_optional_map_requires_two_points_when_present(draft: str) -> None:
+    assert prepare_deep_note_markdown(draft) == draft
+    heading = "### 05｜沉淀"
+    thin_map = "### 04｜与我的地图的关系\n\n- 放入仿真评估的观察清单。\n\n"
+    with pytest.raises(ValueError, match="requires two bullets"):
+        prepare_deep_note_markdown(draft.replace(heading, thin_map + heading))
+    full_map = thin_map.rstrip() + "\n- 优先比较不同交互界面。\n\n---\n\n"
+    note = draft.replace(heading, full_map + heading)
+    assert prepare_deep_note_markdown(note) == note
+
+
+def test_prepare_checks_synthesis_and_warns_on_repetition(draft: str, caplog: pytest.LogCaptureFixture) -> None:
+    with pytest.raises(ValueError, match="expected one non-empty 待验证预测"):
+        prepare_deep_note_markdown(draft.replace("- 待验证预测：", "- 后续："))
+    with pytest.raises(ValueError, match="must be a question or an if-then"):
+        prepare_deep_note_markdown(draft.replace("出现吗？", "出现。"))
+
+    claim = next(line.removeprefix("- 主张：") for line in draft.splitlines() if line.startswith("- 主张："))
+    repeated = draft.replace("同一个失败换一套交互界面还会出现吗？", claim.rstrip("。") + "？")
+    assert prepare_deep_note_markdown(repeated) == repeated
+    assert "可复用的视角 may restate a core claim" in caplog.text
+
+
+def test_prepare_normalizes_current_labels_within_their_sections(draft: str) -> None:
+    rough = draft.replace("- 边界：", "- 适用范围：").replace("- 最强反解释：", "- 最强替代解释：")
+    assert prepare_deep_note_markdown(rough) == draft
+
+
+@pytest.mark.parametrize("label", ["边界", "最强反解释"])
+def test_new_draft_requires_scope_and_competing_explanation(draft: str, label: str) -> None:
+    incomplete = "\n".join(
+        line for line in draft.splitlines() if not line.startswith(f"- {label}：")
+    )
+    with pytest.raises(ValueError, match=f"expected one non-empty {label} bullet"):
+        prepare_deep_note_markdown(incomplete)
+
+
+def test_new_prediction_accepts_future_deadline_but_saved_notes_can_age(draft: str) -> None:
+    today = date.today()
+    tomorrow = (today + timedelta(days=1)).isoformat()
+    dated = draft.replace("- 待验证预测：", f"- 待验证预测：在 {tomorrow} 前，")
+    assert prepare_deep_note_markdown(dated) == dated
+
+    yesterday = (today - timedelta(days=1)).isoformat()
+    for stale_deadline in (today.isoformat(), yesterday):
+        stale = dated.replace(tomorrow, stale_deadline)
+        with pytest.raises(ValueError, match="deadline must be after"):
+            prepare_deep_note_markdown(stale)
+        assert validate_deep_note_markdown(stale) == []
+
+
+@pytest.mark.parametrize(
+    ("deadline", "message"),
+    [
+        ("2025年底", "must use YYYY-MM-DD"),
+        ("2025/12/31", "must use YYYY-MM-DD"),
+        ("2099-02-29", "invalid calendar date"),
+    ],
+)
+def test_new_prediction_rejects_ambiguous_or_invalid_deadline(
+    draft: str, deadline: str, message: str
+) -> None:
+    dated = draft.replace("- 待验证预测：", f"- 待验证预测：在 {deadline} 前，")
+    with pytest.raises(ValueError, match=message):
+        prepare_deep_note_markdown(dated)

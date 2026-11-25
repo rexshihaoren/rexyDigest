@@ -2,11 +2,17 @@
 
 from __future__ import annotations
 
+import logging
 import re
+from collections import Counter
+from datetime import date
+from math import sqrt
+
+logger = logging.getLogger(__name__)
 
 DECORATIVE_SEPARATOR = "──────────────────────────────"
 
-REQUIRED_SECTIONS = [
+LEGACY_SECTIONS = [
     "### 00｜为什么在意这篇",
     "### 01｜尝试回答的问题",
     "### 02｜创新点",
@@ -17,7 +23,7 @@ REQUIRED_SECTIONS = [
     "### 参考文献",
 ]
 
-REQUIRED_BULLETS = {
+LEGACY_BULLETS = {
     "### 00｜为什么在意这篇": ["直觉", "它戳中的变化", "持续观察的方向"],
     "### 01｜尝试回答的问题": ["长期问题", "急迫性", "切入点"],
     "### 02｜创新点": ["关键论点", "为什么成立"],
@@ -28,6 +34,8 @@ REQUIRED_BULLETS = {
 }
 
 BULLET_LABEL_ALIASES = {
+    "### 01｜核心主张": {"边界": {"适用范围"}},
+    "### 03｜反方": {"最强反解释": {"最佳反解释", "最强替代解释"}},
     "### 02｜创新点": {
         "为什么成立": {
             "为什么这个判断成立",
@@ -85,14 +93,39 @@ BULLET_LABEL_ALIASES = {
     },
 }
 
+HOOK = "### 00｜钩子与变化"
+CLAIMS = "### 01｜核心主张"
+EVIDENCE = "### 02｜证据"
+COUNTER = "### 03｜反方"
+MAP = "### 04｜与我的地图的关系"
+SYNTHESIS = "### 05｜沉淀"
+REFERENCES = "### 参考文献"
+REQUIRED_SECTIONS = (HOOK, CLAIMS, EVIDENCE, COUNTER, SYNTHESIS, REFERENCES)
+_TOP_BULLET = re.compile(r"^-\s+(\S.*)$")
+_CLAIM_LABEL = re.compile(r"主张([1-9][0-9]*)")
+_ISO_DATE = re.compile(r"(?<!\d)\d{4}-\d{2}-\d{2}(?!\d)")
+_OTHER_CALENDAR_DATE = re.compile(
+    r"(?<!\d)(?:\d{4}\s*(?:年|[-/.]\s*\d)|"
+    r"(?:by|before|until|end of)\s+(?:the\s+end\s+of\s+)?\d{4}\b)",
+    re.IGNORECASE,
+)
+
 
 def prepare_deep_note_markdown(markdown: str) -> str:
     """Return normalized strict Markdown or raise ValueError with validation errors."""
 
     normalized = normalize_deep_note_markdown(markdown)
-    errors = validate_deep_note_markdown(normalized)
+    errors = validate_deep_note_markdown(normalized, allow_legacy=False)
+    sections = _section_map(normalized)
+    for label, value in _fields(sections.get(SYNTHESIS, "")):
+        if label == "待验证预测":
+            errors.extend(_validate_prediction_dates(value, date.today()))
     if errors:
         raise ValueError("invalid deep note Markdown: " + "; ".join(errors))
+    claims = [value for label, value in _fields(sections[CLAIMS]) if _is_claim(label)]
+    for label, value in _fields(sections[SYNTHESIS]):
+        if any(_likely_restatement(claim, value) for claim in claims):
+            logger.warning("Deep Note %s may restate a core claim", label)
     return normalized
 
 
@@ -127,8 +160,8 @@ def normalize_deep_note_markdown(markdown: str) -> str:
     return "\n".join(normalized).rstrip() + "\n"
 
 
-def validate_deep_note_markdown(markdown: str) -> list[str]:
-    """Return validation errors for strict Rex-native deep-note Markdown."""
+def validate_deep_note_markdown(markdown: str, *, allow_legacy: bool = True) -> list[str]:
+    """Validate a draft, with optional support for saved seven-section notes."""
 
     errors: list[str] = []
     lines = markdown.splitlines()
@@ -146,9 +179,13 @@ def validate_deep_note_markdown(markdown: str) -> list[str]:
     errors.extend(_validate_metadata(intro))
     if not any(line.strip() == "---" for line in lines):
         errors.append("missing section delimiter: ---")
-    errors.extend(_validate_required_sections(markdown))
-    errors.extend(_validate_personal_view(markdown))
-    errors.extend(_validate_references(markdown))
+    sections = _section_map(markdown)
+    if allow_legacy and LEGACY_SECTIONS[0] in sections and HOOK not in sections:
+        errors.extend(_validate_legacy_sections(sections))
+        errors.extend(_validate_personal_view(markdown))
+    else:
+        errors.extend(_validate_current_sections(markdown, sections))
+    errors.extend(_validate_references(sections))
     if _has_inline_numeric_citation(_body_before_references(markdown)):
         errors.append("inline numeric citation markers are not allowed in body")
     if "[generator error:" in markdown.lower():
@@ -237,17 +274,138 @@ def _metadata_lines(intro: str) -> dict[str, str]:
     return metadata
 
 
-def _validate_required_sections(markdown: str) -> list[str]:
+def _validate_legacy_sections(sections: dict[str, str]) -> list[str]:
     errors: list[str] = []
-    sections = _section_map(markdown)
-    for heading in REQUIRED_SECTIONS:
+    for heading in LEGACY_SECTIONS:
         if heading not in sections:
             errors.append(f"missing section: {heading}")
             continue
-        for bullet in REQUIRED_BULLETS.get(heading, []):
+        for bullet in LEGACY_BULLETS.get(heading, []):
             if not _has_bullet(sections[heading], bullet):
                 errors.append(f"missing bullet {bullet} in {heading}")
     return errors
+
+
+def _validate_current_sections(markdown: str, sections: dict[str, str]) -> list[str]:
+    headings = re.findall(r"(?m)^### .+$", markdown)
+    expected = list(REQUIRED_SECTIONS)
+    if MAP in sections:
+        expected.insert(4, MAP)
+    errors = [f"missing section: {heading}" for heading in expected if heading not in sections]
+    if errors:
+        return errors
+    if [heading.rstrip() for heading in headings] != expected:
+        errors.append("sections must use the canonical order without duplicates or extra headings")
+
+    if not 1 <= len(_bullets(sections[HOOK])) <= 2:
+        errors.append(f"{HOOK} requires one or two bullets")
+
+    fields = _fields(sections[CLAIMS])
+    claim_fields = [(label, value) for label, value in fields if _is_claim(label)]
+    claims = [label for label, _ in claim_fields]
+    numbered = [f"主张{index}" for index in range(1, len(claims) + 1)]
+    if (
+        (claims != ["主张"] and (len(claims) < 2 or claims != numbered))
+        or any(not value.strip() for _, value in claim_fields)
+        or len(_bullets(sections[CLAIMS])) != len(claims) + 1
+    ):
+        errors.append("use one 主张 or consecutive numbered claims starting with 主张1")
+
+    for heading, labels in (
+        (CLAIMS, ("边界",)),
+        (COUNTER, ("最强反解释",)),
+        (SYNTHESIS, ("可复用的视角", "待验证预测")),
+    ):
+        for label in labels:
+            values = [value for field, value in _fields(sections[heading]) if field == label]
+            has_content = len(values) == 1 and (
+                bool(values[0].strip())
+                or (label == "边界" and _has_bullet(sections[heading], label))
+            )
+            if not has_content:
+                errors.append(f"expected one non-empty {label} bullet in {heading}")
+            elif label == "可复用的视角" and not _is_heuristic(values[0]):
+                errors.append("可复用的视角 must be a question or an if-then heuristic")
+
+    errors.extend(_validate_evidence(sections[EVIDENCE], claims))
+    if MAP in sections and len(_bullets(sections[MAP])) < 2:
+        errors.append(f"{MAP} requires two bullets when present; otherwise omit it or use a tag in {HOOK}")
+    return errors
+
+
+def _bullets(section: str) -> list[str]:
+    return [match[1] for line in section.splitlines() if (match := _TOP_BULLET.match(line))]
+
+
+def _fields(section: str) -> list[tuple[str, str]]:
+    return re.findall(r"(?m)^- +([^：:\n]+)[：:]([^\n]*)$", section)
+
+
+def _is_claim(label: str) -> bool:
+    return label == "主张" or bool(_CLAIM_LABEL.fullmatch(label))
+
+
+def _validate_evidence(section: str, claims: list[str]) -> list[str]:
+    entries = _bullets(section)
+    if not entries:
+        return ["missing evidence bullet in 02"]
+    errors = []
+    matched = set()
+    for index, entry in enumerate(entries, 1):
+        match = re.match(r"^(主张[1-9][0-9]*)[：:]\s*(.*)", entry)
+        if match and match[1] in claims:
+            matched.add(match[1])
+        elif match or len(claims) > 1:
+            errors.append(f"evidence bullet {index} must reference a declared numbered claim")
+        content = match[2] if match else entry
+        if content.startswith("[未验证]"):
+            if not content.removeprefix("[未验证]").strip():
+                errors.append(f"evidence bullet {index} must explain the missing evidence")
+            continue
+        tags = re.findall(r"\[([^\[\]]+)\]", content)
+        for choices in ({"一手", "二手"}, {"单源", "多源"}):
+            if sum(tag in choices for tag in tags) != 1:
+                errors.append(f"evidence bullet {index} needs one of {'/'.join(sorted(choices))}")
+        if not re.sub(r"\[[^\[\]]+\]", "", content).strip():
+            errors.append(f"evidence bullet {index} must describe the evidence")
+    if len(claims) > 1:
+        errors.extend(f"missing evidence or [未验证] for {claim}" for claim in claims if claim not in matched)
+    return errors
+
+
+def _is_heuristic(value: str) -> bool:
+    return value.rstrip().endswith(("？", "?")) or bool(
+        re.search(r"(?:如果|若|当).+(?:就|则|那么).+|\bif\b.+\bthen\b.+", value, re.I)
+    )
+
+
+def _validate_prediction_dates(value: str, today: date) -> list[str]:
+    errors = []
+    for match in _ISO_DATE.finditer(value):
+        deadline = match[0]
+        try:
+            parsed = date.fromisoformat(deadline)
+        except ValueError:
+            errors.append(f"待验证预测 has an invalid calendar date: {deadline}")
+        else:
+            if parsed <= today:
+                errors.append(f"待验证预测 deadline must be after {today.isoformat()}: {deadline}")
+    if _OTHER_CALENDAR_DATE.search(_ISO_DATE.sub("", value)):
+        errors.append("待验证预测 calendar deadlines must use YYYY-MM-DD")
+    return errors
+
+
+def _likely_restatement(claim: str, takeaway: str) -> bool:
+    def bigrams(value: str) -> Counter[str]:
+        chars = "".join(char for char in value.casefold() if char.isalnum())
+        return Counter(a + b for a, b in zip(chars, chars[1:]))
+
+    left, right = bigrams(claim), bigrams(takeaway)
+    if min(sum(left.values()), sum(right.values())) < 8:
+        return False
+    dot = sum(count * right[gram] for gram, count in left.items())
+    norm = sqrt(sum(n * n for n in left.values()) * sum(n * n for n in right.values()))
+    return dot / norm >= 0.8
 
 
 def _section_map(markdown: str) -> dict[str, str]:
@@ -295,8 +453,8 @@ def _section_heading_for_position(markdown: str, position: int) -> str:
     return headings[-1].group(0).strip()
 
 
-def _validate_references(markdown: str) -> list[str]:
-    references = _section_map(markdown).get("### 参考文献", "")
+def _validate_references(sections: dict[str, str]) -> list[str]:
+    references = sections.get(REFERENCES, "")
     errors: list[str] = []
     if not references:
         errors.append("missing section: ### 参考文献")

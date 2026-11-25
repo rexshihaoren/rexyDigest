@@ -34,7 +34,7 @@ def _workspace(tmp_path: Path) -> tuple[Path, Path, Path]:
         "complete": True,
         "candidates": [{
             "candidate_id": "c1",
-            "section_heading": "### 03｜与 AI X Simulation 的关系",
+            "section_heading": "### 03｜反方",
             "asset_path": str(image),
             "alt": "候选图",
             "reason": "Shows evidence.",
@@ -70,7 +70,7 @@ def test_preview_markdown_tracks_the_current_visual_decision(tmp_path: Path) -> 
     session.approve("c1")
     assert "![候选图]" in session.state()["preview_markdown"]
 
-    session.choose_no_visual("### 03｜与 AI X Simulation 的关系")
+    session.choose_no_visual("### 03｜反方")
     assert "![候选图]" not in session.state()["preview_markdown"]
 
 
@@ -79,13 +79,13 @@ def test_text_edit_invalidates_only_changed_section_and_can_close(tmp_path: Path
     session = ReviewSession(draft, sidecar, final)
     session.approve("c1")
     changed = draft.read_text(encoding="utf-8").replace(
-        "- 重要性：两者接上后，agent 能在行动前先校准对世界的理解。",
-        "- 重要性：真实商店让 agent 面对物理库存和人类行为。",
+        "- 最强反解释：失败可能来自交互界面。固定任务和提示词，替换界面后重测。",
+        "- 最强反解释：失败可能来自物理库存的延迟更新。同步库存后重测。",
     )
 
     result = session.save_markdown(changed)
 
-    assert result["changed_sections"] == ["### 03｜与 AI X Simulation 的关系"]
+    assert result["changed_sections"] == ["### 03｜反方"]
     assert session.state()["candidates"][0]["approval"]["status"] == "stale"
     assert session.state()["publish_ready"] is False
     assert final.exists() is False
@@ -94,7 +94,7 @@ def test_text_edit_invalidates_only_changed_section_and_can_close(tmp_path: Path
 def test_no_visual_is_terminal_and_invalid_markdown_cannot_save(tmp_path: Path) -> None:
     draft, sidecar, final = _workspace(tmp_path)
     session = ReviewSession(draft, sidecar, final)
-    session.choose_no_visual("### 03｜与 AI X Simulation 的关系")
+    session.choose_no_visual("### 03｜反方")
     assert session.state()["publish_ready"] is True
 
     with pytest.raises(ValueError, match="invalid deep note Markdown"):

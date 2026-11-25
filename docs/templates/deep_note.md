@@ -5,8 +5,7 @@ review and KnowledgeCard rendering directly from `KnowledgeCard_Inbox/`.
 
 ## Contract
 
-Each generated deep note must use the Rex-native 7-section KnowledgeCard
-Markdown structure:
+New Deep Notes use five required body sections and one optional section:
 
 ```markdown
 # <中文判断句标题>
@@ -21,60 +20,43 @@ Author: <source author or Unknown>
 
 ---
 
-### 00｜为什么在意这篇
+### 00｜钩子与变化
 
-- 直觉：
-- 它戳中的变化：
-- 持续观察的方向：
-
----
-
-### 01｜尝试回答的问题
-
-- 长期问题：
-- 急迫性：
-- 切入点：
+- <A concrete scene from the source>
+- <What changed>
 
 ---
 
-### 02｜创新点
+### 01｜核心主张
 
-- 关键论点：
-- 为什么成立：
-- 我的视角：<only if this is the one body section with a personal view>
-
----
-
-### 03｜与 AI X Simulation 的关系
-
-- 连接点：
-- 重要性：
-- 还差一步：
-- 我的视角：<only if this is the one body section with a personal view>
+- 主张：<One falsifiable claim>
+- 边界：<Where it applies and what key terms mean>
 
 ---
 
-### 04｜关键论据
+### 02｜证据
 
-- 支撑材料：
-- 最可信的点：
-- 可被challenge：
+- <Named source, observation and limits> [二手] [单源] [仅轶事]
 
 ---
 
-### 05｜习惯性反思
+### 03｜反方
 
-- 还没说清：
-- 不能推出：
-- 容易误读：
+- 最强反解释：<Best competing explanation and how to distinguish it>
 
 ---
 
-### 06｜沉淀一下
+### 04｜与我的地图的关系
 
-- 一个判断：
-- 可复用的视角：
-- 继续追的问题：
+- <Personal inference>
+- <What follows from it>
+
+---
+
+### 05｜沉淀
+
+- 可复用的视角：<A reusable question ending in ？ or an if-then rule>
+- 待验证预测：<Observable outcome and future deadline or test condition>
 
 ---
 
@@ -91,16 +73,20 @@ Author: <source author or Unknown>
 - `URL` is not allowed in metadata. Put the URL only in `### 参考文献`.
 - `ItemID` is not emitted in Markdown. Internal item ids remain in generated
   filenames and `corpus/deep_picks/<end-date>.toml`.
-- The 7 numbered sections are fixed and must keep their exact headings.
-- The bullet labels inside each section are fixed.
-- Required bullets may either carry content on the same line or introduce
-  indented nested bullets immediately below the label.
-- `### 00｜为什么在意这篇` is the personal opening layer. The LLM may draft
-  it, and Rex edits the generated Markdown afterward in an editor when needed.
-- Body sections contain exactly one `我的视角：` bullet. It must appear in
-  either `02｜创新点` or `03｜与 AI X Simulation 的关系`, not both.
-- `05｜习惯性反思` is mandatory. It handles boundaries, likely misreadings, and
-  what the source does not prove.
+- Use the headings in order and put required bullet content on the same line.
+  Claim-specific scopes may be nested under the single `边界` bullet.
+- Use one or two opening bullets. Omit section 04 when the personal connection
+  lacks two substantive points. A short topic tag can go in an opening bullet.
+- State the claim once. For independent assertions, use consecutive labels
+  `主张1`, `主张2`, etc. Prefix each evidence bullet with the corresponding
+  label (for example, `主张1：`). Cover every claim and give its scope in `边界`.
+- Tag evidence with exactly one of `[一手]` or `[二手]` and one of `[单源]` or
+  `[多源]`. Optionally add `[有数字]` or `[仅轶事]`. Name the source and note
+  consequential gaps in sample size or replication. If support is missing,
+  use `[未验证]` followed by the reason in place of evidence and tags.
+- Make the prediction gradeable. Use YYYY-MM-DD for calendar deadlines and
+  choose a date after generation. Otherwise give an explicit future test
+  condition. Label personal inferences as such.
 - Do not use inline numeric citations such as `[1]` in the body.
 - `### 参考文献` is required and uses bullet references, not numbered labels.
 - Chinese is the main language. English should stay around 10% overall and be
@@ -121,22 +107,22 @@ deterministic cleanup:
 - Normalize `整理者：...` variants to `> 整理者：Rex Ren`.
 - Insert the decorative separator after the author line when missing.
 - Normalize delimiter variants to `---`.
-- Normalize known section-aware bullet label aliases when the intended strict
-  label is unambiguous, for example `为什么这个判断成立` -> `为什么成立`
-  only inside `### 02｜创新点`, `为什么重要` -> `重要性` only inside
-  `### 03｜与 AI X Simulation 的关系`, and `证据材料` -> `支撑材料`
-  only inside `### 04｜关键论据`.
+- Normalize known aliases within their section, such as `适用范围` to `边界`
+  in section 01 and `最强替代解释` to `最强反解释` in section 03.
 
 After cleanup, validation fails hard if required structure or content is still
-missing. The pipeline does not use an LLM repair loop.
+missing. Near-duplicate wording between claim and synthesis bullets logs a
+warning. Whether a claim is compound or a prediction is genuinely falsifiable
+requires editorial judgment. Existing seven-section notes remain valid for
+review and publishing. Deadline freshness is checked at generation time so a
+saved note can still be reviewed after its prediction comes due.
 
 Validation rejects:
 
 - Non-Chinese H1 titles.
 - Missing metadata or URL metadata.
-- Missing fixed sections or fixed bullet labels.
-- Missing or duplicate `我的视角：`.
-- `我的视角：` outside section 02 or 03.
+- Missing or misordered sections, missing required bullet content, and
+  evidence without provenance tags or an explicit unverified reason.
 - Inline numeric citations in the body.
 - Missing `### 参考文献`.
 - Generator fallback text.

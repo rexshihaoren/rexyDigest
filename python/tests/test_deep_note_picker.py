@@ -209,7 +209,7 @@ def test_interactive_picker_writes_generated_opening_without_edit_prompt(tmp_pat
     )
 
     text = run.written[0].read_text(encoding="utf-8")
-    assert "这条内容把 AI 能力放回到可试错的世界接口里看" in text
+    assert "### 00｜钩子与变化\n\n- 关注同一个任务在文本评测和环境试跑中的差异。" in text
     assert "Accept section 00? [y/n]: " not in prompts
     assert "> " not in prompts
 
