@@ -36,7 +36,7 @@ def _workspace(tmp_path: Path) -> tuple[Path, Path, Path]:
         "complete": True,
         "candidates": [{
             "candidate_id": "c1",
-            "section_heading": "### 03｜与 AI X Simulation 的关系",
+            "section_heading": "### 03｜反方",
             "asset_path": str(image),
             "alt": "候选图",
             "reason": "Shows evidence.",
@@ -72,7 +72,7 @@ def test_preview_markdown_tracks_the_current_visual_decision(tmp_path: Path) -> 
     session.approve("c1")
     assert "![候选图]" in session.state()["preview_markdown"]
 
-    session.choose_no_visual("### 03｜与 AI X Simulation 的关系")
+    session.choose_no_visual("### 03｜反方")
     assert "![候选图]" not in session.state()["preview_markdown"]
 
 
@@ -81,13 +81,13 @@ def test_text_edit_invalidates_only_changed_section_and_can_close(tmp_path: Path
     session = ReviewSession(draft, sidecar, final)
     session.approve("c1")
     changed = draft.read_text(encoding="utf-8").replace(
-        "- 重要性：两者接上后，agent 能在行动前先校准对世界的理解。",
-        "- 重要性：真实商店让 agent 面对物理库存和人类行为。",
+        "- 最强反解释：失败可能来自交互界面。固定任务和提示词，替换界面后重测。",
+        "- 最强反解释：失败可能来自物理库存的延迟更新。同步库存后重测。",
     )
 
     result = session.save_markdown(changed)
 
-    assert result["changed_sections"] == ["### 03｜与 AI X Simulation 的关系"]
+    assert result["changed_sections"] == ["### 03｜反方"]
     assert session.state()["candidates"][0]["approval"]["status"] == "stale"
     assert session.state()["publish_ready"] is False
     assert final.exists() is False
@@ -96,7 +96,7 @@ def test_text_edit_invalidates_only_changed_section_and_can_close(tmp_path: Path
 def test_no_visual_is_terminal_and_empty_markdown_cannot_save(tmp_path: Path) -> None:
     draft, sidecar, final = _workspace(tmp_path)
     session = ReviewSession(draft, sidecar, final)
-    session.choose_no_visual("### 03｜与 AI X Simulation 的关系")
+    session.choose_no_visual("### 03｜反方")
     assert session.state()["publish_ready"] is True
 
     with pytest.raises(ValueError, match="invalid deep note Markdown"):
@@ -127,10 +127,11 @@ def test_review_can_finish_after_visual_heading_is_renamed_or_removed(
     draft, sidecar, final = _workspace(tmp_path)
     session = ReviewSession(draft, sidecar, final)
     session.approve("c1")
-    heading = "### 03｜与 AI X Simulation 的关系"
+    heading = "### 03｜反方"
+    next_heading = "### 05｜沉淀"
     before, section = draft.read_text(encoding="utf-8").split(heading, 1)
-    body, after = section.split("### 04｜关键论据", 1)
-    edited = before + (replacement + body if replacement else "") + "### 04｜关键论据" + after
+    body, after = section.split(next_heading, 1)
+    edited = before + (replacement + body if replacement else "") + next_heading + after
 
     session.save_markdown(edited)
 
@@ -185,8 +186,8 @@ def test_save_response_does_not_wait_for_visual_reevaluation(tmp_path: Path) -> 
     thread.start()
     token = url.split("token=", 1)[1]
     changed = draft.read_text(encoding="utf-8").replace(
-        "- 重要性：两者接上后，agent 能在行动前先校准对世界的理解。",
-        "- 重要性：保存不应等待视觉重新判断。",
+        "- 最强反解释：失败可能来自交互界面。固定任务和提示词，替换界面后重测。",
+        "- 最强反解释：失败可能来自物理库存的延迟更新。同步库存后重测。",
     )
     request = urllib.request.Request(
         f"http://127.0.0.1:{server.server_port}/api/save?token={token}",
@@ -215,7 +216,7 @@ def test_retry_visuals_clears_stale_failure_after_success(tmp_path: Path) -> Non
     reevaluated = threading.Event()
 
     def successful_reevaluation(_draft: Path, _sidecar: Path, headings: list[str]) -> None:
-        assert headings == ["### 03｜与 AI X Simulation 的关系"]
+        assert headings == ["### 03｜反方"]
         reevaluated.set()
 
     session = ReviewSession(draft, sidecar, final, reevaluate=successful_reevaluation)

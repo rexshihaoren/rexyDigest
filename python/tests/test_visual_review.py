@@ -48,7 +48,7 @@ def test_judge_then_approve_inserts_images_once_and_persists_review(tmp_path: Pa
         "schema_version": 1,
         "candidates": [{
             "candidate_id": "c1",
-            "section_heading": "### 03｜与 AI X Simulation 的关系",
+            "section_heading": "### 02｜证据",
             "asset_path": str(image),
             "alt": "真实世界商店",
             "reason": "Shows physical deployment.",
@@ -81,7 +81,7 @@ def test_comparative_judge_runs_once_per_section(tmp_path: Path) -> None:
     sidecar = tmp_path / "candidates.json"
     sidecar.write_text(json.dumps({"candidates": [{
         "candidate_id": "c1",
-        "section_heading": "### 03｜与 AI X Simulation 的关系",
+        "section_heading": "### 02｜证据",
         "asset_path": str(image),
         "reason": "Shows evidence.",
         "signals": {},

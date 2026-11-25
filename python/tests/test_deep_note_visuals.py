@@ -7,7 +7,7 @@ from rexy.generate.deep_note_visuals import VisualReview, render_approved_visual
 from rexy.generate.llm.deep_note import MemoryDeepNoteWriter
 
 
-def _previous_deep_note_shape() -> str:
+def _generated_note() -> str:
     return MemoryDeepNoteWriter().write(
         item_id="url-sha1:8ec3bd7b96f13cda",
         item_type="podcast",
@@ -19,20 +19,18 @@ def _previous_deep_note_shape() -> str:
     )
 
 
-def test_previous_deep_note_renders_only_approved_visual_in_supported_section() -> None:
-    """Characterization slice for the previous seven-section DeepNote shape."""
-
+def test_generated_note_renders_only_approved_visual_in_supported_section() -> None:
     rendered = render_approved_visuals(
-        _previous_deep_note_shape(),
+        _generated_note(),
         [
             VisualReview(
-                section_heading="### 03｜与 AI X Simulation 的关系",
+                section_heading="### 02｜证据",
                 asset_path="assets/visuals/andon/frame_000993_a1b2c3d4.jpg",
                 alt="Project Vend 自动售货机",
                 status="approved",
             ),
             VisualReview(
-                section_heading="### 04｜关键论据",
+                section_heading="### 03｜反方",
                 asset_path="assets/visuals/andon/frame_002668_e5f6a7b8.jpg",
                 alt="Vending Bench Arena",
                 status="pending",
@@ -43,11 +41,11 @@ def test_previous_deep_note_renders_only_approved_visual_in_supported_section() 
     approved = "![Project Vend 自动售货机](assets/visuals/andon/frame_000993_a1b2c3d4.jpg)"
     assert rendered.count(approved) == 1
     assert "frame_002668_e5f6a7b8.jpg" not in rendered
-    assert rendered.index(approved) > rendered.index("### 03｜与 AI X Simulation 的关系")
-    assert rendered.index(approved) < rendered.index("### 04｜关键论据")
+    assert rendered.index(approved) > rendered.index("### 02｜证据")
+    assert rendered.index(approved) < rendered.index("### 03｜反方")
     assert validate_deep_note_markdown(rendered) == []
 
 
 def test_no_approved_visual_preserves_markdown_byte_for_byte() -> None:
-    markdown = _previous_deep_note_shape()
+    markdown = _generated_note()
     assert render_approved_visuals(markdown, []) == markdown
